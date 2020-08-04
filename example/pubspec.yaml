@@ -1,0 +1,17 @@
+name: bonsoir_example
+description: Demonstrates how to use the bonsoir plugin.
+publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+
+environment:
+  sdk: ">=2.7.0 <3.0.0"
+
+dependencies:
+  device_info: ^0.4.2
+  provider: ^4.3.1
+  flutter:
+    sdk: flutter
+  bonsoir:
+    path: ../
+
+flutter:
+  uses-material-design: true
