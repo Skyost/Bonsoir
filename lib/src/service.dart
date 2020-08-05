@@ -66,7 +66,8 @@ class BonsoirService {
     if (other is! BonsoirService) {
       return false;
     }
-    return identical(this, other) || (this.name == name && this.type == type && this.port == port);
+    return identical(this, other) ||
+        (this.name == name && this.type == type && this.port == port);
   }
 
   @override

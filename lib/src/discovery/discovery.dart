@@ -23,9 +23,12 @@ class BonsoirDiscovery extends BonsoirClass<BonsoirDiscoveryEvent> {
   BonsoirDiscoveryEvent transformPlatformEvent(dynamic event) {
     Map<String, dynamic> data = Map<String, dynamic>.from(event);
     String id = data['id'];
-    BonsoirDiscoveryEventType type = BonsoirDiscoveryEventType.values.firstWhere((type) => type.name.toLowerCase() == id, orElse: () => BonsoirDiscoveryEventType.UNKNOWN);
+    BonsoirDiscoveryEventType type = BonsoirDiscoveryEventType.values
+        .firstWhere((type) => type.name.toLowerCase() == id,
+            orElse: () => BonsoirDiscoveryEventType.UNKNOWN);
     DiscoveredBonsoirService service;
-    if (type == BonsoirDiscoveryEventType.DISCOVERY_SERVICE_FOUND || type == BonsoirDiscoveryEventType.DISCOVERY_SERVICE_LOST) {
+    if (type == BonsoirDiscoveryEventType.DISCOVERY_SERVICE_FOUND ||
+        type == BonsoirDiscoveryEventType.DISCOVERY_SERVICE_LOST) {
       service = jsonToService(Map<String, dynamic>.from(data['result']));
     }
 

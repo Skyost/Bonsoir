@@ -1,14 +1,76 @@
-# bonsoir
+<div align="center">
+    <img src="https://github.com/Skyost/Bonsoir/raw/master/images/logo.svg" height="200">
+</div>
 
-Allows to discover network services and to broadcast your own. Based on Bonjour and NSD.
+_Bonsoir_ is a Zeroconf library that allows to discover network services and to broadcast your own.
+It's based on Android NSD and on Apple's popular framework Bonjour.
+In fact, <q>Bonsoir</q> can be translated to <q>Good evening</q> (and <q>Bonjour</q> to <q>Good morning</q> or <q>Good afternoon</q>).
 
-## Getting Started
+## Preview
 
-This project is a starting point for a Flutter
-[plug-in package](https://flutter.dev/developing-packages/),
-a specialized package that includes platform-specific implementation code for
-Android and/or iOS.
+![https://github.com/Skyost/Bonsoir/raw/master/images/preview.gif](Bonsoir preview)
 
-For help getting started with Flutter, view our 
-[online documentation](https://flutter.dev/docs), which offers tutorials, 
-samples, guidance on mobile development, and a full API reference.
+## Code snippets
+
+Here is how you can broadcast your service using _Bonsoir_ :
+
+```dart
+// Let's create our service !
+BonsoirService service = BonsoirService(
+  name: 'My wonderful service', // Put your service name here.
+  type: '_wonderful-service._tcp', // Put your service type here. Syntax : _ServiceType._TransportProtocolName. (see http://wiki.ros.org/zeroconf/Tutorials/Understanding%20Zeroconf%20Service%20Types).
+  port: 3030, // Put your service port here.
+);
+
+// And now we can broadcast it :
+BonsoirBroadcast broadcast = BonsoirBroadcast(service: service);
+await broadcast.ready;
+await broadcast.start();
+
+// ...
+
+// Then if you want to stop it :
+await broadcast.stop();
+```
+
+And here is how you can broadcast your service :
+
+```dart
+// This is the type of service we're looking for :
+String type = '_wonderful-service._tcp';
+
+// Once defined, we can start the discovery :
+BonsoirDiscovery discovery = BonsoirDiscovery(type: type);
+await discovery.ready;
+await discovery.start();
+
+// If you want to listen to the discovery :
+discovery.eventStream.listen((event) {
+  if (event.type == BonsoirDiscoveryEventType.DISCOVERY_SERVICE_FOUND) {
+    print('Service found : ${event.service.toJson()}')
+  } else if (event.type == BonsoirDiscoveryEventType.DISCOVERY_SERVICE_LOST) {
+    print('Service lost : ${event.service.toJson()}')
+  }
+});
+
+// Then if you want to stop it :
+await discovery.stop();
+```
+
+If you want a <q>full</q> example, don't hesitate to check [this one](https://github.com/Skyost/Bonsoir/tree/master/example) on Github.
+
+## Final notes
+
+This plugin [cannot be tested on an Android emulator](https://stackoverflow.com/a/46926325/3608831)
+(well it can, but the only services that you are able to discover are the ones broadcasted by your emulator).
+
+The hand image has been created by [Vitaly Gorbachev](https://www.flaticon.com/authors/vitaly-gorbachev).
+
+## Contributions
+
+You have a lot of options to contribute to this project ! You can :
+
+* [Fork it](https://github.com/Skyost/DayNightSwitcher/fork) on Github.
+* [Submit](https://github.com/Skyost/DayNightSwitcher/issues/new/choose) a feature request or a bug report.
+* [Donate](https://paypal.me/Skyost) to the developer.
+* [Watch a little ad](https://www.clipeee.com/creator/skyost) on Clipeee.

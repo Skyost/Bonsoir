@@ -23,7 +23,10 @@ class BonsoirBroadcast extends BonsoirClass<BonsoirBroadcastEvent> {
   BonsoirBroadcastEvent transformPlatformEvent(dynamic event) {
     Map<dynamic, dynamic> data = Map<String, dynamic>.from(event);
     String id = data['id'];
-    return BonsoirBroadcastEvent(type: BonsoirBroadcastEventType.values.firstWhere((type) => type.name.toLowerCase() == id, orElse: () => BonsoirBroadcastEventType.UNKNOWN));
+    return BonsoirBroadcastEvent(
+        type: BonsoirBroadcastEventType.values.firstWhere(
+            (type) => type.name.toLowerCase() == id,
+            orElse: () => BonsoirBroadcastEventType.UNKNOWN));
   }
 
   @override

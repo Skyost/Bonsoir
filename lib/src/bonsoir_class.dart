@@ -43,7 +43,9 @@ abstract class BonsoirClass<T> {
   /// Await this method to know when the plugin will be ready.
   Future<void> get ready async {
     await channel.invokeMethod('$_classType.initialize', toJson());
-    _eventStream = EventChannel('$_channelName.$_classType.$_id').receiveBroadcastStream().map(transformPlatformEvent);
+    _eventStream = EventChannel('$_channelName.$_classType.$_id')
+        .receiveBroadcastStream()
+        .map(transformPlatformEvent);
   }
 
   /// Returns whether this instance can be used.
@@ -81,7 +83,8 @@ abstract class BonsoirClass<T> {
 
   /// Converts a JSON map to a discovered Bonsoir service.
   @protected
-  DiscoveredBonsoirService jsonToService(Map<String, dynamic> json) => DiscoveredBonsoirService.fromJson(
+  DiscoveredBonsoirService jsonToService(Map<String, dynamic> json) =>
+      DiscoveredBonsoirService.fromJson(
         json.map(
           (key, value) => MapEntry<String, dynamic>(
             key.startsWith('service.') ? key.substring('service.'.length) : key,
@@ -92,7 +95,9 @@ abstract class BonsoirClass<T> {
 
   /// Convers a Bonsoir service to JSON map.
   @protected
-  Map<String, dynamic> serviceToJson(BonsoirService service) => service.toJson().map((key, value) => MapEntry<String, dynamic>('service.$key', value));
+  Map<String, dynamic> serviceToJson(BonsoirService service) => service
+      .toJson()
+      .map((key, value) => MapEntry<String, dynamic>('service.$key', value));
 
   /// Allows to generate a random identifier.
   static int _createRandomId() => Random().nextInt(100000);

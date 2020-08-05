@@ -6,8 +6,10 @@ import 'package:bonsoir_example/widgets/title_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+/// Plugin's main method.
 void main() => runApp(BonsoirExampleMainWidget());
 
+/// The main widget.
 class BonsoirExampleMainWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) => MultiProvider(
@@ -19,7 +21,7 @@ class BonsoirExampleMainWidget extends StatelessWidget {
           home: Scaffold(
             appBar: AppBar(
               title: TitleWidget(),
-              actions: [BroadcastCheckbox()],
+              actions: [BroadcastSwitch()],
               centerTitle: false,
             ),
             body: ServiceList(),

@@ -4,18 +4,26 @@ import 'package:bonsoir/bonsoir.dart';
 import 'package:bonsoir_example/models/app_service.dart';
 import 'package:flutter/material.dart';
 
+/// Provider model that allows to handle Bonsoir discoveries.
 class BonsoirDiscoveryModel extends ChangeNotifier {
+  /// The current Bonsoir discovery object instance.
   BonsoirDiscovery _bonsoirDiscovery;
+
+  /// Contains all discovered (and resolved) services.
   final List<DiscoveredBonsoirService> _discoveredServices = [];
 
+  /// The subscription object.
   StreamSubscription<BonsoirDiscoveryEvent> _subscription;
 
+  /// Creates a new Bonsoir discovery model instance.
   BonsoirDiscoveryModel() {
     start();
   }
 
+  /// Returns all discovered (and resolved) services.
   List<DiscoveredBonsoirService> get discoveredServices => List.of(_discoveredServices);
 
+  /// Starts the Bonsoir discovery.
   Future<void> start() async {
     if(_bonsoirDiscovery == null || _bonsoirDiscovery.isStopped) {
       _bonsoirDiscovery = BonsoirDiscovery(type: (await AppService.getService()).type);
@@ -26,12 +34,14 @@ class BonsoirDiscoveryModel extends ChangeNotifier {
     _subscription = _bonsoirDiscovery.eventStream.listen(_onEventOccurred);
   }
 
+  /// Stops the Bonsoir discovery.
   void stop() {
     _subscription?.cancel();
     _subscription = null;
     _bonsoirDiscovery?.stop();
   }
 
+  /// Triggered when a Bonsoir discovery event occurred.
   void _onEventOccurred(BonsoirDiscoveryEvent event) {
     if(event.service?.ip == null) {
       return;
