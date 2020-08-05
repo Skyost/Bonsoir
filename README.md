@@ -4,8 +4,9 @@
 
 &nbsp;
 
-_Bonsoir_ is a Zeroconf library that allows to discover network services and to broadcast your own.
-It's based on Android NSD and on Apple's popular framework Bonjour.
+_Bonsoir_ is a Zeroconf library that allows you to discover network services and to broadcast your own.
+It's based on [Android NSD](https://developer.android.com/training/connect-devices-wirelessly/nsd)
+and on Apple's popular framework [Bonjour](https://developer.apple.com/documentation/foundation/bonjour).
 In fact, <q>Bonsoir</q> can be translated to <q>Good evening</q> (and <q>Bonjour</q> to <q>Good morning</q> or <q>Good afternoon</q>).
 
 ## Preview
@@ -31,7 +32,7 @@ await broadcast.start();
 
 // ...
 
-// Then if you want to stop it :
+// Then if you want to stop the broadcast :
 await broadcast.stop();
 ```
 
@@ -55,7 +56,7 @@ discovery.eventStream.listen((event) {
   }
 });
 
-// Then if you want to stop it :
+// Then if you want to stop the discovery :
 await discovery.stop();
 ```
 
@@ -72,7 +73,7 @@ The hand image has been created by [Vitaly Gorbachev](https://www.flaticon.com/a
 
 You have a lot of options to contribute to this project ! You can :
 
-* [Fork it](https://github.com/Skyost/DayNightSwitcher/fork) on Github.
-* [Submit](https://github.com/Skyost/DayNightSwitcher/issues/new/choose) a feature request or a bug report.
+* [Fork it](https://github.com/Skyost/Bonsoir/fork) on Github.
+* [Submit](https://github.com/Skyost/Bonsoir/issues/new/choose) a feature request or a bug report.
 * [Donate](https://paypal.me/Skyost) to the developer.
 * [Watch a little ad](https://www.clipeee.com/creator/skyost) on Clipeee.
