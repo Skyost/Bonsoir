@@ -1,55 +1,67 @@
 import Flutter
-import UIKit
+import Foundation
 
 public class SwiftBonsoirPlugin: NSObject, FlutterPlugin {
-  let services: [NetService] = []
-  let browsers: [NetServiceBrowser] = []
-  var channel: FlutterMethodChannel
+    var services: [Int: NetService] = [:]
+    var browsers: [Int: NetServiceBrowser] = [:]
+    let messenger: FlutterBinaryMessenger
 
-  public static func register(with registrar: FlutterPluginRegistrar) {
-    let channel = FlutterMethodChannel(name: "fr.skyost.bonsoir", binaryMessenger: registrar.messenger())
-    let instance = SwiftBonsoirPlugin(channel: channel)
-    registrar.addMethodCallDelegate(instance, channel: channel)
-  }
-
-  public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-    switch case.method {
-    case "broadcast.start":
-        let id = services.count
-        let service = NetService(domain: "local.", type: call.arguments["service.type"], name: call.arguments["service.name"], port: call.arguments["service.port"])
-        service.delegate = BonsoirServiceDelegate(id: id, printLogs: call.arguments['printLogs'])
-        service.publish()
-        services.append(service)
-        result(id)
-    case "broadcast.stop":
-        let id = call.arguments["id"] as? Int else {
-            result(FlutterError(code: "invalidId", message: "Invalid identifier.", details: "Expected identifier to be a valid integer."))
-            return
-        }
-        if id > 0 && id < services.count {
-            services[id].stop()
-			services.remove(at: id)
-        }
-        result(true)
-    case "discovery.start":
-        let id = browsers.count
-        let browser = NetServiceBrowser()
-        browser.delegate = BonsoirServiceBrowserDelegate(id: id, printLogs: call.arguments['printLogs'], channel: channel)
-        browser.searchForServices(ofType: call.arguments["type"], inDomain: "local.")
-        browsers.append(browser)
-        result(id)
-    case "discovery.stop":
-        let id = call.arguments["id"] as? Int else {
-            result(FlutterError(code: "invalidId", message: "Invalid identifier.", details: "Expected identifier to be a valid integer."))
-            return
-        }
-        if id > 0 && id < browsers.count {
-            browsers[id].stop()
-			browsers.remove(at: id)
-        }
-        result(true)
-    default:
-        result(FlutterMethodNotImplemented)
+    private init(messenger: FlutterBinaryMessenger) {
+        self.messenger = messenger
     }
-  }
+
+    public static func register(with registrar: FlutterPluginRegistrar) {
+        let messenger = registrar.messenger()
+        let channel = FlutterMethodChannel(name: "fr.skyost.bonsoir", binaryMessenger: messenger)
+        let instance = SwiftBonsoirPlugin(messenger: messenger)
+        registrar.addMethodCallDelegate(instance, channel: channel)
+    }
+
+    public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+        let arguments: [String: Any?] = call.arguments as! [String: Any?]
+        let id = arguments["id"] as! Int
+        switch call.method {
+        case "broadcast.initialize":
+            let service = NetService(domain: "local.", type: arguments["service.type"] as! String, name: arguments["service.name"] as! String, port: Int32(arguments["service.port"] as! Int))
+            let delegate = BonsoirServiceDelegate(id: id, printLogs: arguments["printLogs"] as! Bool, onDispose: {
+                service.stop()
+                self.services.removeValue(forKey: id)
+            }, messenger: messenger)
+            service.delegate = delegate
+            services[id] = service
+            result(true)
+        case "broadcast.start":
+            services[id]?.publish()
+            result(true)
+        case "broadcast.stop":
+            services[id]?.stop()
+            result(true)
+        case "discovery.initialize":
+            let browser = NetServiceBrowser()
+            let delegate = BonsoirServiceBrowserDelegate(id: id, printLogs: arguments["printLogs"] as! Bool, onDispose: {
+                browser.stop()
+                self.browsers.removeValue(forKey: id)
+            }, messenger: messenger)
+            browser.delegate = delegate
+            browsers[id] = browser
+            result(true)
+        case "discovery.start":
+            browsers[id]?.searchForServices(ofType: arguments["type"] as! String, inDomain: "local.")
+            result(true)
+        case "discovery.stop":
+            browsers[id]?.stop()
+            result(true)
+        default:
+            result(FlutterMethodNotImplemented)
+        }
+    }
+    
+    public func detachFromEngineForRegistrar(registrar: FlutterPluginRegistrar) {
+        for service in services.values {
+            (service.delegate as! BonsoirServiceDelegate).dispose()
+        }
+        for browser in browsers.values {
+            (browser.delegate as! BonsoirServiceBrowserDelegate).dispose()
+        }
+    }
 }

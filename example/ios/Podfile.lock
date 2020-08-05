@@ -1,0 +1,28 @@
+PODS:
+  - bonsoir (0.0.1):
+    - Flutter
+  - device_info (0.0.1):
+    - Flutter
+  - Flutter (1.0.0)
+
+DEPENDENCIES:
+  - bonsoir (from `.symlinks/plugins/bonsoir/ios`)
+  - device_info (from `.symlinks/plugins/device_info/ios`)
+  - Flutter (from `Flutter`)
+
+EXTERNAL SOURCES:
+  bonsoir:
+    :path: ".symlinks/plugins/bonsoir/ios"
+  device_info:
+    :path: ".symlinks/plugins/device_info/ios"
+  Flutter:
+    :path: Flutter
+
+SPEC CHECKSUMS:
+  bonsoir: b4c0a0be8b52c811fc7606fd86f5e6fa6cba509d
+  device_info: d7d233b645a32c40dfdc212de5cf646ca482f175
+  Flutter: 0e3d915762c693b495b44d77113d4970485de6ec
+
+PODFILE CHECKSUM: c34e2287a9ccaa606aeceab922830efb9a6ff69a
+
+COCOAPODS: 1.9.3
