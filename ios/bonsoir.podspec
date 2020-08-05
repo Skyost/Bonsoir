@@ -4,14 +4,14 @@
 #
 Pod::Spec.new do |s|
   s.name             = 'bonsoir'
-  s.version          = '0.0.1'
-  s.summary          = 'Allows to discover network services and to broadcast your own. Based on Bonjour and NSD.'
+  s.version          = '0.1.0'
+  s.summary          = 'A Zeroconf library that allows to discover network services and to broadcast your own. Based on Apple Bonjour and Android NSD.'
   s.description      = <<-DESC
 Allows to discover network services and to broadcast your own. Based on Bonjour and NSD.
                        DESC
-  s.homepage         = 'http://example.com'
+  s.homepage         = 'https://github.com/Skyost/Bonsoir'
   s.license          = { :file => '../LICENSE' }
-  s.author           = { 'Your Company' => 'email@example.com' }
+  s.author           = { 'Skyost' => 'me@skyost.eu' }
   s.source           = { :path => '.' }
   s.source_files = 'Classes/**/*'
   s.dependency 'Flutter'

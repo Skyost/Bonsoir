@@ -1,3 +1,3 @@
-## 0.0.1
+## [0.1.0] - 2020-08-05
 
-* TODO: Describe initial release.
+* First public version.

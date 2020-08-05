@@ -4,9 +4,12 @@ import 'package:bonsoir/src/service.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
+/// Allows to broadcast a service on the network.
 class BonsoirBroadcast extends BonsoirClass<BonsoirBroadcastEvent> {
+  /// The service to broadcast.
   final BonsoirService service;
 
+  /// Creates a new Bonsoir broadcast instance.
   BonsoirBroadcast({
     bool printLogs = kDebugMode,
     @required this.service,
@@ -16,6 +19,7 @@ class BonsoirBroadcast extends BonsoirClass<BonsoirBroadcastEvent> {
         );
 
   @override
+  @protected
   BonsoirBroadcastEvent transformPlatformEvent(dynamic event) {
     Map<dynamic, dynamic> data = Map<String, dynamic>.from(event);
     String id = data['id'];
@@ -23,8 +27,9 @@ class BonsoirBroadcast extends BonsoirClass<BonsoirBroadcastEvent> {
   }
 
   @override
+  @protected
   Map<String, dynamic> toJson() => {
-    ...super.toJson(),
-    ...(serviceToJson(service)),
-  };
+        ...super.toJson(),
+        ...(serviceToJson(service)),
+      };
 }

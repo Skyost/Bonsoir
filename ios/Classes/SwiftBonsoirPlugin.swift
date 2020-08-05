@@ -1,13 +1,21 @@
 import Flutter
 import Foundation
 
+/// The main plugin Swift class.
 public class SwiftBonsoirPlugin: NSObject, FlutterPlugin {
+    /// The package name.
     static let package: String = "fr.skyost.bonsoir"
-    
+
+    /// Contains all created services (Broadcast).
     var services: [Int: NetService] = [:]
+
+    /// Contains all created browsers (Discovery).
     var browsers: [Int: NetServiceBrowser] = [:]
+
+    /// The binary messenger instance.
     let messenger: FlutterBinaryMessenger
 
+    /// The class constructor.
     private init(messenger: FlutterBinaryMessenger) {
         self.messenger = messenger
     }

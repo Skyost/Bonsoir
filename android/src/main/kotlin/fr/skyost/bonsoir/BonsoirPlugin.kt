@@ -7,10 +7,19 @@ import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.PluginRegistry.Registrar
 
-
+/**
+ * The main plugin Kotlin class.
+ */
 public class BonsoirPlugin : FlutterPlugin {
     companion object {
+        /**
+         * The log tag.
+         */
         const val tag: String = "bonsoir"
+
+        /**
+         * The plugin channel.
+         */
         const val channel: String = "fr.skyost.bonsoir"
 
         @JvmStatic
@@ -24,7 +33,14 @@ public class BonsoirPlugin : FlutterPlugin {
         }
     }
 
+    /**
+     * The current method channel instance.
+     */
     private lateinit var channel: MethodChannel
+
+    /**
+     * The current method call handler instance.
+     */
     private lateinit var methodCallHandler: MethodCallHandler
 
     override fun onAttachedToEngine(@NonNull flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {

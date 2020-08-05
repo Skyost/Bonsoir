@@ -12,8 +12,24 @@ import io.flutter.plugin.common.MethodChannel
 import java.util.*
 
 
-class MethodCallHandler(private val applicationContext: Context, private val messenger: BinaryMessenger) : MethodChannel.MethodCallHandler {
+/**
+ * Allows to handle method calls.
+ *
+ * @param applicationContext The application context.
+ * @param messenger The binary messenger.
+ */
+class MethodCallHandler(
+        private val applicationContext: Context,
+        private val messenger: BinaryMessenger
+) : MethodChannel.MethodCallHandler {
+    /**
+     * Contains all registration listeners (Broadcast).
+     */
     private val registrationListeners: HashMap<Int, BonsoirRegistrationListener> = HashMap()
+
+    /**
+     * Contains all discovery listeners (Discovery).
+     */
     private val discoveryListeners: HashMap<Int, BonsoirDiscoveryListener> = HashMap()
 
     override fun onMethodCall(@NonNull call: MethodCall, @NonNull result: MethodChannel.Result) {
@@ -27,12 +43,12 @@ class MethodCallHandler(private val applicationContext: Context, private val mes
                 result.success(true)
             }
             "broadcast.start" -> {
-                val serviceInfo = NsdServiceInfo()
-                serviceInfo.serviceName = call.argument("service.name")
-                serviceInfo.serviceType = call.argument("service.type")
-                serviceInfo.port = call.argument("service.port")!!
+                val service = NsdServiceInfo()
+                service.serviceName = call.argument("service.name")
+                service.serviceType = call.argument("service.type")
+                service.port = call.argument("service.port")!!
 
-                nsdManager.registerService(serviceInfo, NsdManager.PROTOCOL_DNS_SD, registrationListeners[id])
+                nsdManager.registerService(service, NsdManager.PROTOCOL_DNS_SD, registrationListeners[id])
                 result.success(true)
             }
             "broadcast.stop" -> {
@@ -57,6 +73,9 @@ class MethodCallHandler(private val applicationContext: Context, private val mes
         }
     }
 
+    /**
+     * Disposes the current instance.
+     */
     fun dispose() {
         for (registrationListener in ArrayList<BonsoirRegistrationListener>(registrationListeners.values)) {
             registrationListener.dispose()

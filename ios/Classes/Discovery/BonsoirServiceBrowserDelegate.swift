@@ -1,17 +1,30 @@
 import Foundation
 import Flutter
 
+/// Allows to find net services on local network.
 class BonsoirServiceBrowserDelegate: NSObject, NetServiceBrowserDelegate, NetServiceDelegate, FlutterStreamHandler {
+    /// The delegate identifier.
     let id: Int
+
+    /// Whether to print debug logs.
     let printLogs: Bool
+
+    /// Triggered when this instance is being disposed.
     let onDispose: (Bool) -> Void
-    
+
+    /// The current event channel.
     var eventChannel: FlutterEventChannel?
+
+    /// The current event sink.
     var eventSink: FlutterEventSink?
-    
+
+    /// Contains all discovered services.
     var discoveredServices: [NetService] = []
+
+    /// Contains all discovered services that are going to be lost.
     var lostServices: [NetService] = []
-    
+
+    /// Initializes this class.
     public init(id: Int, printLogs: Bool, onDispose: @escaping (Bool) -> Void, messenger: FlutterBinaryMessenger) {
         self.id = id
         self.printLogs = printLogs
@@ -103,11 +116,13 @@ class BonsoirServiceBrowserDelegate: NSObject, NetServiceBrowserDelegate, NetSer
       eventSink = nil
       return nil
     }
-    
+
+    /// Disposes the current class instance.
     public func dispose(stopDiscovery: Bool = false) {
         onDispose(stopDiscovery)
     }
-    
+
+    /// Converts a given service to a dictionary.
     private func serviceToJson(_ service: NetService) -> [String: Any?] {
         return [
             "service.name": service.name,
@@ -116,7 +131,8 @@ class BonsoirServiceBrowserDelegate: NSObject, NetServiceBrowserDelegate, NetSer
             "service.ip": resolveIPv4(addresses: service.addresses)
         ]
     }
-    
+
+    /// Allows to resolve an IP v4 address.
     private func resolveIPv4(addresses: [Data]?) -> String? {
         if addresses == nil {
             return nil

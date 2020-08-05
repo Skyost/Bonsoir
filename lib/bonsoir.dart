@@ -1,3 +1,6 @@
+/// Flutter Week View, created by Skyost
+/// Github : https://github.com/Skyost/Bonsoir
+
 export 'package:bonsoir/src/broadcast/broadcast.dart';
 export 'package:bonsoir/src/broadcast/broadcast_event.dart';
 export 'package:bonsoir/src/discovery/discovered_service.dart';

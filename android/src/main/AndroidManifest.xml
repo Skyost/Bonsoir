@@ -1,2 +1,6 @@
-<manifest package="fr.skyost.bonsoir">
+<manifest
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    package="fr.skyost.bonsoir">
+
+    <uses-permission android:name="android.permission.INTERNET"/>
 </manifest>

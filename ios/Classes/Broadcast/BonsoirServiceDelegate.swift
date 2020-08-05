@@ -1,14 +1,24 @@
 import Foundation
 import Flutter
 
+/// Allows to broadcast a given service to the local network.
 class BonsoirServiceDelegate: NSObject, NetServiceDelegate, FlutterStreamHandler {
+    /// The delegate identifier.
     let id: Int
+
+    /// Whether to print debug logs.
     let printLogs: Bool
+
+    /// Triggered when this instance is being disposed.
     let onDispose: (Bool) -> Void
-    
+
+    /// The current event channel.
     var eventChannel: FlutterEventChannel?
+
+    /// The current event sink.
     var eventSink: FlutterEventSink?
-    
+
+    /// Initializes this class.
     public init(id: Int, printLogs: Bool, onDispose: @escaping (Bool) -> Void, messenger: FlutterBinaryMessenger) {
         self.id = id
         self.printLogs = printLogs
@@ -50,7 +60,8 @@ class BonsoirServiceDelegate: NSObject, NetServiceDelegate, FlutterStreamHandler
       eventSink = nil
       return nil
     }
-    
+
+    /// Disposes the current class instance.
     public func dispose(stopBroadcast: Bool = true) {
         onDispose(stopBroadcast)
     }

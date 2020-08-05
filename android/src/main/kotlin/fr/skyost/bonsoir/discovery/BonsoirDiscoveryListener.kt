@@ -11,6 +11,15 @@ import fr.skyost.bonsoir.SuccessObject
 import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.EventChannel
 
+/**
+ * Allows to find NSD services on local network.
+ *
+ * @param id The listener identifier.
+ * @param printLogs Whether to print debug logs.
+ * @param onDispose Triggered when this instance is being disposed.
+ * @param nsdManager The NSD manager.
+ * @param messenger The Flutter binary messenger.
+ */
 class BonsoirDiscoveryListener(
         private val id: Int,
         private val printLogs: Boolean,
@@ -19,9 +28,19 @@ class BonsoirDiscoveryListener(
         messenger: BinaryMessenger
 ) : NsdManager.DiscoveryListener {
 
+    /**
+     * The current event channel.
+     */
     private val eventChannel: EventChannel = EventChannel(messenger, "${BonsoirPlugin.channel}.discovery.$id")
+
+    /**
+     * The current event sink.
+     */
     private var eventSink: EventChannel.EventSink? = null
 
+    /**
+     * Initializes this instance.
+     */
     init {
         eventChannel.setStreamHandler(object : EventChannel.StreamHandler {
             override fun onListen(arguments: Any?, eventSink: EventChannel.EventSink) {
@@ -125,6 +144,9 @@ class BonsoirDiscoveryListener(
         dispose()
     }
 
+    /**
+     * Disposes the current class instance.
+     */
     fun dispose(stopDiscovery: Boolean = true) {
         if(stopDiscovery) {
             nsdManager.stopServiceDiscovery(this)
@@ -132,6 +154,11 @@ class BonsoirDiscoveryListener(
         onDispose.run()
     }
 
+    /**
+     * Converts a given server to a map.
+     *
+     * @return Them map.
+     */
     private fun serviceToJson(service: NsdServiceInfo): Map<String, Any?> {
         return mapOf(
                 "service.name" to service.serviceName,
