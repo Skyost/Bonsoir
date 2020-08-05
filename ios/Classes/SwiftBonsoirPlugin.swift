@@ -2,6 +2,8 @@ import Flutter
 import Foundation
 
 public class SwiftBonsoirPlugin: NSObject, FlutterPlugin {
+    static let package: String = "fr.skyost.bonsoir"
+    
     var services: [Int: NetService] = [:]
     var browsers: [Int: NetServiceBrowser] = [:]
     let messenger: FlutterBinaryMessenger
@@ -12,7 +14,7 @@ public class SwiftBonsoirPlugin: NSObject, FlutterPlugin {
 
     public static func register(with registrar: FlutterPluginRegistrar) {
         let messenger = registrar.messenger()
-        let channel = FlutterMethodChannel(name: "fr.skyost.bonsoir", binaryMessenger: messenger)
+        let channel = FlutterMethodChannel(name: package, binaryMessenger: messenger)
         let instance = SwiftBonsoirPlugin(messenger: messenger)
         registrar.addMethodCallDelegate(instance, channel: channel)
     }
@@ -23,8 +25,10 @@ public class SwiftBonsoirPlugin: NSObject, FlutterPlugin {
         switch call.method {
         case "broadcast.initialize":
             let service = NetService(domain: "local.", type: arguments["service.type"] as! String, name: arguments["service.name"] as! String, port: Int32(arguments["service.port"] as! Int))
-            let delegate = BonsoirServiceDelegate(id: id, printLogs: arguments["printLogs"] as! Bool, onDispose: {
-                service.stop()
+            let delegate = BonsoirServiceDelegate(id: id, printLogs: arguments["printLogs"] as! Bool, onDispose: { stopBroadcast in
+                if stopBroadcast {
+                    service.stop()
+                }
                 self.services.removeValue(forKey: id)
             }, messenger: messenger)
             service.delegate = delegate
@@ -34,12 +38,14 @@ public class SwiftBonsoirPlugin: NSObject, FlutterPlugin {
             services[id]?.publish()
             result(true)
         case "broadcast.stop":
-            services[id]?.stop()
+            (services[id]?.delegate as! BonsoirServiceDelegate?)?.dispose()
             result(true)
         case "discovery.initialize":
             let browser = NetServiceBrowser()
-            let delegate = BonsoirServiceBrowserDelegate(id: id, printLogs: arguments["printLogs"] as! Bool, onDispose: {
-                browser.stop()
+            let delegate = BonsoirServiceBrowserDelegate(id: id, printLogs: arguments["printLogs"] as! Bool, onDispose: { stopDiscovery in
+                if stopDiscovery {
+                    browser.stop()
+                }
                 self.browsers.removeValue(forKey: id)
             }, messenger: messenger)
             browser.delegate = delegate
@@ -49,7 +55,7 @@ public class SwiftBonsoirPlugin: NSObject, FlutterPlugin {
             browsers[id]?.searchForServices(ofType: arguments["type"] as! String, inDomain: "local.")
             result(true)
         case "discovery.stop":
-            browsers[id]?.stop()
+            (browsers[id]?.delegate as! BonsoirServiceBrowserDelegate?)?.dispose()
             result(true)
         default:
             result(FlutterMethodNotImplemented)

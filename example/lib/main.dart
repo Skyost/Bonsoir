@@ -20,6 +20,7 @@ class BonsoirExampleMainWidget extends StatelessWidget {
             appBar: AppBar(
               title: TitleWidget(),
               actions: [BroadcastCheckbox()],
+              centerTitle: false,
             ),
             body: ServiceList(),
           ),

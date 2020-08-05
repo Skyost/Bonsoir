@@ -23,8 +23,8 @@ class BonsoirBroadcast extends BonsoirClass<BonsoirBroadcastEvent> {
   }
 
   @override
-  Future<void> start() {
-    assert(isReady);
-    return BonsoirClass.channel.invokeMethod('broadcast.start', completeArguments(serviceToJson(service)));
-  }
+  Map<String, dynamic> toJson() => {
+    ...super.toJson(),
+    ...(serviceToJson(service)),
+  };
 }

@@ -27,7 +27,7 @@ abstract class BonsoirClass<T> {
   Stream<T> get eventStream => _eventStream;
 
   Future<void> get ready async {
-    await channel.invokeMethod('$_classType.initialize', completeArguments());
+    await channel.invokeMethod('$_classType.initialize', toJson());
     _eventStream = EventChannel('$_channelName.$_classType.$_id').receiveBroadcastStream().map(transformPlatformEvent);
   }
 
@@ -35,10 +35,13 @@ abstract class BonsoirClass<T> {
 
   bool get isStopped => _isStopped;
 
-  Future<void> start();
+  Future<void> start() {
+  	assert(isReady);
+  	channel.invokeMethod('$_classType.start', toJson());
+  }
 
   Future<void> stop() async {
-    await channel.invokeMethod('$_classType.stop', completeArguments());
+    await channel.invokeMethod('$_classType.stop', toJson());
     _isStopped = true;
   }
 
@@ -46,9 +49,10 @@ abstract class BonsoirClass<T> {
   T transformPlatformEvent(dynamic event);
 
   @protected
-  Map<String, dynamic> completeArguments([Map<String, dynamic> json]) => (json ?? {})
-    ..['id'] = _id
-    ..['printLogs'] = printLogs;
+  Map<String, dynamic> toJson() => {
+  	'id': _id,
+  	'printLogs': printLogs,
+  };
 
   @protected
   DiscoveredBonsoirService jsonToService(Map<String, dynamic> json) => DiscoveredBonsoirService.fromJson(

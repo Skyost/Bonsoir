@@ -29,8 +29,5 @@ class BonsoirDiscovery extends BonsoirClass<BonsoirDiscoveryEvent> {
   }
 
   @override
-  Future<void> start() {
-    assert(isReady);
-    return BonsoirClass.channel.invokeMethod('discovery.start', completeArguments({'type': type}));
-  }
+  Map<String, dynamic> toJson() => super.toJson()..['type'] = type;
 }
