@@ -2,13 +2,15 @@
     <img src="https://github.com/Skyost/Bonsoir/raw/master/images/logo.svg" height="200">
 </div>
 
+&nbsp;
+
 _Bonsoir_ is a Zeroconf library that allows to discover network services and to broadcast your own.
 It's based on Android NSD and on Apple's popular framework Bonjour.
 In fact, <q>Bonsoir</q> can be translated to <q>Good evening</q> (and <q>Bonjour</q> to <q>Good morning</q> or <q>Good afternoon</q>).
 
 ## Preview
 
-![https://github.com/Skyost/Bonsoir/raw/master/images/preview.gif](Bonsoir preview)
+![Bonsoir preview](https://github.com/Skyost/Bonsoir/raw/master/images/preview.gif)
 
 ## Code snippets
 
