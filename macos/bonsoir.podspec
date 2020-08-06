@@ -14,10 +14,10 @@ A Zeroconf library that allows you to discover network services and to broadcast
   s.author           = { 'Skyost' => 'me@skyost.eu' }
   s.source           = { :path => '.' }
   s.source_files = 'Classes/**/*'
-  s.dependency 'Flutter'
-  s.platform = :ios, '8.0'
+  s.dependency 'FlutterMacOS'
+  s.platform = :osx, '10.11'
 
   # Flutter.framework does not contain a i386 slice. Only x86_64 simulators are supported.
-  s.pod_target_xcconfig = { 'DEFINES_MODULE' => 'YES', 'VALID_ARCHS[sdk=iphonesimulator*]' => 'x86_64' }
+  s.pod_target_xcconfig = { 'DEFINES_MODULE' => 'YES' }
   s.swift_version = '5.0'
 end
