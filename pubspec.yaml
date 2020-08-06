@@ -23,5 +23,3 @@ flutter:
         pluginClass: BonsoirPlugin
       ios:
         pluginClass: BonsoirPlugin
-      macos:
-        pluginClass: BonsoirPlugin
