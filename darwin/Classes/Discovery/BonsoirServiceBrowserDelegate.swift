@@ -1,5 +1,10 @@
+#if canImport(Flutter)
+    import Flutter
+#endif
+#if canImport(FlutterMacOS)
+    import FlutterMacOS
+#endif
 import Foundation
-import Flutter
 
 /// Allows to find net services on local network.
 class BonsoirServiceBrowserDelegate: NSObject, NetServiceBrowserDelegate, NetServiceDelegate, FlutterStreamHandler {

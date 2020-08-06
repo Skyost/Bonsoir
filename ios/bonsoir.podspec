@@ -14,6 +14,7 @@ A Zeroconf library that allows you to discover network services and to broadcast
   s.author           = { 'Skyost' => 'me@skyost.eu' }
   s.source           = { :path => '.' }
   s.source_files = 'Classes/**/*'
+  s.public_header_files = 'Classes/**/*.h'
   s.dependency 'Flutter'
   s.platform = :ios, '8.0'
 

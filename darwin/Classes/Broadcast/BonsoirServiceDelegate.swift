@@ -1,5 +1,10 @@
+#if canImport(Flutter)
+    import Flutter
+#endif
+#if canImport(FlutterMacOS)
+    import FlutterMacOS
+#endif
 import Foundation
-import Flutter
 
 /// Allows to broadcast a given service to the local network.
 class BonsoirServiceDelegate: NSObject, NetServiceDelegate, FlutterStreamHandler {
