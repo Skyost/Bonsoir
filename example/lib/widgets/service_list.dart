@@ -9,7 +9,7 @@ class ServiceList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     BonsoirDiscoveryModel model = context.watch<BonsoirDiscoveryModel>();
-    List<DiscoveredBonsoirService> discoveredServices = model.discoveredServices;
+    List<ResolvedBonsoirService> discoveredServices = model.discoveredServices;
     if (discoveredServices.isEmpty) {
       return Padding(
         padding: const EdgeInsets.all(20),
@@ -35,7 +35,7 @@ class ServiceList extends StatelessWidget {
 /// Allows to display a discovered service.
 class _ServiceWidget extends StatelessWidget {
   /// The discovered service.
-  final DiscoveredBonsoirService service;
+  final ResolvedBonsoirService service;
 
   /// Creates a new service widget.
   const _ServiceWidget({

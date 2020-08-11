@@ -3,6 +3,7 @@ package fr.skyost.bonsoir
 import android.content.Context
 import android.net.nsd.NsdManager
 import android.net.nsd.NsdServiceInfo
+import android.net.wifi.WifiManager
 import androidx.annotation.NonNull
 import fr.skyost.bonsoir.broadcast.BonsoirRegistrationListener
 import fr.skyost.bonsoir.discovery.BonsoirDiscoveryListener
@@ -16,10 +17,12 @@ import java.util.*
  * Allows to handle method calls.
  *
  * @param applicationContext The application context.
+ * @param multicastLock The current multicast lock.
  * @param messenger The binary messenger.
  */
 class MethodCallHandler(
         private val applicationContext: Context,
+        private val multicastLock: WifiManager.MulticastLock,
         private val messenger: BinaryMessenger
 ) : MethodChannel.MethodCallHandler {
     /**
@@ -38,11 +41,14 @@ class MethodCallHandler(
         when (call.method) {
             "broadcast.initialize" -> {
                 registrationListeners[id] = BonsoirRegistrationListener(id, call.argument("printLogs")!!, Runnable {
+                    multicastLock.release()
                     registrationListeners.remove(id)
                 }, nsdManager, messenger)
                 result.success(true)
             }
             "broadcast.start" -> {
+                multicastLock.acquire()
+
                 val service = NsdServiceInfo()
                 service.serviceName = call.argument("service.name")
                 service.serviceType = call.argument("service.type")
@@ -57,11 +63,14 @@ class MethodCallHandler(
             }
             "discovery.initialize" -> {
                 discoveryListeners[id] = BonsoirDiscoveryListener(id, call.argument("printLogs")!!, Runnable {
+                    multicastLock.release()
                     discoveryListeners.remove(id)
                 }, nsdManager, messenger)
                 result.success(true)
             }
             "discovery.start" -> {
+                multicastLock.acquire()
+
                 nsdManager.discoverServices(call.argument("type"), NsdManager.PROTOCOL_DNS_SD, discoveryListeners[id])
                 result.success(true)
             }

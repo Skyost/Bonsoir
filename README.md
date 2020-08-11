@@ -49,7 +49,7 @@ await discovery.start();
 
 // If you want to listen to the discovery :
 discovery.eventStream.listen((event) {
-  if (event.type == BonsoirDiscoveryEventType.DISCOVERY_SERVICE_FOUND) {
+  if (event.type == BonsoirDiscoveryEventType.DISCOVERY_SERVICE_RESOLVED) {
     print('Service found : ${event.service.toJson()}')
   } else if (event.type == BonsoirDiscoveryEventType.DISCOVERY_SERVICE_LOST) {
     print('Service lost : ${event.service.toJson()}')

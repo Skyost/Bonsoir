@@ -82,7 +82,7 @@ class BonsoirServiceBrowserDelegate: NSObject, NetServiceBrowserDelegate, NetSer
             sender.stop()
             
             if self.printLogs {
-                NSLog("\n[\(self.id)] A Bonsoir discovered service has been lost : \(sender)")
+                NSLog("\n[\(self.id)] A Bonsoir service has been lost : \(sender)")
             }
             
             self.eventSink?(SuccessObject(id: "discovery_service_lost", result: self.serviceToJson(sender)).toJson())

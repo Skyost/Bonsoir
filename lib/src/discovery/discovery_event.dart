@@ -1,19 +1,24 @@
-import 'package:bonsoir/src/discovery/discovered_service.dart';
+import 'package:bonsoir/src/event.dart';
+import 'package:bonsoir/src/service.dart';
 import 'package:flutter/material.dart';
 
 /// A Bonsoir discovery event.
-class BonsoirDiscoveryEvent {
-  /// The event type.
-  final BonsoirDiscoveryEventType type;
-
-  /// The service (can be null, it depends on the event type).
-  final DiscoveredBonsoirService service;
-
+class BonsoirDiscoveryEvent extends BonsoirEvent<BonsoirDiscoveryEventType> {
   /// Creates a new Bonsoir discovery event.
   const BonsoirDiscoveryEvent({
-    @required this.type,
-    this.service,
-  });
+    @required BonsoirDiscoveryEventType type,
+    BonsoirService service,
+  }) : super(
+          type: type,
+          service: service,
+        );
+
+  /// Creates a new Bonsoir discovery event from the given JSON map.
+  BonsoirDiscoveryEvent.fromJson(Map<String, dynamic> json)
+      : this(
+          type: BonsoirDiscoveryEventType.values.firstWhere((type) => type.name.toLowerCase() == json['id'], orElse: () => BonsoirDiscoveryEventType.UNKNOWN),
+          service: json.containsKey('service') ? BonsoirService.fromJson(Map<String, dynamic>.from(json['service'])) : null,
+        );
 }
 
 /// Available Bonsoir discovery event types.
@@ -24,7 +29,13 @@ enum BonsoirDiscoveryEventType {
   /// Triggered when a service has been found.
   DISCOVERY_SERVICE_FOUND,
 
-  /// Triggered when a discovered service has been lost.
+  /// Triggered when a service has been found and resolved.
+  DISCOVERY_SERVICE_RESOLVED,
+
+  /// Triggered when a service has been found but cannot be resolved.
+  DISCOVERY_SERVICE_RESOLVE_FAILED,
+
+  /// Triggered when a service has been lost.
   DISCOVERY_SERVICE_LOST,
 
   /// Triggered when the discovery has stopped.
@@ -34,7 +45,7 @@ enum BonsoirDiscoveryEventType {
   UNKNOWN,
 }
 
-/// Allows to give a name to event types.
+/// Allows to give a name to discovery event types.
 extension BonsoirDiscoveryEventTypeName on BonsoirDiscoveryEventType {
   /// Returns the type name.
   String get name => toString().split('.').last;

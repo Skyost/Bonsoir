@@ -51,35 +51,35 @@ class BonsoirRegistrationListener(
         })
     }
 
-    override fun onServiceRegistered(serviceInfo: NsdServiceInfo) {
+    override fun onServiceRegistered(service: NsdServiceInfo) {
         if (printLogs) {
-            Log.d(BonsoirPlugin.tag, "[$id] Bonsoir service registered : $serviceInfo")
+            Log.d(BonsoirPlugin.tag, "[$id] Bonsoir service registered : $service")
         }
-        eventSink?.success(SuccessObject("broadcast_started").toJson())
+        eventSink?.success(SuccessObject("broadcast_started", service).toJson())
     }
 
-    override fun onRegistrationFailed(serviceInfo: NsdServiceInfo, errorCode: Int) {
+    override fun onRegistrationFailed(service: NsdServiceInfo, errorCode: Int) {
         if (printLogs) {
-            Log.d(BonsoirPlugin.tag, "[$id] Bonsoir service registration failed : $serviceInfo, error code : $errorCode")
+            Log.d(BonsoirPlugin.tag, "[$id] Bonsoir service registration failed : $service, error code : $errorCode")
         }
-        eventSink?.error("broadcast_error", "Bonsoir service registration failed.", errorCode);
+        eventSink?.error("broadcast_error", "Bonsoir service registration failed.", errorCode)
         dispose()
     }
 
-    override fun onServiceUnregistered(serviceInfo: NsdServiceInfo) {
+    override fun onServiceUnregistered(service: NsdServiceInfo) {
         if (printLogs) {
-            Log.d(BonsoirPlugin.tag, "[$id] Bonsoir service broadcast stopped : $serviceInfo")
+            Log.d(BonsoirPlugin.tag, "[$id] Bonsoir service broadcast stopped : $service")
         }
-        eventSink?.success(SuccessObject("broadcast_stopped").toJson())
-        dispose(false)
+        eventSink?.success(SuccessObject("broadcast_stopped", service).toJson())
+        //dispose(false)
     }
 
-    override fun onUnregistrationFailed(serviceInfo: NsdServiceInfo, errorCode: Int) {
+    override fun onUnregistrationFailed(service: NsdServiceInfo, errorCode: Int) {
         if (printLogs) {
-            Log.d(BonsoirPlugin.tag, "[$id] Bonsoir service unregistration failed : $serviceInfo, error code : $errorCode")
+            Log.d(BonsoirPlugin.tag, "[$id] Bonsoir service unregistration failed : $service, error code : $errorCode")
         }
         eventSink?.error("broadcast_error", "Bonsoir service unregistration failed.", errorCode)
-        dispose()
+        //dispose()
     }
 
     /**

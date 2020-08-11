@@ -1,7 +1,6 @@
 package fr.skyost.bonsoir.discovery
 
 import android.net.nsd.NsdManager
-import android.net.nsd.NsdManager.ResolveListener
 import android.net.nsd.NsdServiceInfo
 import android.os.Handler
 import android.os.Looper
@@ -39,6 +38,11 @@ class BonsoirDiscoveryListener(
     private var eventSink: EventChannel.EventSink? = null
 
     /**
+     * The current resolver instance.
+     */
+    private val resolver: Resolver
+
+    /**
      * Initializes this instance.
      */
     init {
@@ -51,6 +55,7 @@ class BonsoirDiscoveryListener(
                 eventSink = null
             }
         })
+        resolver = Resolver(nsdManager, ::onServiceResolved, ::onFailedToResolveService)
     }
 
     override fun onDiscoveryStarted(regType: String) {
@@ -75,51 +80,28 @@ class BonsoirDiscoveryListener(
     }
 
     override fun onServiceFound(service: NsdServiceInfo) {
-        nsdManager.resolveService(service, object : ResolveListener {
-            override fun onServiceResolved(service: NsdServiceInfo) {
-                if (printLogs) {
-                    Log.d(BonsoirPlugin.tag, "[$id] Bonsoir has discovered a service : $service")
-                }
+        if (printLogs) {
+            Log.d(BonsoirPlugin.tag, "[$id] Bonsoir has found a service : $service")
+        }
 
-                Handler(Looper.getMainLooper()).post {
-                    eventSink?.success(SuccessObject("discovery_service_found", serviceToJson(service)).toJson())
-                }
-            }
+        Handler(Looper.getMainLooper()).post {
+            eventSink?.success(SuccessObject("discovery_service_found", service).toJson(resolver.getResolvedServiceIpAddress(service)))
+        }
 
-            override fun onResolveFailed(service: NsdServiceInfo, errorCode: Int) {
-                if (printLogs) {
-                    Log.d(BonsoirPlugin.tag, "[$id] Bonsoir has discovered a service but failed to resolve it : $service")
-                }
-
-                Handler(Looper.getMainLooper()).post {
-                    eventSink?.success(SuccessObject("discovery_service_found", serviceToJson(service)).toJson())
-                }
-            }
-        })
+        resolver.onServiceFound(service)
     }
 
     override fun onServiceLost(service: NsdServiceInfo) {
-        nsdManager.resolveService(service, object : ResolveListener {
-            override fun onServiceResolved(service: NsdServiceInfo) {
-                if (printLogs) {
-                    Log.d(BonsoirPlugin.tag, "[$id] A Bonsoir discovered service has been lost : $service")
-                }
+        val resolvedServiceInfo: ResolvedServiceInfo = resolver.getResolvedServiceIpAddress(service)
+        resolver.onServiceLost(service)
 
-                Handler(Looper.getMainLooper()).post {
-                    eventSink?.success(SuccessObject("discovery_service_lost", serviceToJson(service)).toJson())
-                }
-            }
+        if (printLogs) {
+            Log.d(BonsoirPlugin.tag, "[$id] A Bonsoir service has been lost : $service")
+        }
 
-            override fun onResolveFailed(service: NsdServiceInfo, errorCode: Int) {
-                if (printLogs) {
-                    Log.d(BonsoirPlugin.tag, "[$id] A Bonsoir discovered service has been lost and Bonsoir failed to resolve it : $service")
-                }
-
-                Handler(Looper.getMainLooper()).post {
-                    eventSink?.success(SuccessObject("discovery_service_lost", serviceToJson(service)).toJson())
-                }
-            }
-        })
+        Handler(Looper.getMainLooper()).post {
+            eventSink?.success(SuccessObject("discovery_service_lost", service).toJson(resolvedServiceInfo))
+        }
     }
 
     override fun onDiscoveryStopped(serviceType: String) {
@@ -130,7 +112,7 @@ class BonsoirDiscoveryListener(
         Handler(Looper.getMainLooper()).post {
             eventSink?.success(SuccessObject("discovery_stopped").toJson())
         }
-        dispose(false)
+        //dispose(false)
     }
 
     override fun onStopDiscoveryFailed(serviceType: String, errorCode: Int) {
@@ -141,30 +123,43 @@ class BonsoirDiscoveryListener(
         Handler(Looper.getMainLooper()).post {
             eventSink?.error("discovery_error", "Bonsoir has encountered an error while stopping the discovery", errorCode)
         }
-        dispose()
+        //dispose()
+    }
+
+    /**
+     * Triggered when a service has been resolved.
+     */
+    private fun onServiceResolved(service: NsdServiceInfo) {
+        if (printLogs) {
+            Log.d(BonsoirPlugin.tag, "[$id] Bonsoir has resolved a service : $service")
+        }
+
+        Handler(Looper.getMainLooper()).post {
+            eventSink?.success(SuccessObject("discovery_service_resolved", service).toJson(resolver.getResolvedServiceIpAddress(service)))
+        }
+    }
+
+    /**
+     * Triggered when a service failed to resolve.
+     */
+    private fun onFailedToResolveService(service: NsdServiceInfo, errorCode: Int) {
+        if (printLogs) {
+            Log.d(BonsoirPlugin.tag, "[$id] Bonsoir has failed to resolve a service : $errorCode")
+        }
+
+        Handler(Looper.getMainLooper()).post {
+            eventSink?.success(SuccessObject("discovery_service_resolve_failed", service).toJson(resolver.getResolvedServiceIpAddress(service)))
+        }
     }
 
     /**
      * Disposes the current class instance.
      */
     fun dispose(stopDiscovery: Boolean = true) {
-        if(stopDiscovery) {
+        if (stopDiscovery) {
             nsdManager.stopServiceDiscovery(this)
         }
+        resolver.dispose()
         onDispose.run()
-    }
-
-    /**
-     * Converts a given server to a map.
-     *
-     * @return Them map.
-     */
-    private fun serviceToJson(service: NsdServiceInfo): Map<String, Any?> {
-        return mapOf(
-                "service.name" to service.serviceName,
-                "service.type" to service.serviceType,
-                "service.port" to service.port,
-                "service.ip" to service.host?.hostAddress
-        )
     }
 }

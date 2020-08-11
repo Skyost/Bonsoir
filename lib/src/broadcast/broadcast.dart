@@ -22,17 +22,13 @@ class BonsoirBroadcast extends BonsoirClass<BonsoirBroadcastEvent> {
   @protected
   BonsoirBroadcastEvent transformPlatformEvent(dynamic event) {
     Map<dynamic, dynamic> data = Map<String, dynamic>.from(event);
-    String id = data['id'];
-    return BonsoirBroadcastEvent(
-        type: BonsoirBroadcastEventType.values.firstWhere(
-            (type) => type.name.toLowerCase() == id,
-            orElse: () => BonsoirBroadcastEventType.UNKNOWN));
+    return BonsoirBroadcastEvent.fromJson(data);
   }
 
   @override
   @protected
   Map<String, dynamic> toJson() => {
         ...super.toJson(),
-        ...(serviceToJson(service)),
+        ...service.toJson(),
       };
 }

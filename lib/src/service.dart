@@ -5,8 +5,8 @@ import 'package:flutter/material.dart';
 
 /// Represents a broadcastable network service.
 class BonsoirService {
-  /// The service name.
-  /// Should represent what you want to advertise.
+  /// The service name. Should represent what you want to advertise.
+  /// This name is subject to change based on conflicts with other services advertised on the same network.
   final String name;
 
   /// The service type.
@@ -43,22 +43,22 @@ class BonsoirService {
   });
 
   /// Creates a new Bonsoir service instance from the given JSON map.
-  factory BonsoirService.fromJson(Map<String, dynamic> json) {
-    if (json.containsKey('ip')) {
-      return DiscoveredBonsoirService.fromJson(json);
+  factory BonsoirService.fromJson(Map<String, dynamic> json, {String prefix = 'service.'}) {
+    if (json.containsKey('${prefix}ip')) {
+      return ResolvedBonsoirService.fromJson(json, prefix: prefix);
     }
     return BonsoirService(
-      name: json['name'],
-      type: json['type'],
-      port: json['port'],
+      name: json['${prefix}name'],
+      type: json['${prefix}type'],
+      port: json['${prefix}port'],
     );
   }
 
   /// Converts this JSON service to a JSON map.
-  Map<String, dynamic> toJson() => {
-        'name': name,
-        'type': type,
-        'port': port,
+  Map<String, dynamic> toJson({String prefix = 'service.'}) => {
+        '${prefix}name': name,
+        '${prefix}type': type,
+        '${prefix}port': port,
       };
 
   @override

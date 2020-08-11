@@ -10,7 +10,7 @@ class BonsoirDiscoveryModel extends ChangeNotifier {
   BonsoirDiscovery _bonsoirDiscovery;
 
   /// Contains all discovered (and resolved) services.
-  final List<DiscoveredBonsoirService> _discoveredServices = [];
+  final List<ResolvedBonsoirService> _resolvedServices = [];
 
   /// The subscription object.
   StreamSubscription<BonsoirDiscoveryEvent> _subscription;
@@ -21,7 +21,7 @@ class BonsoirDiscoveryModel extends ChangeNotifier {
   }
 
   /// Returns all discovered (and resolved) services.
-  List<DiscoveredBonsoirService> get discoveredServices => List.of(_discoveredServices);
+  List<ResolvedBonsoirService> get discoveredServices => List.of(_resolvedServices);
 
   /// Starts the Bonsoir discovery.
   Future<void> start() async {
@@ -43,15 +43,15 @@ class BonsoirDiscoveryModel extends ChangeNotifier {
 
   /// Triggered when a Bonsoir discovery event occurred.
   void _onEventOccurred(BonsoirDiscoveryEvent event) {
-    if(event.service?.ip == null) {
+    if(event.service == null || !event.isServiceResolved) {
       return;
     }
 
-    if (event.type == BonsoirDiscoveryEventType.DISCOVERY_SERVICE_FOUND) {
-      _discoveredServices.add(event.service);
+    if (event.type == BonsoirDiscoveryEventType.DISCOVERY_SERVICE_RESOLVED) {
+      _resolvedServices.add(event.service);
       notifyListeners();
     } else if (event.type == BonsoirDiscoveryEventType.DISCOVERY_SERVICE_LOST) {
-      _discoveredServices.remove(event.service);
+      _resolvedServices.remove(event.service);
       notifyListeners();
     }
   }
