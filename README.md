@@ -67,6 +67,9 @@ If you want a <q>full</q> example, don't hesitate to check [this one](https://gi
 This plugin [cannot be tested on an Android emulator](https://stackoverflow.com/a/46926325/3608831)
 (well it can, but the only services that you are able to discover are the ones broadcasted by your emulator).
 
+Also, if you're building your app for iOS 14, you may have to edit your `Info.plist` file according to
+[this answer](https://developer.apple.com/forums/thread/653316?answerId=619462022#619462022) on Apple Developer Forums.
+
 The hand icon has been created by [Vitaly Gorbachev](https://www.flaticon.com/authors/vitaly-gorbachev).
 
 ## Contributions
