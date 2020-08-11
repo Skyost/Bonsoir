@@ -33,26 +33,26 @@ class BonsoirServiceDelegate: NSObject, NetServiceDelegate, FlutterStreamHandler
         eventChannel?.setStreamHandler(self)
     }
 
-    func netServiceDidPublish(_ sender: NetService) {
+    func netServiceDidPublish(_ service: NetService) {
         if printLogs {
-            NSLog("\n[\(id)] Bonsoir service broadcasted : \(sender)")
+            SwiftBonsoirPlugin.log(category: "broadcast", id: id, message: "Bonsoir service broadcasted : \(service)")
         }
-        eventSink?(SuccessObject(id: "broadcast_started").toJson())
+        eventSink?(SuccessObject(id: "broadcast_started", service: service).toJson())
     }
 
-    func netService(_ sender: NetService, didNotPublish error: [String: NSNumber]) {
+    func netService(_ service: NetService, didNotPublish error: [String: NSNumber]) {
         if printLogs {
-            NSLog("\n[\(id)] Bonsoir service failed to broadcast : \(sender), error code : \(error)")
+            SwiftBonsoirPlugin.log(category: "broadcast", id: id, message: "Bonsoir service failed to broadcast : \(service), error code : \(error)")
         }
         eventSink?(FlutterError.init(code: "broadcast_error", message: "Bonsoir service failed to broadcast.", details: error));
     }
 
-    func netServiceDidStop(_ sender: NetService) {
+    func netServiceDidStop(_ service: NetService) {
         if printLogs {
-            NSLog("\n[\(id)] Bonsoir service broadcast stopped : \(sender)")
+            SwiftBonsoirPlugin.log(category: "broadcast", id: id, message: "Bonsoir service broadcast stopped : \(service)")
         }
         
-        eventSink?(SuccessObject(id: "broadcast_stopped").toJson())
+        eventSink?(SuccessObject(id: "broadcast_stopped", service: service).toJson())
         dispose(stopBroadcast: false)
     }
     

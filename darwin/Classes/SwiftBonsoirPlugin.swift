@@ -3,6 +3,9 @@
 #elseif canImport(FlutterMacOS)
     import FlutterMacOS
 #endif
+#if canImport(os)
+    import os
+#endif
 import Foundation
 
 /// The main plugin Swift class.
@@ -85,5 +88,17 @@ public class SwiftBonsoirPlugin: NSObject, FlutterPlugin {
         for browser in browsers.values {
             (browser.delegate as! BonsoirServiceBrowserDelegate).dispose()
         }
+    }
+    
+    /// Logs a given message.
+    public static func log(category: String, id: Int, message: String) {
+        #if canImport(os)
+        if #available(iOS 10.0, macOS 10.12, *) {
+            os_log("[%d] %s", log: OSLog(subsystem: "fr.skyost.bonsoir", category: category), type: OSLogType.info, id, message)
+            return
+        }
+        #endif
+        
+        NSLog("\n[\(id)] \(message)")
     }
 }

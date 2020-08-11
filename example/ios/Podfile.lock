@@ -1,5 +1,5 @@
 PODS:
-  - bonsoir (0.1.0):
+  - bonsoir (0.1.2):
     - Flutter
   - device_info (0.0.1):
     - Flutter
@@ -19,7 +19,7 @@ EXTERNAL SOURCES:
     :path: Flutter
 
 SPEC CHECKSUMS:
-  bonsoir: 77f4fc83b098defdb4bc7ee2d0a50f6891ba0f28
+  bonsoir: 8ef4e0ac3c66a4aba0f99ec70bc9f6fad7d2eadf
   device_info: d7d233b645a32c40dfdc212de5cf646ca482f175
   Flutter: 0e3d915762c693b495b44d77113d4970485de6ec
 

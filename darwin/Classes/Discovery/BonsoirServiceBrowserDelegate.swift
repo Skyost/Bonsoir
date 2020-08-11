@@ -22,12 +22,9 @@ class BonsoirServiceBrowserDelegate: NSObject, NetServiceBrowserDelegate, NetSer
 
     /// The current event sink.
     var eventSink: FlutterEventSink?
-
-    /// Contains all discovered services.
-    var discoveredServices: [NetService] = []
-
-    /// Contains all discovered services that are going to be lost.
-    var lostServices: [NetService] = []
+    
+    /// Contains all found services.
+    var services: [String: NetService] = [:]
 
     /// Initializes this class.
     public init(id: Int, printLogs: Bool, onDispose: @escaping (Bool) -> Void, messenger: FlutterBinaryMessenger) {
@@ -41,72 +38,59 @@ class BonsoirServiceBrowserDelegate: NSObject, NetServiceBrowserDelegate, NetSer
 
     func netServiceBrowserWillSearch(_ browser: NetServiceBrowser) {
         if printLogs {
-            NSLog("\n[\(id)] Bonsoir discovery started : \(browser)")
+            SwiftBonsoirPlugin.log(category: "discovery", id: id, message: "Bonsoir discovery started : \(browser)")
         }
         eventSink?(SuccessObject(id: "discovery_started").toJson())
     }
 
     func netServiceBrowser(_ browser: NetServiceBrowser, didNotSearch error: [String: NSNumber]) {
         if printLogs {
-            NSLog("\n[\(id)] Bonsoir has encountered an error during discovery : \(error)")
+            SwiftBonsoirPlugin.log(category: "discovery", id: id, message: "Bonsoir has encountered an error during discovery : \(error)")
         }
         eventSink?(FlutterError.init(code: "discovery_error", message: "Bonsoir has encountered an error during discovery.", details: error))
         dispose(stopDiscovery: true)
     }
 
     func netServiceBrowser(_ browser: NetServiceBrowser, didFind service: NetService, moreComing: Bool) {
-        discoveredServices.append(service)
+        if printLogs {
+            SwiftBonsoirPlugin.log(category: "discovery", id: id, message: "Bonsoir has found a service : \(service)")
+        }
+        eventSink?(SuccessObject(id: "discovery_service_found", service: service).toJson())
+        
         service.delegate = self
-        service.resolve(withTimeout: 10.0)
+        if(services[service.name] == nil) {
+            services[service.name] = service
+            service.resolve(withTimeout: 10.0)
+        }
     }
 
     func netServiceBrowser(_ browser: NetServiceBrowser, didRemove service: NetService, moreComing: Bool) {
-        let index: Int? = discoveredServices.firstIndex(of: service)
-        if index != nil {
-            discoveredServices.remove(at: index!)
+        if printLogs {
+            SwiftBonsoirPlugin.log(category: "discovery", id: id, message: "A Bonsoir service has been lost : \(service)")
         }
-        lostServices.append(service)
-        service.delegate = self
-        service.resolve(withTimeout: 10.0)
+        eventSink?(SuccessObject(id: "discovery_service_lost", service: services[service.name] ?? service).toJson())
+        services.removeValue(forKey: service.name)
     }
     
-    func netServiceDidResolveAddress(_ sender: NetService) {
-        if discoveredServices.contains(sender) {
-            if self.printLogs {
-                NSLog("\n[\(self.id)] Bonsoir has discovered a service : \(sender)")
-            }
-            self.eventSink?(SuccessObject(id: "discovery_service_found", result: self.serviceToJson(sender)).toJson())
+    func netServiceDidResolveAddress(_ service: NetService) {
+        services[service.name] = service
+        if printLogs {
+            SwiftBonsoirPlugin.log(category: "discovery", id: id, message: "Bonsoir has resolved a service : \(service)")
         }
-        else if lostServices.contains(sender) {
-            lostServices.remove(at: lostServices.firstIndex(of: sender)!)
-            sender.stop()
-            
-            if self.printLogs {
-                NSLog("\n[\(self.id)] A Bonsoir service has been lost : \(sender)")
-            }
-            
-            self.eventSink?(SuccessObject(id: "discovery_service_lost", result: self.serviceToJson(sender)).toJson())
-        }
+        eventSink?(SuccessObject(id: "discovery_service_resolved", service: service).toJson())
     }
     
-    func netService(_ sender: NetService, didNotResolve error: [String: NSNumber])  {
-        if discoveredServices.contains(sender) {
-            if self.printLogs {
-                NSLog("\n[\(self.id)] Bonsoir has discovered a service but failed to resolve it : \(sender)")
-            }
-            self.eventSink?(SuccessObject(id: "discovery_service_found", result: self.serviceToJson(sender)).toJson())
+    func netService(_ service: NetService, didNotResolve error: [String: NSNumber])  {
+        services.removeValue(forKey: service.name)
+        if printLogs {
+            SwiftBonsoirPlugin.log(category: "discovery", id: id, message: "Bonsoir has failed to resolve a service : \(error)")
         }
-        else if lostServices.contains(sender) {
-            if self.printLogs {
-                NSLog("\n[\(self.id)] A Bonsoir discovered service has been lost and Bonsoir failed to resolve it : \(sender)")
-            }
-            self.eventSink?(SuccessObject(id: "discovery_service_lost", result: self.serviceToJson(sender)).toJson())
-        }
+        eventSink?(SuccessObject(id: "discovery_service_resolve_failed", service: service).toJson())
     }
 
     func netServiceBrowserDidStopSearch(_ browser: NetServiceBrowser) {
         if printLogs {
-            NSLog("\n[\(id)] Bonsoir discovery stopped : \(browser)")
+            SwiftBonsoirPlugin.log(category: "discovery", id: id, message: "Bonsoir discovery stopped : \(browser)")
         }
         eventSink?(SuccessObject(id: "discovery_stopped").toJson())
         dispose()
@@ -124,46 +108,7 @@ class BonsoirServiceBrowserDelegate: NSObject, NetServiceBrowserDelegate, NetSer
 
     /// Disposes the current class instance.
     public func dispose(stopDiscovery: Bool = false) {
+        services.removeAll()
         onDispose(stopDiscovery)
-    }
-
-    /// Converts a given service to a dictionary.
-    private func serviceToJson(_ service: NetService) -> [String: Any?] {
-        return [
-            "service.name": service.name,
-            "service.type": service.type,
-            "service.port": service.port,
-            "service.ip": resolveIPv4(addresses: service.addresses)
-        ]
-    }
-
-    /// Allows to resolve an IP v4 address.
-    private func resolveIPv4(addresses: [Data]?) -> String? {
-        if addresses == nil {
-            return nil
-        }
-        
-        var result: String?
-
-        for addr in addresses! {
-            let data = addr as NSData
-            var storage = sockaddr_storage()
-            data.getBytes(&storage, length: MemoryLayout<sockaddr_storage>.size)
-
-            if Int32(storage.ss_family) == AF_INET {
-                let addr4 = withUnsafePointer(to: &storage) {
-                    $0.withMemoryRebound(to: sockaddr_in.self, capacity: 1) {
-                        $0.pointee
-                    }
-                }
-
-                if let ip = String(cString: inet_ntoa(addr4.sin_addr), encoding: .ascii) {
-                    result = ip
-                    break
-                }
-            }
-        }
-
-        return result
     }
 }
