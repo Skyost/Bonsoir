@@ -1,3 +1,8 @@
+## [0.1.2+1] - 2020-08-12
+
+* Formatted the code using `dartfmt`.
+* Updated README.
+
 ## [0.1.2] - 2020-08-12
 
 * Fixed a bug that was occurring with Pixel devices.

@@ -16,8 +16,13 @@ class BonsoirBroadcastEvent extends BonsoirEvent<BonsoirBroadcastEventType> {
   /// Creates a new Bonsoir broadcast event from the given JSON map.
   BonsoirBroadcastEvent.fromJson(Map<String, dynamic> json)
       : this(
-          type: BonsoirBroadcastEventType.values.firstWhere((type) => type.name.toLowerCase() == json['id'], orElse: () => BonsoirBroadcastEventType.UNKNOWN),
-          service: json.containsKey('service') ? BonsoirService.fromJson(Map<String, dynamic>.from(json['service'])) : null,
+          type: BonsoirBroadcastEventType.values.firstWhere(
+              (type) => type.name.toLowerCase() == json['id'],
+              orElse: () => BonsoirBroadcastEventType.UNKNOWN),
+          service: json.containsKey('service')
+              ? BonsoirService.fromJson(
+                  Map<String, dynamic>.from(json['service']))
+              : null,
         );
 }
 

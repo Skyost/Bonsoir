@@ -16,8 +16,13 @@ class BonsoirDiscoveryEvent extends BonsoirEvent<BonsoirDiscoveryEventType> {
   /// Creates a new Bonsoir discovery event from the given JSON map.
   BonsoirDiscoveryEvent.fromJson(Map<String, dynamic> json)
       : this(
-          type: BonsoirDiscoveryEventType.values.firstWhere((type) => type.name.toLowerCase() == json['id'], orElse: () => BonsoirDiscoveryEventType.UNKNOWN),
-          service: json.containsKey('service') ? BonsoirService.fromJson(Map<String, dynamic>.from(json['service'])) : null,
+          type: BonsoirDiscoveryEventType.values.firstWhere(
+              (type) => type.name.toLowerCase() == json['id'],
+              orElse: () => BonsoirDiscoveryEventType.UNKNOWN),
+          service: json.containsKey('service')
+              ? BonsoirService.fromJson(
+                  Map<String, dynamic>.from(json['service']))
+              : null,
         );
 }
 

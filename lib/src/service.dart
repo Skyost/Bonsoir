@@ -43,7 +43,8 @@ class BonsoirService {
   });
 
   /// Creates a new Bonsoir service instance from the given JSON map.
-  factory BonsoirService.fromJson(Map<String, dynamic> json, {String prefix = 'service.'}) {
+  factory BonsoirService.fromJson(Map<String, dynamic> json,
+      {String prefix = 'service.'}) {
     if (json.containsKey('${prefix}ip')) {
       return ResolvedBonsoirService.fromJson(json, prefix: prefix);
     }
