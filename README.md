@@ -7,7 +7,7 @@
 _Bonsoir_ is a Zeroconf library that allows you to discover network services and to broadcast your own.
 It's based on [Android NSD](https://developer.android.com/training/connect-devices-wirelessly/nsd)
 and on Apple's popular framework [Bonjour](https://developer.apple.com/documentation/foundation/bonjour).
-In fact, <q>Bonsoir</q> can be translated into <q>Good evening</q> (and <q>Bonjour</q> to <q>Good morning</q> or <q>Good afternoon</q>).
+In fact, <q>Bonsoir</q> can be translated into <q>Good evening</q> (and <q>Bonjour</q> into <q>Good morning</q> or <q>Good afternoon</q>).
 
 ## Preview
 
