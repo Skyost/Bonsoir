@@ -1,3 +1,8 @@
+## [0.1.2+2] - 2020-08-18
+
+* Fixed symlinks error for iOS and macOS.
+* improved an error message.
+
 ## [0.1.2+1] - 2020-08-12
 
 * Formatted the code using `dartfmt`.
