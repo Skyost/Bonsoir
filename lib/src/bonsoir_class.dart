@@ -54,7 +54,8 @@ abstract class BonsoirClass<T> {
 
   /// Starts to do either a discover or a broadcast.
   Future<void> start() {
-    assert(isReady, '''$runtimeType should be ready to start in order to call this method.
+    assert(isReady,
+        '''$runtimeType should be ready to start in order to call this method.
 You must wait until this instance is ready by calling "await $runtimeType.ready".
 If you have previously called "$runtimeType.stop()" on this instance, you have to create a new instance of this class.''');
     return channel.invokeMethod('$_classType.start', toJson());
