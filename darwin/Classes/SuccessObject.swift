@@ -36,6 +36,7 @@ class SuccessObject {
             "service.type": service.type,
             "service.port": service.port,
             "service.ip": resolveIPv4(addresses: service.addresses),
+            "service.attributes": decodeAttributes(attributes: NetService.dictionary(fromTXTRecord: service.txtRecordData() ?? NetService.data(fromTXTRecord: [:])))
         ]
     }
     
@@ -66,6 +67,17 @@ class SuccessObject {
             }
         }
 
+        return result
+    }
+    
+    /// Decodes the given attributes.
+    private func decodeAttributes(attributes: [String: Data?]) -> [String: String] {
+        var result: [String: String] = [:]
+        for (key, value) in attributes {
+            if(value != nil) {
+                result[key] = String(decoding: value!, as: UTF8.self)
+            }
+        }
         return result
     }
 }
