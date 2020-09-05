@@ -11,8 +11,8 @@ class ServiceList extends StatelessWidget {
     BonsoirDiscoveryModel model = context.watch<BonsoirDiscoveryModel>();
     List<ResolvedBonsoirService> discoveredServices = model.discoveredServices;
     if (discoveredServices.isEmpty) {
-      return Padding(
-        padding: const EdgeInsets.all(20),
+      return const Padding(
+        padding: EdgeInsets.all(20),
         child: Center(
           child: Text(
             'Found no service of type "${AppService.type}".',

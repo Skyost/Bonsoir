@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:bonsoir/bonsoir.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 /// Represents a broadcastable network service.
@@ -35,11 +36,19 @@ class BonsoirService {
   /// Your service should be reachable at the given port using the protocol specified in [type].
   final int port;
 
+  /// The service attributes.
+  /// The key must be US-ASCII printable characters, excluding the '=' character.
+  /// Values may be UTF-8 strings or null. The total length of key + value must be less than 255 bytes.
+  ///
+  /// Source : [`setAttribute` on Android Developers](https://developer.android.com/reference/android/net/nsd/NsdServiceInfo#setAttribute(java.lang.String,%20java.lang.String)).
+  final Map<String, String> attributes;
+
   /// Creates a new Bonsoir service instance.
   const BonsoirService({
     @required this.name,
     @required this.type,
     @required this.port,
+    this.attributes,
   });
 
   /// Creates a new Bonsoir service instance from the given JSON map.
@@ -52,6 +61,7 @@ class BonsoirService {
       name: json['${prefix}name'],
       type: json['${prefix}type'],
       port: json['${prefix}port'],
+      attributes: Map<String, String>.from(json['${prefix}attributes']),
     );
   }
 
@@ -60,6 +70,7 @@ class BonsoirService {
         '${prefix}name': name,
         '${prefix}type': type,
         '${prefix}port': port,
+        '${prefix}attributes': attributes ?? {},
       };
 
   @override
@@ -68,7 +79,7 @@ class BonsoirService {
       return false;
     }
     return identical(this, other) ||
-        (this.name == name && this.type == type && this.port == port);
+        (name == other.name && type == other.type && port == other.port && mapEquals<String, String>(attributes, other.attributes));
   }
 
   @override

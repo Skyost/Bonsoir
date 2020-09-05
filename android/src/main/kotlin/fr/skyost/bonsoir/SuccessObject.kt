@@ -2,7 +2,7 @@ package fr.skyost.bonsoir
 
 import android.net.nsd.NsdServiceInfo
 import fr.skyost.bonsoir.discovery.ResolvedServiceInfo
-import java.util.*
+import kotlin.collections.HashMap
 
 /**
  * Sent to the event channel when there is no error.
@@ -40,7 +40,27 @@ data class SuccessObject(private val id: String, private val service: NsdService
                 "service.name" to service.serviceName,
                 "service.type" to service.serviceType,
                 "service.port" to resolvedServiceInfo.port,
-                "service.ip" to resolvedServiceInfo.ip
+                "service.ip" to resolvedServiceInfo.ip,
+                "service.attributes" to getAttributes(service)
         )
+    }
+
+    /**
+     * Returns the service attributes (if supported by Android).
+     *
+     * @param service The service.
+     *
+     * @return The attributes.
+     */
+    private fun getAttributes(service: NsdServiceInfo): Map<String, String> {
+        val result = HashMap<String, String>();
+        if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.LOLLIPOP) {
+            return result
+        }
+
+        for(entry in service.attributes.entries) {
+            result[entry.key] = String(entry.value)
+        }
+        return result
     }
 }

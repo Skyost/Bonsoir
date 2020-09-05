@@ -12,7 +12,6 @@ import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import java.util.*
 
-
 /**
  * Allows to handle method calls.
  *
@@ -37,10 +36,10 @@ class MethodCallHandler(
 
     override fun onMethodCall(@NonNull call: MethodCall, @NonNull result: MethodChannel.Result) {
         val nsdManager: NsdManager = applicationContext.getSystemService(Context.NSD_SERVICE) as NsdManager
-        val id: Int = call.argument("id")!!
+        val id: Int = call.argument<Int>("id")!!
         when (call.method) {
             "broadcast.initialize" -> {
-                registrationListeners[id] = BonsoirRegistrationListener(id, call.argument("printLogs")!!, Runnable {
+                registrationListeners[id] = BonsoirRegistrationListener(id, call.argument<Boolean>("printLogs")!!, Runnable {
                     multicastLock.release()
                     registrationListeners.remove(id)
                 }, nsdManager, messenger)
@@ -50,9 +49,16 @@ class MethodCallHandler(
                 multicastLock.acquire()
 
                 val service = NsdServiceInfo()
-                service.serviceName = call.argument("service.name")
-                service.serviceType = call.argument("service.type")
-                service.port = call.argument("service.port")!!
+                service.serviceName = call.argument<String>("service.name")
+                service.serviceType = call.argument<String>("service.type")
+                service.port = call.argument<Int>("service.port")!!
+
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+                    val attributes: Map<String, String> = call.argument<Map<String, String>>("service.attributes")!!
+                    for(entry in attributes.entries) {
+                        service.setAttribute(entry.key, entry.value)
+                    }
+                }
 
                 nsdManager.registerService(service, NsdManager.PROTOCOL_DNS_SD, registrationListeners[id])
                 result.success(true)
@@ -62,7 +68,7 @@ class MethodCallHandler(
                 result.success(true)
             }
             "discovery.initialize" -> {
-                discoveryListeners[id] = BonsoirDiscoveryListener(id, call.argument("printLogs")!!, Runnable {
+                discoveryListeners[id] = BonsoirDiscoveryListener(id, call.argument<Boolean>("printLogs")!!, Runnable {
                     multicastLock.release()
                     discoveryListeners.remove(id)
                 }, nsdManager, messenger)
@@ -71,7 +77,7 @@ class MethodCallHandler(
             "discovery.start" -> {
                 multicastLock.acquire()
 
-                nsdManager.discoverServices(call.argument("type"), NsdManager.PROTOCOL_DNS_SD, discoveryListeners[id])
+                nsdManager.discoverServices(call.argument<String>("type"), NsdManager.PROTOCOL_DNS_SD, discoveryListeners[id])
                 result.success(true)
             }
             "discovery.stop" -> {

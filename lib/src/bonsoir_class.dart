@@ -10,7 +10,7 @@ abstract class BonsoirClass<T> {
   static const String _channelName = 'fr.skyost.bonsoir';
 
   /// The channel.
-  static const MethodChannel channel = const MethodChannel(_channelName);
+  static const MethodChannel channel = MethodChannel(_channelName);
 
   /// The class identifier.
   final int _id;
