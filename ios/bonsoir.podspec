@@ -4,7 +4,7 @@
 #
 Pod::Spec.new do |s|
   s.name             = 'bonsoir'
-  s.version          = '0.1.2'
+  s.version          = '0.1.3'
   s.summary          = 'Allows you to discover network services and to broadcast your own. Based on Bonjour and NSD.'
   s.description      = <<-DESC
 A Zeroconf library that allows you to discover network services and to broadcast your own. Based on Apple Bonjour and Android NSD.
