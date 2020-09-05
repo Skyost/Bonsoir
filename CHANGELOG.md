@@ -1,3 +1,7 @@
+## [0.1.3] - ????-??-??
+
+* Added support for services attributes.
+
 ## [0.1.2+2] - 2020-08-18
 
 * Fixed symlinks error for iOS and macOS.
