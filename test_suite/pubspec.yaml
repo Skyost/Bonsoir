@@ -1,0 +1,25 @@
+name: bonsoir_tests
+description: Demonstrates how to use the bonsoir plugin.
+publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+
+environment:
+  sdk: ">=2.7.0 <3.0.0"
+
+dependencies:
+  device_info: ^0.4.2
+  provider: ^4.3.2
+  flutter:
+    sdk: flutter
+  bonsoir:
+    path: ../
+
+dev_dependencies:
+  pedantic: '>=1.8.0 <2.0.0'
+  flutter_test:
+    sdk: flutter
+  flutter_driver:
+    sdk: flutter
+  test: any
+  
+flutter:
+  uses-material-design: true
