@@ -1,3 +1,7 @@
+## [0.1.3+1] - 2021-01-02
+
+* Ran `dartfmt` (in order to improve pub.dev score 🙄).
+
 ## [0.1.3] - 2021-01-02
 
 * Added support for services attributes.

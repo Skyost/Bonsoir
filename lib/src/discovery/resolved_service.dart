@@ -27,7 +27,7 @@ class ResolvedBonsoirService extends BonsoirService {
           name: json['${prefix}name'],
           type: json['${prefix}type'],
           port: json['${prefix}port'],
-          attributes:  Map<String, String>.from(json['${prefix}attributes']),
+          attributes: Map<String, String>.from(json['${prefix}attributes']),
           ip: json['${prefix}ip'],
         );
 
