@@ -1,3 +1,7 @@
+## [0.1.3+2] - 2021-01-04
+
+* Fixed a problem with symlinks on macOS and iOS.
+
 ## [0.1.3+1] - 2021-01-02
 
 * Ran `dartfmt` (in order to improve pub.dev score 🙄).
