@@ -1,56 +1,68 @@
 /// Flutter Week View, created by Skyost
 /// Github : https://github.com/Skyost/Bonsoir
 
-export 'package:bonsoir_platform_interface/src/broadcast/broadcast.dart';
-export 'package:bonsoir_platform_interface/src/broadcast/broadcast_event.dart';
-export 'package:bonsoir_platform_interface/src/discovery/discovery.dart';
-export 'package:bonsoir_platform_interface/src/discovery/discovery_event.dart';
-export 'package:bonsoir_platform_interface/src/discovery/resolved_service.dart';
-export 'package:bonsoir_platform_interface/src/service.dart';
-
 import 'dart:async';
-import 'dart:math';
-import 'package:meta/meta.dart';
+import 'package:bonsoir_platform_interface/method_channel_bonsoir.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
+typedef BonsoirPlatformInterface PlatformFactory(
+    String classType, bool printArgs);
+
 /// A Bonsoir class that allows to either broadcast a service or to discover services on the network.
-abstract class BonsoirPlatformInterface<T> extends PlatformInterface {
+abstract class BonsoirPlatformInterface extends PlatformInterface {
   /// The class identifier.
-  final int _id;
+  static PlatformFactory _factory = (String classType, bool printLogs) =>
+      MethodChannelBonsoir(classType: classType, printLogs: printLogs);
+
+  static final Object _token = Object();
+
+  static PlatformFactory get factory => _factory;
+
+  static set factory(PlatformFactory factory) {
+    try {
+      var testInstance = factory('discovery', false);
+      PlatformInterface.verifyToken(testInstance, _token);
+      _factory = _factory;
+    } catch (e) {
+      if (!(e is AssertionError)) {
+        print("Couldn't get a working factory?");
+      }
+      rethrow;
+    }
+  }
 
   /// The class type.
-  final String _classType;
+  final String classType;
 
   /// Whether to print logs.
   final bool printLogs;
 
-  /// Whether this instance has been stopped.
-  bool _isStopped = false;
-
-  /// The current event stream.
-  Stream<T> _eventStream;
-
   /// Creates a new Bonsoir class instance.
   BonsoirPlatformInterface({
-    String classType,
+    this.classType,
     this.printLogs,
-  })  : _id = _createRandomId(),
-        _classType = classType;
+  }) : super(token: _token);
 
   /// The event stream.
   /// Subscribe to it to receive this instance updates.
-  Stream<T> get eventStream => _eventStream;
+  Stream<dynamic> get eventStream {
+    throw UnimplementedError('eventStream getter has not been implemented');
+  }
 
   /// Await this method to know when the plugin will be ready.
-  Future<void> get ready async {
+  Future<void> ready(Map<String,dynamic> jsonBody) async {
     throw UnimplementedError('ready() has not been implemented');
   }
 
   /// Returns whether this instance can be used.
-  bool get isReady => _eventStream != null && !_isStopped;
+  bool get isReady {
+    throw UnimplementedError('isReady has not been implemented');
+  }
 
   /// Returns whether this instance has been stopped.
-  bool get isStopped => _isStopped;
+  bool get isStopped {
+    throw UnimplementedError('isStopped has not been implemented');
+  }
 
   /// Starts to do either a discover or a broadcast.
   Future<void> start() {
@@ -62,19 +74,13 @@ abstract class BonsoirPlatformInterface<T> extends PlatformInterface {
     throw UnimplementedError('stop() has not been implemented');
   }
 
-  /// Transforms the stream data to a [T].
-  @protected
-  T transformPlatformEvent(dynamic event){
-    throw UnimplementedError('transformPlatformEvent(event) has not been implemented');
+  /// Converts this Bonsoir class to a JSON map.
+  Map<String, dynamic> toJson() {
+    throw UnimplementedError('toJson() has not been implemented');
   }
 
-  /// Converts this Bonsoir class to a JSON map.
-  @protected
-  Map<String, dynamic> toJson() => {
-    'id': _id,
-    'printLogs': printLogs,
-  };
-
-  /// Allows to generate a random identifier.
-  static int _createRandomId() => Random().nextInt(100000);
+  factory BonsoirPlatformInterface.fromArgs(
+      {String classType, bool printLogs}) {
+    return factory(classType, printLogs);
+  }
 }
