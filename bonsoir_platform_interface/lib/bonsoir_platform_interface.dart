@@ -3,84 +3,50 @@
 
 import 'dart:async';
 import 'package:bonsoir_platform_interface/method_channel_bonsoir.dart';
+import 'package:bonsoir/bonsoir.dart';
+import 'package:flutter/foundation.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
-typedef BonsoirPlatformInterface PlatformFactory(
-    String classType, bool printArgs);
+abstract class BonsoirPlatformEvents<T> {
+  Stream<T> get eventStream;
+
+  Future<void> get ready;
+
+  Future<void> start();
+
+  Future<void> stop();
+
+  bool get isReady;
+
+  bool get isStopped;
+
+  Map<String, dynamic> toJson();
+}
 
 /// A Bonsoir class that allows to either broadcast a service or to discover services on the network.
 abstract class BonsoirPlatformInterface extends PlatformInterface {
-  /// The class identifier.
-  static PlatformFactory _factory = (String classType, bool printLogs) =>
-      MethodChannelBonsoir(classType: classType, printLogs: printLogs);
-
+  /// This object is needed to check
+  /// if the platform instance registering is actually extending
+  /// the platform interface (this class)
   static final Object _token = Object();
 
-  static PlatformFactory get factory => _factory;
+  /// Setting a default platform instance implementation.
+  static BonsoirPlatformInterface _instance = MethodChannelBonsoir();
 
-  static set factory(PlatformFactory factory) {
-    try {
-      var testInstance = factory('discovery', false);
-      PlatformInterface.verifyToken(testInstance, _token);
-      _factory = _factory;
-    } catch (e) {
-      if (!(e is AssertionError)) {
-        print("Couldn't get a working factory?");
-      }
-      rethrow;
-    }
+  /// Getter for better control
+  static BonsoirPlatformInterface get instance => _instance;
+  /// This function checks if the instance passed is extending this class
+  static set instance(BonsoirPlatformInterface instance) {
+    PlatformInterface.verifyToken(instance, _token);
+    _instance = _instance;
   }
 
-  /// The class type.
-  final String classType;
+  BonsoirPlatformInterface() : super(token: _token);
 
-  /// Whether to print logs.
-  final bool printLogs;
+  /// This method returns an initialized subclass
+  /// of BonsoirPlatformEvents holding the eventStreams and other
+  /// state needed for the implementations.
+  BonsoirPlatformEvents<BonsoirDiscoveryEvent> createDiscovery(String type, {bool printLogs = kDebugMode});
 
-  /// Creates a new Bonsoir class instance.
-  BonsoirPlatformInterface({
-    this.classType,
-    this.printLogs,
-  }) : super(token: _token);
-
-  /// The event stream.
-  /// Subscribe to it to receive this instance updates.
-  Stream<dynamic> get eventStream {
-    throw UnimplementedError('eventStream getter has not been implemented');
-  }
-
-  /// Await this method to know when the plugin will be ready.
-  Future<void> ready(Map<String,dynamic> jsonBody) async {
-    throw UnimplementedError('ready() has not been implemented');
-  }
-
-  /// Returns whether this instance can be used.
-  bool get isReady {
-    throw UnimplementedError('isReady has not been implemented');
-  }
-
-  /// Returns whether this instance has been stopped.
-  bool get isStopped {
-    throw UnimplementedError('isStopped has not been implemented');
-  }
-
-  /// Starts to do either a discover or a broadcast.
-  Future<void> start() {
-    throw UnimplementedError('start() has not been implemented');
-  }
-
-  /// Stops the current discover or broadcast.
-  Future<void> stop() async {
-    throw UnimplementedError('stop() has not been implemented');
-  }
-
-  /// Converts this Bonsoir class to a JSON map.
-  Map<String, dynamic> toJson() {
-    throw UnimplementedError('toJson() has not been implemented');
-  }
-
-  factory BonsoirPlatformInterface.fromArgs(
-      {String classType, bool printLogs}) {
-    return factory(classType, printLogs);
-  }
+  BonsoirPlatformEvents<BonsoirBroadcastEvent> createBroadcast(BonsoirService service, {bool printLogs = kDebugMode});
 }

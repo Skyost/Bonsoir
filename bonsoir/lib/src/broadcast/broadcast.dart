@@ -8,40 +8,32 @@ import 'package:meta/meta.dart';
 class BonsoirBroadcast {
   /// The service to broadcast.
   final BonsoirService service;
-  BonsoirPlatformInterface _interface;
+  BonsoirPlatformEvents<BonsoirBroadcastEvent> _events;
 
   /// Creates a new Bonsoir broadcast instance.
   BonsoirBroadcast({
     bool printLogs = kDebugMode,
     @required this.service,
   }) {
-    _interface = BonsoirPlatformInterface.fromArgs(
-      classType: 'broadcast',
-      printLogs: printLogs,
-    );
+    _events = BonsoirPlatformInterface.instance
+        .createBroadcast(service, printLogs: printLogs);
   }
 
-  static BonsoirBroadcastEvent transformPlatformEvent(dynamic event) {
-    Map<dynamic, dynamic> data = Map<String, dynamic>.from(event);
-    return BonsoirBroadcastEvent.fromJson(data);
-  }
+  Future<void> get ready async => _events.ready;
 
-  Future<void> get ready async => _interface.ready(toJson());
+  bool get isReady => _events.isReady;
 
-  bool get isReady => _interface.isReady;
+  bool get isStopped => _events.isStopped;
 
-  bool get isStopped => _interface.isStopped;
+  Future<void> start() => _events.start();
 
-  Future<void> start() => _interface.start();
+  Future<void> stop() => _events.stop();
 
-  Future<void> stop() => _interface.stop();
-
-  Stream<BonsoirBroadcastEvent> get eventStream =>
-      _interface.eventStream.map(transformPlatformEvent);
+  Stream<BonsoirBroadcastEvent> get eventStream => _events.eventStream;
 
   @protected
   Map<String, dynamic> toJson() => {
-        ..._interface.toJson(),
+        ..._events.toJson(),
         ...service.toJson(),
       };
 }
