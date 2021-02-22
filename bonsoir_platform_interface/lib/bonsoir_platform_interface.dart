@@ -38,7 +38,7 @@ abstract class BonsoirPlatformInterface extends PlatformInterface {
   /// This function checks if the instance passed is extending this class
   static set instance(BonsoirPlatformInterface instance) {
     PlatformInterface.verifyToken(instance, _token);
-    _instance = _instance;
+    _instance = instance;
   }
 
   BonsoirPlatformInterface() : super(token: _token);
