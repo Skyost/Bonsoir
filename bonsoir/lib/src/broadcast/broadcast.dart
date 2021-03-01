@@ -8,6 +8,7 @@ import 'package:meta/meta.dart';
 class BonsoirBroadcast {
   /// The service to broadcast.
   final BonsoirService service;
+  /// The event source abstraction
   BonsoirPlatformEvents<BonsoirBroadcastEvent> _events;
 
   /// Creates a new Bonsoir broadcast instance.

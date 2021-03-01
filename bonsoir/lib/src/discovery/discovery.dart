@@ -8,6 +8,7 @@ import 'package:meta/meta.dart';
 class BonsoirDiscovery {
   /// The type of service to find.
   final String type;
+  /// The event source abstraction
   BonsoirPlatformEvents<BonsoirDiscoveryEvent> _events;
 
   /// Creates a new Bonsoir discovery instance.
