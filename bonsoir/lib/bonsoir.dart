@@ -1,9 +1,9 @@
-/// Flutter Week View, created by Skyost
+/// Bonsoir, created by Skyost
 /// Github : https://github.com/Skyost/Bonsoir
-
-export 'package:bonsoir/src/broadcast/broadcast.dart';
-export 'package:bonsoir/src/broadcast/broadcast_event.dart';
-export 'package:bonsoir/src/discovery/discovery.dart';
-export 'package:bonsoir/src/discovery/discovery_event.dart';
-export 'package:bonsoir/src/discovery/resolved_service.dart';
-export 'package:bonsoir/src/service.dart';
+export 'package:bonsoir/src/broadcast.dart';
+export 'package:bonsoir/src/discovery.dart';
+export 'package:bonsoir_platform_interface/events/broadcast_event.dart';
+export 'package:bonsoir_platform_interface/events/discovery_event.dart';
+export 'package:bonsoir_platform_interface/events/event.dart';
+export 'package:bonsoir_platform_interface/service/resolved_service.dart';
+export 'package:bonsoir_platform_interface/service/service.dart';
