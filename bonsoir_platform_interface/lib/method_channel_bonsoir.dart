@@ -1,8 +1,10 @@
 import 'dart:async';
 import 'dart:math';
 
-import 'package:bonsoir/bonsoir.dart';
 import 'package:bonsoir_platform_interface/bonsoir_platform_interface.dart';
+import 'package:bonsoir_platform_interface/events/broadcast_event.dart';
+import 'package:bonsoir_platform_interface/events/discovery_event.dart';
+import 'package:bonsoir_platform_interface/service/service.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:meta/meta.dart';
