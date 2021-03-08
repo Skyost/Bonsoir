@@ -11,9 +11,9 @@ packages:
   bonsoir:
     dependency: "direct main"
     description:
-      path: "../bonsoir"
-      relative: true
-    source: path
+      name: bonsoir
+      url: "https://pub.dartlang.org"
+    source: hosted
     version: "0.1.3+2"
   boolean_selector:
     dependency: transitive

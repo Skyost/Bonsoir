@@ -1,13 +1,11 @@
-/// Flutter Week View, created by Skyost
-/// Github : https://github.com/Skyost/Bonsoir
-
 import 'dart:async';
 import 'dart:math';
-import 'package:flutter/foundation.dart';
-import 'package:meta/meta.dart';
+
 import 'package:bonsoir/bonsoir.dart';
 import 'package:bonsoir_platform_interface/bonsoir_platform_interface.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
+import 'package:meta/meta.dart';
 
 /// Abstract class that contains all methods that are communicating with the native side of the plugin.
 abstract class MethodChannelBonsoirEvents<T> extends BonsoirPlatformEvents<T> {
