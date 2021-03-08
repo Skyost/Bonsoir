@@ -1,5 +1,4 @@
 import 'package:bonsoir/bonsoir.dart';
-import 'package:meta/meta.dart';
 
 /// Represents a Bonsoir event.
 abstract class BonsoirEvent<T> {
@@ -7,11 +6,11 @@ abstract class BonsoirEvent<T> {
   final T type;
 
   /// The Bonsoir service (if any).
-  final BonsoirService service;
+  final BonsoirService? service;
 
   /// Creates a new Bonsoir event instance.
   const BonsoirEvent({
-    @required this.type,
+    required this.type,
     this.service,
   });
 

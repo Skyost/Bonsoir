@@ -16,7 +16,7 @@ or <q>Good afternoon</q> depending on the current moment of the day).
 
 ## Preview
 
-![Bonsoir preview](https://github.com/Skyost/Bonsoir/raw/master/images/preview.gif)
+![Bonsoir preview](https://github.com/Skyost/Bonsoir/raw/master/bonsoir/images/preview.gif)
 
 ## Code snippets
 

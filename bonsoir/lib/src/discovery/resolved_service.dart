@@ -1,18 +1,17 @@
 import 'package:bonsoir/src/service.dart';
-import 'package:meta/meta.dart';
 
 /// Represents a resolved Bonsoir service.
 class ResolvedBonsoirService extends BonsoirService {
   /// The service ip.
-  final String ip;
+  final String? ip;
 
   /// Creates a new resolved Bonsoir service.
   const ResolvedBonsoirService({
-    @required String name,
-    @required String type,
-    @required int port,
-    Map<String, String> attributes,
-    @required this.ip,
+    required String name,
+    required String type,
+    required int port,
+    Map<String, String>? attributes,
+    required this.ip,
   }) : super(
           name: name,
           type: type,

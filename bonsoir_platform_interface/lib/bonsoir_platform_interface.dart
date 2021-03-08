@@ -1,6 +1,3 @@
-/// Flutter Week View, created by Skyost
-/// Github : https://github.com/Skyost/Bonsoir
-
 import 'dart:async';
 import 'package:bonsoir_platform_interface/method_channel_bonsoir.dart';
 import 'package:bonsoir/bonsoir.dart';
@@ -9,7 +6,7 @@ import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
 /// This class serves as the stream source for the implementations to override.
 abstract class BonsoirPlatformEvents<T> {
-  /// Regular event stream
+  /// Regular event stream.
   Stream<T>? get eventStream;
 
   /// The ready getter, that returns when the platform is ready for the operation requested.

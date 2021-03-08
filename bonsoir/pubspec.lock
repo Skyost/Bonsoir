@@ -11,10 +11,10 @@ packages:
   bonsoir_platform_interface:
     dependency: "direct main"
     description:
-      path: "../bonsoir_platform_interface"
-      relative: true
-    source: path
-    version: "0.2.0"
+      name: bonsoir_platform_interface
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.0.0+1"
   boolean_selector:
     dependency: transitive
     description:
@@ -101,7 +101,7 @@ packages:
       name: plugin_platform_interface
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.0.3"
+    version: "2.0.0"
   sky_engine:
     dependency: transitive
     description: flutter
@@ -164,5 +164,5 @@ packages:
     source: hosted
     version: "2.1.0"
 sdks:
-  dart: ">=2.12.0-0.0 <3.0.0"
-  flutter: ">=1.10.0"
+  dart: ">=2.12.0 <3.0.0"
+  flutter: ">=1.12.0"

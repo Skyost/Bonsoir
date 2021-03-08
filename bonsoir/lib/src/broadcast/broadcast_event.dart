@@ -1,13 +1,12 @@
 import 'package:bonsoir/src/event.dart';
 import 'package:bonsoir/src/service.dart';
-import 'package:meta/meta.dart';
 
 /// A Bonsoir broadcast event.
 class BonsoirBroadcastEvent extends BonsoirEvent<BonsoirBroadcastEventType> {
   /// Creates a new Bonsoir broadcast event.
   const BonsoirBroadcastEvent({
-    @required BonsoirBroadcastEventType type,
-    BonsoirService service,
+    required BonsoirBroadcastEventType type,
+    BonsoirService? service,
   }) : super(
           type: type,
           service: service,

@@ -2,7 +2,6 @@ import 'dart:convert';
 
 import 'package:bonsoir/bonsoir.dart';
 import 'package:flutter/foundation.dart';
-import 'package:meta/meta.dart';
 
 /// Represents a broadcastable network service.
 class BonsoirService {
@@ -41,13 +40,13 @@ class BonsoirService {
   /// Values may be UTF-8 strings or null. The total length of key + value must be less than 255 bytes.
   ///
   /// Source : [`setAttribute` on Android Developers](https://developer.android.com/reference/android/net/nsd/NsdServiceInfo#setAttribute(java.lang.String,%20java.lang.String)).
-  final Map<String, String> attributes;
+  final Map<String, String>? attributes;
 
   /// Creates a new Bonsoir service instance.
   const BonsoirService({
-    @required this.name,
-    @required this.type,
-    @required this.port,
+    required this.name,
+    required this.type,
+    required this.port,
     this.attributes,
   });
 
