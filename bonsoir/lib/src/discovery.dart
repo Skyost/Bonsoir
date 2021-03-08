@@ -1,5 +1,5 @@
-import 'package:bonsoir/src/discovery/discovery_event.dart';
 import 'package:bonsoir_platform_interface/bonsoir_platform_interface.dart';
+import 'package:bonsoir_platform_interface/events/discovery_event.dart';
 import 'package:flutter/foundation.dart';
 
 /// Allows to run a network discovery.

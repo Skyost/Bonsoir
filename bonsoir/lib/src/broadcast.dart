@@ -1,6 +1,6 @@
-import 'package:bonsoir/src/broadcast/broadcast_event.dart';
-import 'package:bonsoir/src/service.dart';
 import 'package:bonsoir_platform_interface/bonsoir_platform_interface.dart';
+import 'package:bonsoir_platform_interface/events/broadcast_event.dart';
+import 'package:bonsoir_platform_interface/service/service.dart';
 import 'package:flutter/foundation.dart';
 import 'package:meta/meta.dart';
 
@@ -8,6 +8,7 @@ import 'package:meta/meta.dart';
 class BonsoirBroadcast {
   /// The service to broadcast.
   final BonsoirService service;
+
   /// The event source abstraction
   final BonsoirPlatformEvents<BonsoirBroadcastEvent> _events;
 
@@ -15,8 +16,7 @@ class BonsoirBroadcast {
   BonsoirBroadcast({
     bool printLogs = kDebugMode,
     required this.service,
-  }) :_events = BonsoirPlatformInterface.instance
-        .createBroadcast(service, printLogs: printLogs);
+  }) : _events = BonsoirPlatformInterface.instance.createBroadcast(service, printLogs: printLogs);
 
   /// The ready getter, that returns when the platform is ready for broadcast.
   Future<void> get ready async => _events.ready;
