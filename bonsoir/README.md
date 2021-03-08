@@ -1,5 +1,5 @@
 <div align="center">
-    <img src="https://github.com/Skyost/Bonsoir/raw/master/images/logo.svg" height="200">
+    <img src="https://github.com/Skyost/Bonsoir/raw/master/bonsoir/images/logo.svg" height="200">
 </div>
 
 &nbsp;
