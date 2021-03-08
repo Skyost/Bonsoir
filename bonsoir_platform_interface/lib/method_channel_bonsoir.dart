@@ -33,7 +33,7 @@ abstract class MethodChannelBonsoirEvents<T> extends BonsoirPlatformEvents<T> {
   /// Creates a new Bonsoir class instance.
   MethodChannelBonsoirEvents({
     required String classType,
-    this.printLogs = false,
+    this.printLogs = kDebugMode,
   })  : _id = _createRandomId(),
         _classType = classType;
 
@@ -90,7 +90,7 @@ class MethodChannelBroadcastEvents extends MethodChannelBonsoirEvents<BonsoirBro
   /// Creates a new method channel instance for broadcast events.
   MethodChannelBroadcastEvents({
     required this.service,
-    bool printLogs = false,
+    bool printLogs = kDebugMode,
   }) : super(
           classType: 'broadcast',
           printLogs: printLogs,
@@ -118,7 +118,7 @@ class MethodChannelDiscoveryEvents extends MethodChannelBonsoirEvents<BonsoirDis
   /// Creates a new method channel instance for discovery events.
   MethodChannelDiscoveryEvents({
     required this.type,
-    bool printLogs = false,
+    bool printLogs = kDebugMode,
   }) : super(
           classType: 'discovery',
           printLogs: printLogs,
