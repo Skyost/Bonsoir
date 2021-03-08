@@ -9,6 +9,7 @@ import 'package:bonsoir/bonsoir.dart';
 import 'package:bonsoir_platform_interface/bonsoir_platform_interface.dart';
 import 'package:flutter/services.dart';
 
+/// Abstract class that contains all methods that are communicating with the native side of the plugin.
 abstract class MethodChannelBonsoirEvents<T> extends BonsoirPlatformEvents<T> {
   /// The channel name.
   static const String _channelName = 'fr.skyost.bonsoir';
@@ -29,25 +30,23 @@ abstract class MethodChannelBonsoirEvents<T> extends BonsoirPlatformEvents<T> {
   bool _isStopped = false;
 
   /// The current event stream.
-  Stream<T> _eventStream;
+  Stream<T>? _eventStream;
 
   /// Creates a new Bonsoir class instance.
   MethodChannelBonsoirEvents({
-    @required String classType,
-    this.printLogs,
+    required String classType,
+    this.printLogs = false,
   })  : _id = _createRandomId(),
         _classType = classType;
 
   /// The event stream.
   /// Subscribe to it to receive this instance updates.
-  Stream<T> get eventStream => _eventStream;
+  Stream<T>? get eventStream => _eventStream;
 
   /// Await this method to know when the plugin will be ready.
   Future<void> get ready async {
     await channel.invokeMethod('$_classType.initialize', toJson());
-    _eventStream = EventChannel('$_channelName.$_classType.$_id')
-        .receiveBroadcastStream()
-        .map(transformPlatformEvent);
+    _eventStream = EventChannel('$_channelName.$_classType.$_id').receiveBroadcastStream().map(transformPlatformEvent);
   }
 
   /// Returns whether this instance can be used.
@@ -58,8 +57,7 @@ abstract class MethodChannelBonsoirEvents<T> extends BonsoirPlatformEvents<T> {
 
   /// Starts to do either a discover or a broadcast.
   Future<void> start() {
-    assert(isReady,
-        '''$runtimeType should be ready to start in order to call this method.
+    assert(isReady, '''$runtimeType should be ready to start in order to call this method.
 You must wait until this instance is ready by calling "await $runtimeType.ready".
 If you have previously called "$runtimeType.stop()" on this instance, you have to create a new instance of this class.''');
     return channel.invokeMethod('$_classType.start', toJson());
@@ -86,34 +84,53 @@ If you have previously called "$runtimeType.stop()" on this instance, you have t
   static int _createRandomId() => Random().nextInt(100000);
 }
 
-class MethodChannelBroadcastEvents
-    extends MethodChannelBonsoirEvents<BonsoirBroadcastEvent> {
+/// Implementation of [MethodChannelBonsoirEvents] for broadcast events.
+class MethodChannelBroadcastEvents extends MethodChannelBonsoirEvents<BonsoirBroadcastEvent> {
+  /// The Bonsoir service.
   final BonsoirService service;
+
+  /// Creates a new method channel instance for broadcast events.
+  MethodChannelBroadcastEvents({
+    required this.service,
+    bool printLogs = false,
+  }) : super(
+          classType: 'broadcast',
+          printLogs: printLogs,
+        );
+
+  /// Transforms a platform event to a broadcast event.
   BonsoirBroadcastEvent transformPlatformEvent(dynamic event) {
-    Map<dynamic, dynamic> data = Map<String, dynamic>.from(event);
+    Map<String, dynamic> data = Map<String, dynamic>.from(event);
     return BonsoirBroadcastEvent.fromJson(data);
   }
-
-  MethodChannelBroadcastEvents(this.service,{bool printLogs}): super(classType: 'broadcast', printLogs: printLogs);
 
   @override
   @protected
   Map<String, dynamic> toJson() => {
-    ...super.toJson(),
-    ...service.toJson(),
-  };
+        ...super.toJson(),
+        ...service.toJson(),
+      };
 }
 
-class MethodChannelDiscoveryEvents
-    extends MethodChannelBonsoirEvents<BonsoirDiscoveryEvent> {
+/// Implementation of [MethodChannelBonsoirEvents] for discovery events.
+class MethodChannelDiscoveryEvents extends MethodChannelBonsoirEvents<BonsoirDiscoveryEvent> {
+  /// The service type.
   final String type;
 
+  /// Creates a new method channel instance for discovery events.
+  MethodChannelDiscoveryEvents({
+    required this.type,
+    bool printLogs = false,
+  }) : super(
+          classType: 'discovery',
+          printLogs: printLogs,
+        );
+
+  /// Transforms a platform event to a discovery event.
   BonsoirDiscoveryEvent transformPlatformEvent(dynamic event) {
     Map<String, dynamic> data = Map<String, dynamic>.from(event);
     return BonsoirDiscoveryEvent.fromJson(data);
   }
-
-  MethodChannelDiscoveryEvents(this.type, {bool printLogs}): super(classType: 'discovery', printLogs: printLogs);
 
   @override
   @protected
@@ -123,13 +140,12 @@ class MethodChannelDiscoveryEvents
 /// A Bonsoir class that allows to either broadcast a service or to discover services on the network.
 class MethodChannelBonsoir extends BonsoirPlatformInterface {
   @override
-  BonsoirPlatformEvents<BonsoirBroadcastEvent> createBroadcast(
-      BonsoirService service, {bool printLogs = kDebugMode}) {
-    return MethodChannelBroadcastEvents(service,printLogs: printLogs);
+  BonsoirPlatformEvents<BonsoirBroadcastEvent> createBroadcast(BonsoirService service, {bool printLogs = kDebugMode}) {
+    return MethodChannelBroadcastEvents(service: service, printLogs: printLogs);
   }
 
   @override
-  BonsoirPlatformEvents<BonsoirDiscoveryEvent> createDiscovery(String type,{bool printLogs = kDebugMode}) {
-    return MethodChannelDiscoveryEvents(type,printLogs: printLogs);
+  BonsoirPlatformEvents<BonsoirDiscoveryEvent> createDiscovery(String type, {bool printLogs = kDebugMode}) {
+    return MethodChannelDiscoveryEvents(type: type, printLogs: printLogs);
   }
 }
