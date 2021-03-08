@@ -1,7 +1,8 @@
 import 'dart:convert';
-import 'package:flutter_driver/driver_extension.dart';
+
 import 'package:bonsoir/bonsoir.dart';
 import 'package:bonsoir_tests/main.dart' as app;
+import 'package:flutter_driver/driver_extension.dart';
 
 void main() {
   String type = '_bonsoirdemo._tcp';
@@ -16,7 +17,6 @@ void main() {
         } catch(e) {
           return 'ERROR';
         }
-        break;
       case 'start':
         try {
           await discovery.start();
@@ -24,7 +24,6 @@ void main() {
         } catch(e) {
           return 'ERROR';
         }
-        break;
       case 'stop':
         try {
           await discovery.stop();
@@ -32,16 +31,15 @@ void main() {
         } catch(e) {
           return 'ERROR';
         }
-        break;
       case 'discover':
         try {
           String service = 'ERROR';
           discovery = BonsoirDiscovery(type: type);
           await discovery.ready;
           await discovery.start();
-          await for(BonsoirDiscoveryEvent event in discovery.eventStream) {
+          await for(BonsoirDiscoveryEvent event in discovery.eventStream!) {
             if (event.type == BonsoirDiscoveryEventType.DISCOVERY_SERVICE_RESOLVED) {
-              service = jsonEncode(event.service.toJson());
+              service = jsonEncode(event.service!.toJson());
               break; 
             }
           }
@@ -50,9 +48,8 @@ void main() {
         } catch(e) {
           return 'ERROR';
         }
-        break;
       default:
-        return null;
+        return 'NONE';
     }
   });
 

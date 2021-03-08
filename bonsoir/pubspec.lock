@@ -11,9 +11,9 @@ packages:
   bonsoir_platform_interface:
     dependency: "direct main"
     description:
-      name: bonsoir_platform_interface
-      url: "https://pub.dartlang.org"
-    source: hosted
+      path: "../bonsoir_platform_interface"
+      relative: true
+    source: path
     version: "1.0.0+1"
   boolean_selector:
     dependency: transitive
