@@ -7,7 +7,7 @@ class BonsoirDiscovery {
   /// The type of service to find.
   final String type;
 
-  /// The event source abstraction
+  /// The event source abstraction.
   final BonsoirPlatformEvents<BonsoirDiscoveryEvent> _events;
 
   /// Creates a new Bonsoir discovery instance.
