@@ -1,5 +1,5 @@
-import 'package:bonsoir_platform_interface/events/event.dart';
-import 'package:bonsoir_platform_interface/service/service.dart';
+import 'package:bonsoir_platform_interface/src/events/event.dart';
+import 'package:bonsoir_platform_interface/src/service/service.dart';
 
 /// A Bonsoir broadcast event.
 class BonsoirBroadcastEvent extends BonsoirEvent<BonsoirBroadcastEventType> {
@@ -16,12 +16,10 @@ class BonsoirBroadcastEvent extends BonsoirEvent<BonsoirBroadcastEventType> {
   BonsoirBroadcastEvent.fromJson(Map<String, dynamic> json)
       : this(
           type: BonsoirBroadcastEventType.values.firstWhere(
-              (type) => type.name.toLowerCase() == json['id'],
-              orElse: () => BonsoirBroadcastEventType.UNKNOWN),
-          service: json.containsKey('service')
-              ? BonsoirService.fromJson(
-                  Map<String, dynamic>.from(json['service']))
-              : null,
+            (type) => type.name.toLowerCase() == json['id'],
+            orElse: () => BonsoirBroadcastEventType.UNKNOWN,
+          ),
+          service: json.containsKey('service') ? BonsoirService.fromJson(Map<String, dynamic>.from(json['service'])) : null,
         );
 }
 

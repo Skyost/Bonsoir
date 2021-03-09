@@ -1,4 +1,4 @@
-import 'package:bonsoir_platform_interface/service/service.dart';
+import 'package:bonsoir_platform_interface/src/service/service.dart';
 
 /// Represents a resolved Bonsoir service.
 class ResolvedBonsoirService extends BonsoirService {
@@ -20,9 +20,10 @@ class ResolvedBonsoirService extends BonsoirService {
         );
 
   /// Creates a new resolved Bonsoir service instance from the given JSON map.
-  ResolvedBonsoirService.fromJson(Map<String, dynamic> json,
-      {String prefix = 'service.'})
-      : this(
+  ResolvedBonsoirService.fromJson(
+    Map<String, dynamic> json, {
+    String prefix = 'service.',
+  }) : this(
           name: json['${prefix}name'],
           type: json['${prefix}type'],
           port: json['${prefix}port'],
@@ -31,8 +32,7 @@ class ResolvedBonsoirService extends BonsoirService {
         );
 
   @override
-  Map<String, dynamic> toJson({String prefix = 'service.'}) =>
-      super.toJson()..['${prefix}ip'] = ip;
+  Map<String, dynamic> toJson({String prefix = 'service.'}) => super.toJson()..['${prefix}ip'] = ip;
 
   @override
   bool operator ==(dynamic other) {

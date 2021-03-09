@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:bonsoir_platform_interface/service/resolved_service.dart';
+import 'package:bonsoir_platform_interface/src/service/resolved_service.dart';
 import 'package:flutter/foundation.dart';
 
 /// Represents a broadcastable network service.
@@ -51,8 +51,10 @@ class BonsoirService {
   });
 
   /// Creates a new Bonsoir service instance from the given JSON map.
-  factory BonsoirService.fromJson(Map<String, dynamic> json,
-      {String prefix = 'service.'}) {
+  factory BonsoirService.fromJson(
+    Map<String, dynamic> json, {
+    String prefix = 'service.',
+  }) {
     if (json.containsKey('${prefix}ip')) {
       return ResolvedBonsoirService.fromJson(json, prefix: prefix);
     }
@@ -77,11 +79,7 @@ class BonsoirService {
     if (other is! BonsoirService) {
       return false;
     }
-    return identical(this, other) ||
-        (name == other.name &&
-            type == other.type &&
-            port == other.port &&
-            mapEquals<String, String>(attributes, other.attributes));
+    return identical(this, other) || (name == other.name && type == other.type && port == other.port && mapEquals<String, String>(attributes, other.attributes));
   }
 
   @override
