@@ -8,12 +8,12 @@ import 'package:flutter/foundation.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
 /// A Bonsoir class that allows to either broadcast a service or to discover services on the network.
-class BonsoirPlatformInterface extends PlatformInterface {
+abstract class BonsoirPlatformInterface extends PlatformInterface {
   /// This object is needed to check if the platform instance registering is actually extending the platform interface (this class)
   static final Object _token = Object();
 
   /// Setting a default platform instance implementation.
-  static BonsoirPlatformInterface _instance = BonsoirPlatformInterface();
+  static BonsoirPlatformInterface _instance = MethodChannelBonsoir();
 
   /// Creates a new Bonsoir platform interface instance.
   BonsoirPlatformInterface() : super(token: _token);
@@ -28,14 +28,20 @@ class BonsoirPlatformInterface extends PlatformInterface {
   }
 
   /// This method returns an initialized subclass of [BonsoirAction] holding the eventStreams and other state needed for the implementations.
-  BonsoirAction<BonsoirBroadcastEvent> createBroadcast(BonsoirService service, {bool printLogs = kDebugMode}) {
-    return BonsoirBroadcastAction(
-      service: service,
-      printLogs: printLogs,
-    );
-  }
+  BonsoirAction<BonsoirBroadcastEvent> createBroadcast(BonsoirService service, {bool printLogs = kDebugMode});
 
   /// This method returns an initialized subclass of [BonsoirAction] holding the eventStreams and other state needed for the implementations.
+  BonsoirAction<BonsoirDiscoveryEvent> createDiscovery(String type, {bool printLogs = kDebugMode});
+}
+
+/// A Bonsoir class that allows to either broadcast a service or to discover services on the network.
+class MethodChannelBonsoir extends BonsoirPlatformInterface {
+  @override
+  BonsoirAction<BonsoirBroadcastEvent> createBroadcast(BonsoirService service, {bool printLogs = kDebugMode}) {
+    return BonsoirBroadcastAction(service: service, printLogs: printLogs);
+  }
+
+  @override
   BonsoirAction<BonsoirDiscoveryEvent> createDiscovery(String type, {bool printLogs = kDebugMode}) {
     return BonsoirDiscoveryAction(type: type, printLogs: printLogs);
   }

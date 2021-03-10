@@ -1,4 +1,4 @@
-import 'package:bonsoir_platform_interface/src/actions/method_channel_action.dart';
+import 'package:bonsoir_platform_interface/src/actions/action.dart';
 import 'package:bonsoir_platform_interface/src/events/discovery_event.dart';
 import 'package:flutter/foundation.dart';
 
