@@ -1,7 +1,7 @@
 name: bonsoir_platform_interface
 description: Common platform interface for the Bonsoir plugin.
 homepage: https://github.com/Skyost/Bonsoir
-version: 1.0.0+2
+version: 1.1.0
 
 dependencies:
   flutter:
