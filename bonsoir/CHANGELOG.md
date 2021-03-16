@@ -1,3 +1,7 @@
+## [1.0.0] - 2021-03-17
+
+* Transitioned to federated plugin.
+
 ## [0.1.3+2] - 2021-01-04
 
 * Fixed a problem with symlinks on macOS and iOS.

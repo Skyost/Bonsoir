@@ -1,6 +1,4 @@
 import 'package:bonsoir_platform_interface/bonsoir_platform_interface.dart';
-import 'package:bonsoir_platform_interface/events/broadcast_event.dart';
-import 'package:bonsoir_platform_interface/service/service.dart';
 import 'package:flutter/foundation.dart';
 import 'package:meta/meta.dart';
 
@@ -10,35 +8,35 @@ class BonsoirBroadcast {
   final BonsoirService service;
 
   /// The event source abstraction
-  final BonsoirPlatformEvents<BonsoirBroadcastEvent> _events;
+  final BonsoirAction<BonsoirBroadcastEvent> _broadcastAction;
 
   /// Creates a new Bonsoir broadcast instance.
   BonsoirBroadcast({
     bool printLogs = kDebugMode,
     required this.service,
-  }) : _events = BonsoirPlatformInterface.instance.createBroadcast(service, printLogs: printLogs);
+  }) : _broadcastAction = BonsoirPlatformInterface.instance.createBroadcast(service, printLogs: printLogs);
 
   /// The ready getter, that returns when the platform is ready for broadcast.
-  Future<void> get ready async => _events.ready;
+  Future<void> get ready async => _broadcastAction.ready;
 
   /// This returns whether the platform is ready for broadcast.
-  bool get isReady => _events.isReady;
+  bool get isReady => _broadcastAction.isReady;
 
   /// Returns whether the broadcast has been stopped.
-  bool get isStopped => _events.isStopped;
+  bool get isStopped => _broadcastAction.isStopped;
 
   /// Starts the broadcast.
-  Future<void> start() => _events.start();
+  Future<void> start() => _broadcastAction.start();
 
   /// Stops the broadcast.
-  Future<void> stop() => _events.stop();
+  Future<void> stop() => _broadcastAction.stop();
 
   /// Regular event stream.
-  Stream<BonsoirBroadcastEvent>? get eventStream => _events.eventStream;
+  Stream<BonsoirBroadcastEvent>? get eventStream => _broadcastAction.eventStream;
 
   @protected
   Map<String, dynamic> toJson() => {
-        ..._events.toJson(),
+        ..._broadcastAction.toJson(),
         ...service.toJson(),
       };
 }
