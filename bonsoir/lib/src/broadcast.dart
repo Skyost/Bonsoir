@@ -1,6 +1,5 @@
 import 'package:bonsoir_platform_interface/bonsoir_platform_interface.dart';
 import 'package:flutter/foundation.dart';
-import 'package:meta/meta.dart';
 
 /// Allows to broadcast a service on the network.
 class BonsoirBroadcast {
