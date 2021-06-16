@@ -1,6 +1,10 @@
+## [1.0.0+1] - 2021-04-15
+
+* Updated README (thanks [lsegal](https://github.com/lsegal)).
+
 ## [1.0.0] - 2021-03-17
 
-* Transitioned to federated plugin.
+* Transitioned to federated plugin (thanks [Piero512](https://github.com/Piero512)).
 
 ## [0.1.3+2] - 2021-01-04
 

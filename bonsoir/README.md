@@ -41,7 +41,7 @@ await broadcast.start();
 await broadcast.stop();
 ```
 
-And here is how you can broadcast your service :
+And here is how you can search for a broadcasted service :
 
 ```dart
 // This is the type of service we're looking for :
