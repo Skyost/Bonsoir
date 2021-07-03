@@ -59,7 +59,12 @@ data class SuccessObject(private val id: String, private val service: NsdService
         }
 
         for(entry in service.attributes.entries) {
-            result[entry.key] = String(entry.value ?: "")
+            if (entry.value != null) {
+                result[entry.key] = String(entry.value)
+            }
+            else {
+                result[entry.key] = ""
+            }
         }
         return result
     }
