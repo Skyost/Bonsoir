@@ -111,7 +111,7 @@ public class SwiftBonsoirPlugin: NSObject, FlutterPlugin {
         var result: [String: Data] = [:]
         for (key, value) in attributes {
             if(value != nil) {
-                result[key] = String(describing: value).data(using: .utf8)
+                result[key] = String(describing: value!).data(using: .utf8)
             }
         }
         return result
