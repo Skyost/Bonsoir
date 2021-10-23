@@ -60,7 +60,7 @@ class MethodCallHandler(
                     }
                 }
 
-                nsdManager.registerService(service, NsdManager.PROTOCOL_DNS_SD, registrationListeners[id])
+                registrationListeners[id].registerService(service)
                 result.success(true)
             }
             "broadcast.stop" -> {
@@ -77,7 +77,7 @@ class MethodCallHandler(
             "discovery.start" -> {
                 multicastLock.acquire()
 
-                nsdManager.discoverServices(call.argument<String>("type"), NsdManager.PROTOCOL_DNS_SD, discoveryListeners[id])
+                discoveryListeners[id].discoverServices(call.argument<String>("type"))
                 result.success(true)
             }
             "discovery.stop" -> {
