@@ -1,3 +1,11 @@
+## [1.0.1] - 2021-10-28
+
+* Now checks if listener is registered in `NSDService` (thanks [victorkifer](https://github.com/victorkifer)).
+* Fixed attributes value is covered to `Optional()` on iOS (thanks [RyoheiTomiyama](https://github.com/RyoheiTomiyama)).
+* Fixed Bonjour Service Decoder (thanks [woody-LWD](https://github.com/woody-LWD)).
+* Added null check around getAttributes result. (thanks [kultivator-consulting](https://github.com/kultivator-consulting)).
+* Fixed a null pointer exception in `SuccessObject`.
+
 ## [1.0.0+1] - 2021-04-15
 
 * Updated README (thanks [lsegal](https://github.com/lsegal)).

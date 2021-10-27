@@ -1,4 +1,4 @@
-include: package:pedantic/analysis_options.yaml
+nclude: package:flutter_lints/flutter.yaml
 
 linter:
   rules:

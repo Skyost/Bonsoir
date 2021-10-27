@@ -13,7 +13,8 @@ class BonsoirBroadcast {
   BonsoirBroadcast({
     bool printLogs = kDebugMode,
     required this.service,
-  }) : _broadcastAction = BonsoirPlatformInterface.instance.createBroadcast(service, printLogs: printLogs);
+  }) : _broadcastAction = BonsoirPlatformInterface.instance
+            .createBroadcast(service, printLogs: printLogs);
 
   /// The ready getter, that returns when the platform is ready for broadcast.
   Future<void> get ready async => _broadcastAction.ready;
@@ -31,7 +32,8 @@ class BonsoirBroadcast {
   Future<void> stop() => _broadcastAction.stop();
 
   /// Regular event stream.
-  Stream<BonsoirBroadcastEvent>? get eventStream => _broadcastAction.eventStream;
+  Stream<BonsoirBroadcastEvent>? get eventStream =>
+      _broadcastAction.eventStream;
 
   @protected
   Map<String, dynamic> toJson() => {

@@ -13,7 +13,8 @@ class BonsoirDiscovery {
   BonsoirDiscovery({
     bool printLogs = kDebugMode,
     required this.type,
-  }) : _discoveryAction = BonsoirPlatformInterface.instance.createDiscovery(type, printLogs: printLogs);
+  }) : _discoveryAction = BonsoirPlatformInterface.instance
+            .createDiscovery(type, printLogs: printLogs);
 
   /// The ready getter, that returns when the platform is ready for discovery.
   Future<void> get ready async => _discoveryAction.ready;
@@ -31,7 +32,8 @@ class BonsoirDiscovery {
   Future<void> stop() => _discoveryAction.stop();
 
   /// Regular event stream.
-  Stream<BonsoirDiscoveryEvent>? get eventStream => _discoveryAction.eventStream;
+  Stream<BonsoirDiscoveryEvent>? get eventStream =>
+      _discoveryAction.eventStream;
 
   /// This returns a JSON representation of this discovery.
   Map<String, dynamic> toJson() => _discoveryAction.toJson()..['type'] = type;
