@@ -42,6 +42,8 @@ class BonsoirDiscoveryListener(
      */
     private val resolver: Resolver
 
+    private var isDiscoveryActive: Boolean = false
+
     /**
      * Initializes this instance.
      */
@@ -56,6 +58,11 @@ class BonsoirDiscoveryListener(
             }
         })
         resolver = Resolver(nsdManager, ::onServiceResolved, ::onFailedToResolveService)
+    }
+
+    fun discoverServices(type: String) {
+        isDiscoveryActive = true
+        nsdManager.discoverServices(type, NsdManager.PROTOCOL_DNS_SD, this)
     }
 
     override fun onDiscoveryStarted(regType: String) {
@@ -156,8 +163,9 @@ class BonsoirDiscoveryListener(
      * Disposes the current class instance.
      */
     fun dispose(stopDiscovery: Boolean = true) {
-        if (stopDiscovery) {
+        if (stopDiscovery && isDiscoveryActive) {
             nsdManager.stopServiceDiscovery(this)
+            isDiscoveryActive = false
         }
         resolver.dispose()
         onDispose.run()

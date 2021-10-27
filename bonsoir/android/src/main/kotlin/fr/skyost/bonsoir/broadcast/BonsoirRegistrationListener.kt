@@ -36,6 +36,8 @@ class BonsoirRegistrationListener(
      */
     private var eventSink: EventSink? = null
 
+    private var isRegistrationActive: Boolean = false
+
     /**
      * Initializes this instance.
      */
@@ -49,6 +51,11 @@ class BonsoirRegistrationListener(
                 eventSink = null
             }
         })
+    }
+
+    fun registerService(service: NsdServiceInfo) {
+        isRegistrationActive = true
+        nsdManager.registerService(service, NsdManager.PROTOCOL_DNS_SD, this)
     }
 
     override fun onServiceRegistered(service: NsdServiceInfo) {
@@ -86,8 +93,9 @@ class BonsoirRegistrationListener(
      * Disposes the current class instance.
      */
     fun dispose(unregister: Boolean = true) {
-        if(unregister) {
+        if(unregister && isRegistrationActive) {
             nsdManager.unregisterService(this)
+            isRegistrationActive = false
         }
         onDispose.run()
     }
