@@ -79,7 +79,11 @@ class BonsoirService {
     if (other is! BonsoirService) {
       return false;
     }
-    return identical(this, other) || (name == other.name && type == other.type && port == other.port && mapEquals<String, String>(attributes, other.attributes));
+    return identical(this, other) ||
+        (name == other.name &&
+            type == other.type &&
+            port == other.port &&
+            mapEquals<String, String>(attributes, other.attributes));
   }
 
   @override

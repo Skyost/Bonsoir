@@ -19,7 +19,10 @@ class BonsoirDiscoveryEvent extends BonsoirEvent<BonsoirDiscoveryEventType> {
             (type) => type.name.toLowerCase() == json['id'],
             orElse: () => BonsoirDiscoveryEventType.UNKNOWN,
           ),
-          service: json.containsKey('service') ? BonsoirService.fromJson(Map<String, dynamic>.from(json['service'])) : null,
+          service: json.containsKey('service')
+              ? BonsoirService.fromJson(
+                  Map<String, dynamic>.from(json['service']))
+              : null,
         );
 }
 

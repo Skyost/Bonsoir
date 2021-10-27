@@ -29,7 +29,8 @@ abstract class BonsoirAction<T extends BonsoirEvent> {
 }
 
 /// Abstract class that contains all methods that are communicating with the native side of the plugin.
-abstract class MethodChannelBonsoirAction<T extends BonsoirEvent> extends BonsoirAction<T> {
+abstract class MethodChannelBonsoirAction<T extends BonsoirEvent>
+    extends BonsoirAction<T> {
   /// The channel name.
   static const String _channelName = 'fr.skyost.bonsoir';
 
@@ -65,7 +66,9 @@ abstract class MethodChannelBonsoirAction<T extends BonsoirEvent> extends Bonsoi
   /// Await this method to know when the plugin will be ready.
   Future<void> get ready async {
     await channel.invokeMethod('$_classType.initialize', toJson());
-    _eventStream = EventChannel('$_channelName.$_classType.$_id').receiveBroadcastStream().map(transformPlatformEvent);
+    _eventStream = EventChannel('$_channelName.$_classType.$_id')
+        .receiveBroadcastStream()
+        .map(transformPlatformEvent);
   }
 
   /// Returns whether this instance can be used.
@@ -76,7 +79,8 @@ abstract class MethodChannelBonsoirAction<T extends BonsoirEvent> extends Bonsoi
 
   /// Starts to do either a discover or a broadcast.
   Future<void> start() {
-    assert(isReady, '''$runtimeType should be ready to start in order to call this method.
+    assert(isReady,
+        '''$runtimeType should be ready to start in order to call this method.
 You must wait until this instance is ready by calling "await $runtimeType.ready".
 If you have previously called "$runtimeType.stop()" on this instance, you have to create a new instance of this class.''');
     return channel.invokeMethod('$_classType.start', toJson());
@@ -95,9 +99,9 @@ If you have previously called "$runtimeType.stop()" on this instance, you have t
   /// Converts this Bonsoir class to a JSON map.
   @protected
   Map<String, dynamic> toJson() => {
-    'id': _id,
-    'printLogs': printLogs,
-  };
+        'id': _id,
+        'printLogs': printLogs,
+      };
 
   /// Allows to generate a random identifier.
   static int _createRandomId() => Random().nextInt(100000);
