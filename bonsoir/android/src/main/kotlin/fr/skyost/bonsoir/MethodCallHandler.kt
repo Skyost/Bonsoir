@@ -60,7 +60,7 @@ class MethodCallHandler(
                     }
                 }
 
-                registrationListeners[id].registerService(service)
+                registrationListeners[id]?.registerService(service)
                 result.success(true)
             }
             "broadcast.stop" -> {
@@ -77,7 +77,7 @@ class MethodCallHandler(
             "discovery.start" -> {
                 multicastLock.acquire()
 
-                discoveryListeners[id].discoverServices(call.argument<String>("type"))
+                discoveryListeners[id]?.discoverServices(call.argument<String>("type")!!)
                 result.success(true)
             }
             "discovery.stop" -> {

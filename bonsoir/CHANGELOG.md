@@ -1,3 +1,7 @@
+## [1.0.1+1] - 2021-10-28
+
+* Fixed a build error on Android.
+
 ## [1.0.1] - 2021-10-28
 
 * Now checks if listener is registered in `NSDService` (thanks [victorkifer](https://github.com/victorkifer)).
