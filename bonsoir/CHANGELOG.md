@@ -1,3 +1,7 @@
+## [1.0.1+2] - 2021-11-06
+
+* Fixed a build error on iOS.
+
 ## [1.0.1+1] - 2021-10-28
 
 * Fixed a build error on Android.
