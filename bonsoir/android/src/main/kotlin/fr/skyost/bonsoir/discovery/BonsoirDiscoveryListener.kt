@@ -80,10 +80,11 @@ class BonsoirDiscoveryListener(
             Log.d(BonsoirPlugin.tag, "[$id] Bonsoir failed to start discovery : $errorCode")
         }
 
+        isDiscoveryActive = false
+
         Handler(Looper.getMainLooper()).post {
             eventSink?.error("discovery_error", "Bonsoir failed to start discovery", errorCode)
         }
-        dispose()
     }
 
     override fun onServiceFound(service: NsdServiceInfo) {
@@ -119,7 +120,6 @@ class BonsoirDiscoveryListener(
         Handler(Looper.getMainLooper()).post {
             eventSink?.success(SuccessObject("discovery_stopped").toJson())
         }
-        //dispose(false)
     }
 
     override fun onStopDiscoveryFailed(serviceType: String, errorCode: Int) {
@@ -130,7 +130,6 @@ class BonsoirDiscoveryListener(
         Handler(Looper.getMainLooper()).post {
             eventSink?.error("discovery_error", "Bonsoir has encountered an error while stopping the discovery", errorCode)
         }
-        //dispose()
     }
 
     /**
