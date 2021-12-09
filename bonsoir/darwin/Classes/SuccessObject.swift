@@ -96,8 +96,10 @@ class SuccessObject {
                 }
 
                 if let ip = String(cString: inet_ntoa(addr4.sin_addr), encoding: .ascii) {
-                    result = ip
-                    break
+                    if (!ip.starts(with: "169")) {
+                        result = ip
+                        break
+                    }
                 }
             }
         }
