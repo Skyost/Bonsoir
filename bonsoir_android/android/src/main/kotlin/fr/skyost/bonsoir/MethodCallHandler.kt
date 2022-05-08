@@ -5,7 +5,7 @@ import android.net.nsd.NsdManager
 import android.net.nsd.NsdServiceInfo
 import android.net.wifi.WifiManager
 import androidx.annotation.NonNull
-import fr.skyost.bonsoir.broadcast.BonsoirRegistrationListener
+import fr.skyost.bonsoir.broadcast.BonsoirBroadcastListener
 import fr.skyost.bonsoir.discovery.BonsoirDiscoveryListener
 import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.MethodCall
@@ -39,7 +39,7 @@ class MethodCallHandler(
         val id: Int = call.argument<Int>("id")!!
         when (call.method) {
             "broadcast.initialize" -> {
-                registrationListeners[id] = BonsoirRegistrationListener(id, call.argument<Boolean>("printLogs")!!, Runnable {
+                registrationListeners[id] = BonsoirBroadcastListener(id, call.argument<Boolean>("printLogs")!!, Runnable {
                     multicastLock.release()
                     registrationListeners.remove(id)
                 }, nsdManager, messenger)
@@ -92,7 +92,7 @@ class MethodCallHandler(
      * Disposes the current instance.
      */
     fun dispose() {
-        for (registrationListener in ArrayList<BonsoirRegistrationListener>(registrationListeners.values)) {
+        for (registrationListener in ArrayList<BonsoirBroadcastListener>(registrationListeners.values)) {
             registrationListener.dispose()
         }
         for (discoveryListener in ArrayList<BonsoirDiscoveryListener>(discoveryListeners.values)) {

@@ -68,7 +68,6 @@ class BonsoirDiscoveryListener(
     }
 
     fun discoverServices(type: String) {
-        isDiscoveryActive = true
         nsdManager.discoverServices(type, NsdManager.PROTOCOL_DNS_SD, this)
     }
 
@@ -77,6 +76,7 @@ class BonsoirDiscoveryListener(
             Log.d(BonsoirPlugin.tag, "[$id] Bonsoir discovery started : $regType")
         }
 
+        isDiscoveryActive = true
         Handler(Looper.getMainLooper()).post {
             eventSink?.success(SuccessObject("discovery_started").toJson())
         }
@@ -88,7 +88,6 @@ class BonsoirDiscoveryListener(
         }
 
         isDiscoveryActive = false
-
         Handler(Looper.getMainLooper()).post {
             eventSink?.error("discovery_error", "Bonsoir failed to start discovery", errorCode)
         }

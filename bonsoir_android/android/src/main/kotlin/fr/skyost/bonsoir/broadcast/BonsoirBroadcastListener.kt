@@ -18,7 +18,7 @@ import io.flutter.plugin.common.EventChannel.EventSink
  * @param nsdManager The NSD manager.
  * @param messenger The Flutter binary messenger.
  */
-class BonsoirRegistrationListener(
+class BonsoirBroadcastListener(
         private val id: Int,
         private val printLogs: Boolean,
         private val onDispose: Runnable,
@@ -37,9 +37,9 @@ class BonsoirRegistrationListener(
     private var eventSink: EventSink? = null
 
     /**
-     * Whether the registration is currently active.
+     * Whether the broadcast is currently active.
      */
-    private var isRegistrationActive: Boolean = false
+    private var isBroadcastActive: Boolean = false
 
     /**
      * Initializes this instance.
@@ -47,7 +47,7 @@ class BonsoirRegistrationListener(
     init {
         eventChannel.setStreamHandler(object : EventChannel.StreamHandler {
             override fun onListen(arguments: Any?, eventSink: EventSink) {
-                this@BonsoirRegistrationListener.eventSink = eventSink
+                this@BonsoirBroadcastListener.eventSink = eventSink
             }
 
             override fun onCancel(arguments: Any?) {
@@ -57,7 +57,6 @@ class BonsoirRegistrationListener(
     }
 
     fun registerService(service: NsdServiceInfo) {
-        isRegistrationActive = true
         nsdManager.registerService(service, NsdManager.PROTOCOL_DNS_SD, this)
     }
 
@@ -65,6 +64,7 @@ class BonsoirRegistrationListener(
         if (printLogs) {
             Log.d(BonsoirPlugin.tag, "[$id] Bonsoir service registered : $service")
         }
+        isBroadcastActive = true
         Handler(Looper.getMainLooper()).post {
             eventSink?.success(SuccessObject("broadcast_started", service).toJson())
         }
@@ -104,9 +104,9 @@ class BonsoirRegistrationListener(
      * Disposes the current class instance.
      */
     fun dispose(unregister: Boolean = true) {
-        if(unregister && isRegistrationActive) {
+        if(unregister && isBroadcastActive) {
             nsdManager.unregisterService(this)
-            isRegistrationActive = false
+            isBroadcastActive = false
         }
         onDispose.run()
     }
