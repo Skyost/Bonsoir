@@ -28,24 +28,24 @@ abstract class BonsoirPlatformInterface extends PlatformInterface {
   }
 
   /// This method returns an initialized subclass of [BonsoirAction] holding the eventStreams and other state needed for the implementations.
-  BonsoirAction<BonsoirBroadcastEvent> createBroadcast(BonsoirService service,
+  BonsoirAction<BonsoirBroadcastEvent> createBroadcastAction(BonsoirService service,
       {bool printLogs = kDebugMode});
 
   /// This method returns an initialized subclass of [BonsoirAction] holding the eventStreams and other state needed for the implementations.
-  BonsoirAction<BonsoirDiscoveryEvent> createDiscovery(String type,
+  BonsoirAction<BonsoirDiscoveryEvent> createDiscoveryAction(String type,
       {bool printLogs = kDebugMode});
 }
 
 /// A Bonsoir class that allows to either broadcast a service or to discover services on the network.
 class MethodChannelBonsoir extends BonsoirPlatformInterface {
   @override
-  BonsoirAction<BonsoirBroadcastEvent> createBroadcast(BonsoirService service,
+  BonsoirAction<BonsoirBroadcastEvent> createBroadcastAction(BonsoirService service,
       {bool printLogs = kDebugMode}) {
     return BonsoirBroadcastAction(service: service, printLogs: printLogs);
   }
 
   @override
-  BonsoirAction<BonsoirDiscoveryEvent> createDiscovery(String type,
+  BonsoirAction<BonsoirDiscoveryEvent> createDiscoveryAction(String type,
       {bool printLogs = kDebugMode}) {
     return BonsoirDiscoveryAction(type: type, printLogs: printLogs);
   }

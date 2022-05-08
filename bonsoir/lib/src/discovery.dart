@@ -14,7 +14,7 @@ class BonsoirDiscovery {
     bool printLogs = kDebugMode,
     required this.type,
   }) : _discoveryAction = BonsoirPlatformInterface.instance
-            .createDiscovery(type, printLogs: printLogs);
+            .createDiscoveryAction(type, printLogs: printLogs);
 
   /// The ready getter, that returns when the platform is ready for discovery.
   Future<void> get ready async => _discoveryAction.ready;

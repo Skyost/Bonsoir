@@ -17,7 +17,7 @@ class BonsoirDiscoveryEvent extends BonsoirEvent<BonsoirDiscoveryEventType> {
       : this(
           type: BonsoirDiscoveryEventType.values.firstWhere(
             (type) => type.name.toLowerCase() == json['id'],
-            orElse: () => BonsoirDiscoveryEventType.UNKNOWN,
+            orElse: () => BonsoirDiscoveryEventType.unknown,
           ),
           service: json.containsKey('service')
               ? BonsoirService.fromJson(
@@ -29,25 +29,25 @@ class BonsoirDiscoveryEvent extends BonsoirEvent<BonsoirDiscoveryEventType> {
 /// Available Bonsoir discovery event types.
 enum BonsoirDiscoveryEventType {
   /// Triggered when the discovery has started.
-  DISCOVERY_STARTED,
+  discoveryStarted,
 
   /// Triggered when a service has been found.
-  DISCOVERY_SERVICE_FOUND,
+  discoveryServiceFound,
 
   /// Triggered when a service has been found and resolved.
-  DISCOVERY_SERVICE_RESOLVED,
+  discoveryServiceResolved,
 
   /// Triggered when a service has been found but cannot be resolved.
-  DISCOVERY_SERVICE_RESOLVE_FAILED,
+  discoveryServiceResolveFailed,
 
   /// Triggered when a service has been lost.
-  DISCOVERY_SERVICE_LOST,
+  discoveryServiceLost,
 
   /// Triggered when the discovery has stopped.
-  DISCOVERY_STOPPED,
+  discoveryStopped,
 
   /// Unknown type.
-  UNKNOWN,
+  unknown,
 }
 
 /// Allows to give a name to discovery event types.

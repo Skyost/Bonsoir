@@ -1,0 +1,22 @@
+name: bonsoir_android
+description: Android implementation of the Bonsoir plugin.
+repository: https://github.com/Skyost/Bonsoir/tree/master/bonsoir_android
+issue_tracker: https://github.com/Skyost/Bonsoir/issues
+version: 2.0.0
+
+environment:
+  sdk: ">=2.12.0 <3.0.0"
+  flutter: ">=1.12.0"
+
+flutter:
+  plugin:
+    implements: bonsoir
+    platforms:
+      android:
+        package: fr.skyost.bonsoir
+        pluginClass: BonsoirPlugin
+
+dependencies:
+  flutter:
+    sdk: flutter
+  bonsoir_platform_interface: ^2.0.0

@@ -47,10 +47,10 @@ class BonsoirDiscoveryModel extends ChangeNotifier {
       return;
     }
 
-    if (event.type == BonsoirDiscoveryEventType.DISCOVERY_SERVICE_RESOLVED) {
+    if (event.type == BonsoirDiscoveryEventType.discoveryServiceResolved) {
       _resolvedServices.add(event.service);
       notifyListeners();
-    } else if (event.type == BonsoirDiscoveryEventType.DISCOVERY_SERVICE_LOST) {
+    } else if (event.type == BonsoirDiscoveryEventType.discoveryServiceLost) {
       _resolvedServices.remove(event.service);
       notifyListeners();
     }

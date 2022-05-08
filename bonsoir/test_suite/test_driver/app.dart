@@ -38,7 +38,7 @@ void main() {
           await discovery.ready;
           await discovery.start();
           await for(BonsoirDiscoveryEvent event in discovery.eventStream!) {
-            if (event.type == BonsoirDiscoveryEventType.DISCOVERY_SERVICE_RESOLVED) {
+            if (event.type == BonsoirDiscoveryEventType.discoveryServiceResolved) {
               service = jsonEncode(event.service!.toJson());
               break; 
             }

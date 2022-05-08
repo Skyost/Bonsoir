@@ -14,7 +14,7 @@ class BonsoirBroadcast {
     bool printLogs = kDebugMode,
     required this.service,
   }) : _broadcastAction = BonsoirPlatformInterface.instance
-            .createBroadcast(service, printLogs: printLogs);
+            .createBroadcastAction(service, printLogs: printLogs);
 
   /// The ready getter, that returns when the platform is ready for broadcast.
   Future<void> get ready async => _broadcastAction.ready;

@@ -17,7 +17,7 @@ class BonsoirBroadcastEvent extends BonsoirEvent<BonsoirBroadcastEventType> {
       : this(
           type: BonsoirBroadcastEventType.values.firstWhere(
             (type) => type.name.toLowerCase() == json['id'],
-            orElse: () => BonsoirBroadcastEventType.UNKNOWN,
+            orElse: () => BonsoirBroadcastEventType.unknown,
           ),
           service: json.containsKey('service')
               ? BonsoirService.fromJson(
@@ -29,13 +29,13 @@ class BonsoirBroadcastEvent extends BonsoirEvent<BonsoirBroadcastEventType> {
 /// Available Bonsoir broadcast event types.
 enum BonsoirBroadcastEventType {
   /// Triggered when the broadcast has started.
-  BROADCAST_STARTED,
+  broadcastStarted,
 
   /// Triggered when the broadcast has stopped.
-  BROADCAST_STOPPED,
+  broadcastStopped,
 
   /// Unknown type.
-  UNKNOWN,
+  unknown,
 }
 
 /// Allows to give a name to broadcast event types.

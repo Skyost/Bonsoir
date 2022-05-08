@@ -1,7 +1,8 @@
 name: bonsoir
 description: A Zeroconf library that allows you to discover network services and to broadcast your own. Based on Apple Bonjour and Android NSD.
-version: 1.0.1+2 # Remember to also change the version in "ios/bonsoir.podspec", "macos/bonsoir.podspec", and "android/build.gradle".
-homepage: https://github.com/Skyost/Bonsoir
+repository: https://github.com/Skyost/Bonsoir/tree/master/bonsoir
+issue_tracker: https://github.com/Skyost/Bonsoir/issues
+version: 2.0.0
 
 environment:
   sdk: ">=2.12.0 <3.0.0"
@@ -10,7 +11,9 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  bonsoir_platform_interface: ^1.1.0
+  bonsoir_platform_interface: ^2.0.0
+  bonsoir_android: ">=2.0.0 <3.0.0"
+  bonsoir_darwin: ">=2.0.0 <3.0.0"
 
 dev_dependencies:
   flutter_lints: ^1.0.4
@@ -21,9 +24,8 @@ flutter:
   plugin:
     platforms:
       android:
-        package: fr.skyost.bonsoir
-        pluginClass: BonsoirPlugin
+        default_package: bonsoir_android
       ios:
-        pluginClass: BonsoirPlugin
-      macos:	
-        pluginClass: BonsoirPlugin
+        default_package: bonsoir_darwin
+      macos:
+        default_package: bonsoir_darwin
