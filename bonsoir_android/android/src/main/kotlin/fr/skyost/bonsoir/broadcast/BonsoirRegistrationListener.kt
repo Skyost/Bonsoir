@@ -36,6 +36,9 @@ class BonsoirRegistrationListener(
      */
     private var eventSink: EventSink? = null
 
+    /**
+     * Whether the registration is currently active.
+     */
     private var isRegistrationActive: Boolean = false
 
     /**
@@ -62,14 +65,18 @@ class BonsoirRegistrationListener(
         if (printLogs) {
             Log.d(BonsoirPlugin.tag, "[$id] Bonsoir service registered : $service")
         }
-        eventSink?.success(SuccessObject("broadcast_started", service).toJson())
+        Handler(Looper.getMainLooper()).post {
+            eventSink?.success(SuccessObject("broadcast_started", service).toJson())
+        }
     }
 
     override fun onRegistrationFailed(service: NsdServiceInfo, errorCode: Int) {
         if (printLogs) {
             Log.d(BonsoirPlugin.tag, "[$id] Bonsoir service registration failed : $service, error code : $errorCode")
         }
-        eventSink?.error("broadcast_error", "Bonsoir service registration failed.", errorCode)
+        Handler(Looper.getMainLooper()).post {
+            eventSink?.error("broadcast_error", "Bonsoir service registration failed.", errorCode)
+        }
         dispose()
     }
 
@@ -77,7 +84,9 @@ class BonsoirRegistrationListener(
         if (printLogs) {
             Log.d(BonsoirPlugin.tag, "[$id] Bonsoir service broadcast stopped : $service")
         }
-        eventSink?.success(SuccessObject("broadcast_stopped", service).toJson())
+        Handler(Looper.getMainLooper()).post {
+            eventSink?.success(SuccessObject("broadcast_stopped", service).toJson())
+        }
         //dispose(false)
     }
 
@@ -85,7 +94,9 @@ class BonsoirRegistrationListener(
         if (printLogs) {
             Log.d(BonsoirPlugin.tag, "[$id] Bonsoir service unregistration failed : $service, error code : $errorCode")
         }
-        eventSink?.error("broadcast_error", "Bonsoir service unregistration failed.", errorCode)
+        Handler(Looper.getMainLooper()).post {
+            eventSink?.error("broadcast_error", "Bonsoir service unregistration failed.", errorCode)
+        }
         //dispose()
     }
 

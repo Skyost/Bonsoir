@@ -9,6 +9,10 @@ import fr.skyost.bonsoir.BonsoirPlugin
 import fr.skyost.bonsoir.SuccessObject
 import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.EventChannel
+import android.os.Looper
+
+
+
 
 /**
  * Allows to find NSD services on local network.
@@ -42,6 +46,9 @@ class BonsoirDiscoveryListener(
      */
     private val resolver: Resolver
 
+    /**
+     * Whether the discovery is currently active.
+     */
     private var isDiscoveryActive: Boolean = false
 
     /**
