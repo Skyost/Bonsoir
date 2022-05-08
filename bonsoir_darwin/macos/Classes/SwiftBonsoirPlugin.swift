@@ -1,0 +1,1 @@
+../../darwin/SwiftBonsoirPlugin.swift
