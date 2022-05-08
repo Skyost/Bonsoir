@@ -107,7 +107,7 @@ class BonsoirServiceBrowserDelegate: NSObject, NetServiceBrowserDelegate, NetSer
     }
 
     /// Disposes the current class instance.
-    public func dispose(stopDiscovery: Bool = false) {
+    public func dispose(stopDiscovery: Bool = true) {
         services.removeAll()
         onDispose(stopDiscovery)
     }
