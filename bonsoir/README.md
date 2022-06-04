@@ -50,7 +50,6 @@ String type = '_wonderful-service._tcp';
 // Once defined, we can start the discovery :
 BonsoirDiscovery discovery = BonsoirDiscovery(type: type);
 await discovery.ready;
-await discovery.start();
 
 // If you want to listen to the discovery :
 discovery.eventStream.listen((event) {
@@ -60,6 +59,9 @@ discovery.eventStream.listen((event) {
     print('Service lost : ${event.service.toJson()}')
   }
 });
+
+// Start discovery **after** having listened to discovery events
+await discovery.start();
 
 // Then if you want to stop the discovery :
 await discovery.stop();

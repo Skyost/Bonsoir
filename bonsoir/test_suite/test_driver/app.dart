@@ -36,9 +36,10 @@ void main() {
           String service = 'ERROR';
           discovery = BonsoirDiscovery(type: type);
           await discovery.ready;
-          await discovery.start();
           await for(BonsoirDiscoveryEvent event in discovery.eventStream!) {
             if (event.type == BonsoirDiscoveryEventType.discoveryServiceResolved) {
+          await discovery
+              .start(); // Todo: In order to capture early discovery events, start needs to be called after listening to discovery events.
               service = jsonEncode(event.service!.toJson());
               break; 
             }
