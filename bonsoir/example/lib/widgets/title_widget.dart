@@ -1,12 +1,13 @@
+import 'package:bonsoir/bonsoir.dart';
 import 'package:bonsoir_example/models/discovery.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// Allows to display the app title based on how many services have been discovered.
-class TitleWidget extends StatelessWidget {
+class TitleWidget extends ConsumerWidget {
   @override
-  Widget build(BuildContext context) {
-    int count = context.watch<BonsoirDiscoveryModel>().discoveredServices.length;
-    return Text(count == 0 ? 'Bonsoir app demo' : 'Found $count service(s)');
+  Widget build(BuildContext context, WidgetRef ref) {
+    List<ResolvedBonsoirService> discoveredServices = ref.watch(discoveryModelProvider.select((model) => model.discoveredServices));
+    return Text(discoveredServices.isEmpty ? 'Bonsoir app demo' : 'Found ${discoveredServices.length} service(s)');
   }
 }

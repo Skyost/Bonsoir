@@ -12,12 +12,12 @@ class AppService {
   static const int port = 4000;
 
   /// The cached service.
-  static BonsoirService _service;
+  static BonsoirService? _service;
 
   /// Returns (and create if needed) the app Bonsoir service.
   static Future<BonsoirService> getService() async {
     if (_service != null) {
-      return _service;
+      return _service!;
     }
 
     String name;
@@ -31,6 +31,6 @@ class AppService {
     name += ' Bonsoir Demo';
 
     _service = BonsoirService(name: name, type: type, port: port);
-    return _service;
+    return _service!;
   }
 }

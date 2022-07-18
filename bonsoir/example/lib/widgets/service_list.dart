@@ -2,13 +2,13 @@ import 'package:bonsoir/bonsoir.dart';
 import 'package:bonsoir_example/models/app_service.dart';
 import 'package:bonsoir_example/models/discovery.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// Allows to display all discovered services.
-class ServiceList extends StatelessWidget {
+class ServiceList extends ConsumerWidget {
   @override
-  Widget build(BuildContext context) {
-    BonsoirDiscoveryModel model = context.watch<BonsoirDiscoveryModel>();
+  Widget build(BuildContext context, WidgetRef ref) {
+    BonsoirDiscoveryModel model = ref.watch(discoveryModelProvider);
     List<ResolvedBonsoirService> discoveredServices = model.discoveredServices;
     if (discoveredServices.isEmpty) {
       return const Padding(
@@ -39,7 +39,7 @@ class _ServiceWidget extends StatelessWidget {
 
   /// Creates a new service widget.
   const _ServiceWidget({
-    @required this.service,
+    required this.service,
   });
 
   @override

@@ -1,11 +1,19 @@
 import 'package:bonsoir/bonsoir.dart';
 import 'package:bonsoir_example/models/app_service.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+/// The model provider.
+final broadcastModelProvider = ChangeNotifierProvider((ref) {
+  BonsoirBroadcastModel model = BonsoirBroadcastModel();
+  model.start();
+  return model;
+});
 
 /// Provider model that allows to handle Bonsoir broadcasts.
 class BonsoirBroadcastModel extends ChangeNotifier {
   /// The current Bonsoir broadcast object instance.
-  BonsoirBroadcast _bonsoirBroadcast;
+  BonsoirBroadcast? _bonsoirBroadcast;
 
   /// Whether Bonsoir is currently broadcasting the app's service.
   bool _isBroadcasting = false;
@@ -15,12 +23,12 @@ class BonsoirBroadcastModel extends ChangeNotifier {
 
   /// Starts the Bonsoir broadcast.
   Future<void> start({bool notify = true}) async {
-    if (_bonsoirBroadcast == null || _bonsoirBroadcast.isStopped) {
+    if (_bonsoirBroadcast == null || _bonsoirBroadcast!.isStopped) {
       _bonsoirBroadcast = BonsoirBroadcast(service: await AppService.getService());
-      await _bonsoirBroadcast.ready;
+      await _bonsoirBroadcast!.ready;
     }
 
-    await _bonsoirBroadcast.start();
+    await _bonsoirBroadcast!.start();
     _isBroadcasting = true;
     if (notify) {
       notifyListeners();

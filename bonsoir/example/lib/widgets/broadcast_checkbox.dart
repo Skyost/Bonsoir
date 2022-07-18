@@ -1,12 +1,12 @@
 import 'package:bonsoir_example/models/broadcast.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// Allows to switch the app broadcast state.
-class BroadcastSwitch extends StatelessWidget {
+class BroadcastSwitch extends ConsumerWidget {
   @override
-  Widget build(BuildContext context) {
-    BonsoirBroadcastModel model = context.watch<BonsoirBroadcastModel>();
+  Widget build(BuildContext context, WidgetRef ref) {
+    BonsoirBroadcastModel model = ref.watch(broadcastModelProvider);
     return InkWell(
       onTap: () => _onTap(model),
       child: Row(
