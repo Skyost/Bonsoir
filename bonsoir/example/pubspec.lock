@@ -11,17 +11,24 @@ packages:
   bonsoir_android:
     dependency: transitive
     description:
-      path: "../../bonsoir_android"
-      relative: true
-    source: path
-    version: "2.0.0"
+      name: bonsoir_android
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "2.0.0+1"
+  bonsoir_darwin:
+    dependency: transitive
+    description:
+      name: bonsoir_darwin
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "2.0.0+1"
   bonsoir_platform_interface:
     dependency: transitive
     description:
-      path: "../../bonsoir_platform_interface"
-      relative: true
-    source: path
-    version: "2.0.0"
+      name: bonsoir_platform_interface
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "2.0.0+1"
   characters:
     dependency: transitive
     description:
