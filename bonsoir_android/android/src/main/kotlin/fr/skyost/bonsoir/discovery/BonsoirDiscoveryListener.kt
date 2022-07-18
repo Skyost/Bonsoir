@@ -9,10 +9,6 @@ import fr.skyost.bonsoir.BonsoirPlugin
 import fr.skyost.bonsoir.SuccessObject
 import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.EventChannel
-import android.os.Looper
-
-
-
 
 /**
  * Allows to find NSD services on local network.
@@ -78,7 +74,7 @@ class BonsoirDiscoveryListener(
 
         isDiscoveryActive = true
         Handler(Looper.getMainLooper()).post {
-            eventSink?.success(SuccessObject("discovery_started").toJson())
+            eventSink?.success(SuccessObject("discoveryStarted").toJson())
         }
     }
 
@@ -89,7 +85,7 @@ class BonsoirDiscoveryListener(
 
         isDiscoveryActive = false
         Handler(Looper.getMainLooper()).post {
-            eventSink?.error("discovery_error", "Bonsoir failed to start discovery", errorCode)
+            eventSink?.error("discoveryError", "Bonsoir failed to start discovery", errorCode)
         }
     }
 
@@ -99,7 +95,7 @@ class BonsoirDiscoveryListener(
         }
 
         Handler(Looper.getMainLooper()).post {
-            eventSink?.success(SuccessObject("discovery_service_found", service).toJson(resolver.getResolvedServiceIpAddress(service)))
+            eventSink?.success(SuccessObject("discoveryServiceFound", service).toJson(resolver.getResolvedServiceIpAddress(service)))
         }
 
         resolver.onServiceFound(service)
@@ -114,7 +110,7 @@ class BonsoirDiscoveryListener(
         }
 
         Handler(Looper.getMainLooper()).post {
-            eventSink?.success(SuccessObject("discovery_service_lost", service).toJson(resolvedServiceInfo))
+            eventSink?.success(SuccessObject("discoveryServiceLost", service).toJson(resolvedServiceInfo))
         }
     }
 
@@ -124,7 +120,7 @@ class BonsoirDiscoveryListener(
         }
 
         Handler(Looper.getMainLooper()).post {
-            eventSink?.success(SuccessObject("discovery_stopped").toJson())
+            eventSink?.success(SuccessObject("discoveryStopped").toJson())
         }
     }
 
@@ -134,7 +130,7 @@ class BonsoirDiscoveryListener(
         }
 
         Handler(Looper.getMainLooper()).post {
-            eventSink?.error("discovery_error", "Bonsoir has encountered an error while stopping the discovery", errorCode)
+            eventSink?.error("discoveryError", "Bonsoir has encountered an error while stopping the discovery", errorCode)
         }
     }
 
@@ -147,7 +143,7 @@ class BonsoirDiscoveryListener(
         }
 
         Handler(Looper.getMainLooper()).post {
-            eventSink?.success(SuccessObject("discovery_service_resolved", service).toJson(resolver.getResolvedServiceIpAddress(service)))
+            eventSink?.success(SuccessObject("discoveryServiceResolved", service).toJson(resolver.getResolvedServiceIpAddress(service)))
         }
     }
 
@@ -160,7 +156,7 @@ class BonsoirDiscoveryListener(
         }
 
         Handler(Looper.getMainLooper()).post {
-            eventSink?.success(SuccessObject("discovery_service_resolve_failed", service).toJson(resolver.getResolvedServiceIpAddress(service)))
+            eventSink?.success(SuccessObject("discoveryServiceResolveFailed", service).toJson(resolver.getResolvedServiceIpAddress(service)))
         }
     }
 

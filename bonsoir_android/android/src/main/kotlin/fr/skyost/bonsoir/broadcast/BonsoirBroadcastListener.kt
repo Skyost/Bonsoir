@@ -2,6 +2,8 @@ package fr.skyost.bonsoir.broadcast
 
 import android.net.nsd.NsdManager
 import android.net.nsd.NsdServiceInfo
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import fr.skyost.bonsoir.BonsoirPlugin
 import fr.skyost.bonsoir.SuccessObject
@@ -66,7 +68,7 @@ class BonsoirBroadcastListener(
         }
         isBroadcastActive = true
         Handler(Looper.getMainLooper()).post {
-            eventSink?.success(SuccessObject("broadcast_started", service).toJson())
+            eventSink?.success(SuccessObject("broadcastStarted", service).toJson())
         }
     }
 
@@ -75,7 +77,7 @@ class BonsoirBroadcastListener(
             Log.d(BonsoirPlugin.tag, "[$id] Bonsoir service registration failed : $service, error code : $errorCode")
         }
         Handler(Looper.getMainLooper()).post {
-            eventSink?.error("broadcast_error", "Bonsoir service registration failed.", errorCode)
+            eventSink?.error("broadcastError", "Bonsoir service registration failed.", errorCode)
         }
         dispose()
     }
@@ -85,7 +87,7 @@ class BonsoirBroadcastListener(
             Log.d(BonsoirPlugin.tag, "[$id] Bonsoir service broadcast stopped : $service")
         }
         Handler(Looper.getMainLooper()).post {
-            eventSink?.success(SuccessObject("broadcast_stopped", service).toJson())
+            eventSink?.success(SuccessObject("broadcastStopped", service).toJson())
         }
         //dispose(false)
     }
@@ -95,7 +97,7 @@ class BonsoirBroadcastListener(
             Log.d(BonsoirPlugin.tag, "[$id] Bonsoir service unregistration failed : $service, error code : $errorCode")
         }
         Handler(Looper.getMainLooper()).post {
-            eventSink?.error("broadcast_error", "Bonsoir service unregistration failed.", errorCode)
+            eventSink?.error("broadcastError", "Bonsoir service unregistration failed.", errorCode)
         }
         //dispose()
     }

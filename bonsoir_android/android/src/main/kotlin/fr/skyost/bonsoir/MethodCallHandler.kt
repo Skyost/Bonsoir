@@ -27,7 +27,7 @@ class MethodCallHandler(
     /**
      * Contains all registration listeners (Broadcast).
      */
-    private val registrationListeners: HashMap<Int, BonsoirRegistrationListener> = HashMap()
+    private val registrationListeners: HashMap<Int, BonsoirBroadcastListener> = HashMap()
 
     /**
      * Contains all discovery listeners (Discovery).
@@ -92,10 +92,10 @@ class MethodCallHandler(
      * Disposes the current instance.
      */
     fun dispose() {
-        for (registrationListener in ArrayList<BonsoirBroadcastListener>(registrationListeners.values)) {
+        for (registrationListener in ArrayList(registrationListeners.values)) {
             registrationListener.dispose()
         }
-        for (discoveryListener in ArrayList<BonsoirDiscoveryListener>(discoveryListeners.values)) {
+        for (discoveryListener in ArrayList(discoveryListeners.values)) {
             discoveryListener.dispose()
         }
     }

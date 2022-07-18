@@ -20,7 +20,7 @@ class ResolvedBonsoirService extends BonsoirService {
     String prefix = 'service.',
   }) : this(
           name: json['${prefix}name'],
-          type: json['${prefix}type'],
+          type: _filterType(json['${prefix}type']),
           port: json['${prefix}port'],
           attributes: Map<String, String>.from(json['${prefix}attributes']),
           ip: json['${prefix}ip'],
@@ -40,4 +40,15 @@ class ResolvedBonsoirService extends BonsoirService {
 
   @override
   int get hashCode => super.hashCode + (ip?.hashCode ?? -1);
+
+  /// Filters a service type (because problems can occur when running a broadcast and a discovery on the same device).
+  static String _filterType(String type) {
+    if (type.startsWith('._')) {
+      type = type.substring(1);
+    }
+    if (type.endsWith('_tcp.') || type.endsWith('_udp.')) {
+      type = type.substring(0, type.length - 1);
+    }
+    return type;
+  }
 }

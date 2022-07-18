@@ -130,7 +130,7 @@ class Resolver(
      *
      * @return Whether the given service has been resolved.
      */
-    fun hasResolvedService(service: NsdServiceInfo): Boolean {
+    private fun hasResolvedService(service: NsdServiceInfo): Boolean {
         return resolvedServices.containsKey(service.serviceName)
     }
 

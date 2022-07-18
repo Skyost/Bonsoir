@@ -37,14 +37,14 @@ class BonsoirServiceDelegate: NSObject, NetServiceDelegate, FlutterStreamHandler
         if printLogs {
             SwiftBonsoirPlugin.log(category: "broadcast", id: id, message: "Bonsoir service broadcasted : \(service)")
         }
-        eventSink?(SuccessObject(id: "broadcast_started", service: service).toJson())
+        eventSink?(SuccessObject(id: "broadcastStarted", service: service).toJson())
     }
 
     func netService(_ service: NetService, didNotPublish error: [String: NSNumber]) {
         if printLogs {
             SwiftBonsoirPlugin.log(category: "broadcast", id: id, message: "Bonsoir service failed to broadcast : \(service), error code : \(error)")
         }
-        eventSink?(FlutterError.init(code: "broadcast_error", message: "Bonsoir service failed to broadcast.", details: error));
+        eventSink?(FlutterError.init(code: "broadcastError", message: "Bonsoir service failed to broadcast.", details: error));
     }
 
     func netServiceDidStop(_ service: NetService) {
@@ -52,7 +52,7 @@ class BonsoirServiceDelegate: NSObject, NetServiceDelegate, FlutterStreamHandler
             SwiftBonsoirPlugin.log(category: "broadcast", id: id, message: "Bonsoir service broadcast stopped : \(service)")
         }
         
-        eventSink?(SuccessObject(id: "broadcast_stopped", service: service).toJson())
+        eventSink?(SuccessObject(id: "broadcastStopped", service: service).toJson())
         dispose(stopBroadcast: false)
     }
     

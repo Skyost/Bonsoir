@@ -40,14 +40,14 @@ class BonsoirServiceBrowserDelegate: NSObject, NetServiceBrowserDelegate, NetSer
         if printLogs {
             SwiftBonsoirPlugin.log(category: "discovery", id: id, message: "Bonsoir discovery started : \(browser)")
         }
-        eventSink?(SuccessObject(id: "discovery_started").toJson())
+        eventSink?(SuccessObject(id: "discoveryStarted").toJson())
     }
 
     func netServiceBrowser(_ browser: NetServiceBrowser, didNotSearch error: [String: NSNumber]) {
         if printLogs {
             SwiftBonsoirPlugin.log(category: "discovery", id: id, message: "Bonsoir has encountered an error during discovery : \(error)")
         }
-        eventSink?(FlutterError.init(code: "discovery_error", message: "Bonsoir has encountered an error during discovery.", details: error))
+        eventSink?(FlutterError.init(code: "discoveryError", message: "Bonsoir has encountered an error during discovery.", details: error))
         dispose(stopDiscovery: true)
     }
 
@@ -55,7 +55,7 @@ class BonsoirServiceBrowserDelegate: NSObject, NetServiceBrowserDelegate, NetSer
         if printLogs {
             SwiftBonsoirPlugin.log(category: "discovery", id: id, message: "Bonsoir has found a service : \(service)")
         }
-        eventSink?(SuccessObject(id: "discovery_service_found", service: service).toJson())
+        eventSink?(SuccessObject(id: "discoveryServiceFound", service: service).toJson())
         
         service.delegate = self
         if(services[service.name] == nil) {
@@ -68,7 +68,7 @@ class BonsoirServiceBrowserDelegate: NSObject, NetServiceBrowserDelegate, NetSer
         if printLogs {
             SwiftBonsoirPlugin.log(category: "discovery", id: id, message: "A Bonsoir service has been lost : \(service)")
         }
-        eventSink?(SuccessObject(id: "discovery_service_lost", service: services[service.name] ?? service).toJson())
+        eventSink?(SuccessObject(id: "discoveryServiceLost", service: services[service.name] ?? service).toJson())
         services.removeValue(forKey: service.name)
     }
     
@@ -77,7 +77,7 @@ class BonsoirServiceBrowserDelegate: NSObject, NetServiceBrowserDelegate, NetSer
         if printLogs {
             SwiftBonsoirPlugin.log(category: "discovery", id: id, message: "Bonsoir has resolved a service : \(service)")
         }
-        eventSink?(SuccessObject(id: "discovery_service_resolved", service: service).toJson())
+        eventSink?(SuccessObject(id: "discoveryServiceResolved", service: service).toJson())
     }
     
     func netService(_ service: NetService, didNotResolve error: [String: NSNumber])  {
@@ -85,14 +85,14 @@ class BonsoirServiceBrowserDelegate: NSObject, NetServiceBrowserDelegate, NetSer
         if printLogs {
             SwiftBonsoirPlugin.log(category: "discovery", id: id, message: "Bonsoir has failed to resolve a service : \(error)")
         }
-        eventSink?(SuccessObject(id: "discovery_service_resolve_failed", service: service).toJson())
+        eventSink?(SuccessObject(id: "discoveryServiceResolveFailed", service: service).toJson())
     }
 
     func netServiceBrowserDidStopSearch(_ browser: NetServiceBrowser) {
         if printLogs {
             SwiftBonsoirPlugin.log(category: "discovery", id: id, message: "Bonsoir discovery stopped : \(browser)")
         }
-        eventSink?(SuccessObject(id: "discovery_stopped").toJson())
+        eventSink?(SuccessObject(id: "discoveryStopped").toJson())
         dispose()
     }
     

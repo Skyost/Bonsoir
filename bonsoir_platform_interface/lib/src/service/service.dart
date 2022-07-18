@@ -18,7 +18,7 @@ class BonsoirService {
   ///
   /// Note especially :
   /// * Each part must start with an underscore, '_'.
-  /// * The second part only allows '_tcp' or _'udp'.
+  /// * The second part only allows '_tcp' or '_udp'.
   ///
   /// Commons examples are :
   /// ```

@@ -13,7 +13,7 @@ class BonsoirDiscoveryEvent extends BonsoirEvent<BonsoirDiscoveryEventType> {
   BonsoirDiscoveryEvent.fromJson(Map<String, dynamic> json)
       : this(
           type: BonsoirDiscoveryEventType.values.firstWhere(
-            (type) => type.name.toLowerCase() == json['id'],
+            (type) => type.id == json['id'],
             orElse: () => BonsoirDiscoveryEventType.unknown,
           ),
           service: json.containsKey('service')
@@ -44,11 +44,8 @@ enum BonsoirDiscoveryEventType {
   discoveryStopped,
 
   /// Unknown type.
-  unknown,
-}
+  unknown;
 
-/// Allows to give a name to discovery event types.
-extension BonsoirDiscoveryEventTypeName on BonsoirDiscoveryEventType {
   /// Returns the type name.
-  String get name => toString().split('.').last;
+  String get id => toString().split('.').last;
 }

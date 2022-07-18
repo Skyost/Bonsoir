@@ -13,7 +13,7 @@ class BonsoirBroadcastEvent extends BonsoirEvent<BonsoirBroadcastEventType> {
   BonsoirBroadcastEvent.fromJson(Map<String, dynamic> json)
       : this(
           type: BonsoirBroadcastEventType.values.firstWhere(
-            (type) => type.name.toLowerCase() == json['id'],
+            (type) => type.id == json['id'],
             orElse: () => BonsoirBroadcastEventType.unknown,
           ),
           service: json.containsKey('service')
@@ -32,11 +32,8 @@ enum BonsoirBroadcastEventType {
   broadcastStopped,
 
   /// Unknown type.
-  unknown,
-}
+  unknown;
 
-/// Allows to give a name to broadcast event types.
-extension BonsoirBroadcastEventTypeName on BonsoirBroadcastEventType {
   /// Returns the type name.
-  String get name => toString().split('.').last;
+  String get id => toString().split('.').last;
 }
