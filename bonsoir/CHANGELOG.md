@@ -1,3 +1,8 @@
+## [2.0.0] - 2022-07-18
+
+* Splitting the project into separate packages.
+* Updated libraries.
+
 ## [1.0.1+2] - 2021-11-06
 
 * Fixed a build error on iOS.

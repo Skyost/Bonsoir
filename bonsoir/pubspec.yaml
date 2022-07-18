@@ -5,8 +5,8 @@ issue_tracker: https://github.com/Skyost/Bonsoir/issues
 version: 2.0.0
 
 environment:
-  sdk: ">=2.12.0 <3.0.0"
-  flutter: ">=1.12.0"
+  sdk: ">=2.17.0 <3.0.0"
+  flutter: ">=3.0.0"
 
 dependencies:
   flutter:
@@ -16,9 +16,7 @@ dependencies:
   bonsoir_darwin: ">=2.0.0 <3.0.0"
 
 dev_dependencies:
-  flutter_lints: ^1.0.4
-  flutter_test:
-    sdk: flutter
+  flutter_lints: ^2.0.1
 
 flutter:
   plugin:
