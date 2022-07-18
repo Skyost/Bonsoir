@@ -4,10 +4,10 @@ packages:
   bonsoir_platform_interface:
     dependency: "direct main"
     description:
-      path: "../bonsoir_platform_interface"
-      relative: true
-    source: path
-    version: "2.0.0"
+      name: bonsoir_platform_interface
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "2.0.0+1"
   characters:
     dependency: transitive
     description:
