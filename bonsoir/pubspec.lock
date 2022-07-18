@@ -7,21 +7,21 @@ packages:
       name: bonsoir_android
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.0.0"
+    version: "2.0.0+1"
   bonsoir_darwin:
     dependency: "direct main"
     description:
       name: bonsoir_darwin
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.0.0+1"
+    version: "2.0.0+3"
   bonsoir_platform_interface:
     dependency: "direct main"
     description:
       name: bonsoir_platform_interface
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.0.0"
+    version: "2.0.0+1"
   characters:
     dependency: transitive
     description:
