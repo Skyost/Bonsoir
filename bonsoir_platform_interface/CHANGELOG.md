@@ -1,3 +1,8 @@
+## [2.0.0] - 2022-07-18
+
+* Splitting the project into separate packages.
+* Updated libraries.
+
 ## [1.1.0+1] - 2021-10-27
 
 * Updated libraries.

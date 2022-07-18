@@ -5,12 +5,9 @@ import 'package:bonsoir_platform_interface/src/service/service.dart';
 class BonsoirBroadcastEvent extends BonsoirEvent<BonsoirBroadcastEventType> {
   /// Creates a new Bonsoir broadcast event.
   const BonsoirBroadcastEvent({
-    required BonsoirBroadcastEventType type,
-    BonsoirService? service,
-  }) : super(
-          type: type,
-          service: service,
-        );
+    required super.type,
+    super.service,
+  });
 
   /// Creates a new Bonsoir broadcast event from the given JSON map.
   BonsoirBroadcastEvent.fromJson(Map<String, dynamic> json)

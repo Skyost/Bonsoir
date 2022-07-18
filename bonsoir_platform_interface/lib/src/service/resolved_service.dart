@@ -7,17 +7,12 @@ class ResolvedBonsoirService extends BonsoirService {
 
   /// Creates a new resolved Bonsoir service.
   const ResolvedBonsoirService({
-    required String name,
-    required String type,
-    required int port,
-    Map<String, String>? attributes,
+    required super.name,
+    required super.type,
+    required super.port,
+    super.attributes,
     required this.ip,
-  }) : super(
-          name: name,
-          type: type,
-          port: port,
-          attributes: attributes,
-        );
+  });
 
   /// Creates a new resolved Bonsoir service instance from the given JSON map.
   ResolvedBonsoirService.fromJson(

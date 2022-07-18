@@ -3,6 +3,10 @@ description: Common platform interface for the Bonsoir plugin.
 homepage: https://github.com/Skyost/Bonsoir
 version: 2.0.0
 
+environment:
+  sdk: ">=2.17.0 <3.0.0"
+  flutter: ">=3.0.0"
+
 dependencies:
   flutter:
     sdk: flutter
@@ -10,10 +14,4 @@ dependencies:
   plugin_platform_interface: ^2.1.2
 
 dev_dependencies:
-  flutter_lints: ^1.0.4
-  flutter_test:
-    sdk: flutter
-
-environment:
-  sdk: ">=2.12.0 <3.0.0"
-  flutter: ">=1.10.0"
+  flutter_lints: ^2.0.1

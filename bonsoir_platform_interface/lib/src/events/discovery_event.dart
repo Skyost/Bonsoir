@@ -5,12 +5,9 @@ import 'package:bonsoir_platform_interface/src/service/service.dart';
 class BonsoirDiscoveryEvent extends BonsoirEvent<BonsoirDiscoveryEventType> {
   /// Creates a new Bonsoir discovery event.
   const BonsoirDiscoveryEvent({
-    required BonsoirDiscoveryEventType type,
-    BonsoirService? service,
-  }) : super(
-          type: type,
-          service: service,
-        );
+    required super.type,
+    super.service,
+  });
 
   /// Creates a new Bonsoir discovery event from the given JSON map.
   BonsoirDiscoveryEvent.fromJson(Map<String, dynamic> json)
