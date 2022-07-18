@@ -19,5 +19,4 @@ flutter:
 dependencies:
   flutter:
     sdk: flutter
-  bonsoir_platform_interface:
-    path: ../bonsoir_platform_interface
+  bonsoir_platform_interface: ^2.0.0
