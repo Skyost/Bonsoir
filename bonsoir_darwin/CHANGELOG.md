@@ -1,3 +1,7 @@
+## [2.0.0+3] - 2022-07-18
+
+* Fixed a compilation error in the Darwin package.
+
 ## [2.0.0+2] - 2022-07-18
 
 * Fixed bugs with services types.
