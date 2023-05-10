@@ -5,10 +5,10 @@ packages:
     dependency: "direct main"
     description:
       name: bonsoir_platform_interface
-      sha256: "2f30c5f144309f690f11890e7db52ddc8a4f8a576a1ec9e3761bb430c2b986cd"
+      sha256: "97081d861ff2e7b45edd9e17ae1b35530d5a7ec561e3377e00da2e0cfae500dc"
       url: "https://pub.dev"
     source: hosted
-    version: "2.0.0+1"
+    version: "2.2.0"
   characters:
     dependency: transitive
     description:
