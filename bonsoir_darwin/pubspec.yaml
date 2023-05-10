@@ -5,8 +5,8 @@ issue_tracker: https://github.com/Skyost/Bonsoir/issues
 version: 2.0.0+3
 
 environment:
-  sdk: ">=2.17.0 <3.0.0"
-  flutter: ">=3.0.0"
+  sdk: ">=3.0.0 <4.0.0"
+  flutter: ">=3.7.0"
 
 flutter:
   plugin:
@@ -14,8 +14,10 @@ flutter:
     platforms:
       ios:
         pluginClass: BonsoirPlugin
+        sharedDarwinSource: true
       macos:
         pluginClass: BonsoirPlugin
+        sharedDarwinSource: true
 
 dependencies:
   flutter:
