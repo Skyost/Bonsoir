@@ -53,7 +53,7 @@ data class SuccessObject(private val id: String, private val service: NsdService
      * @return The attributes.
      */
     private fun getAttributes(service: NsdServiceInfo): Map<String, String> {
-        val result = HashMap<String, String>();
+        val result = HashMap<String, String>()
         if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.LOLLIPOP) {
             return result
         }
