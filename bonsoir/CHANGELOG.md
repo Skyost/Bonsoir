@@ -1,3 +1,7 @@
+## [2.2.0+1] - 2023-05-13
+
+* Fixed the badges links in the README.
+
 ## [2.2.0] - 2023-05-10
 
 * Updated SDK constraints.

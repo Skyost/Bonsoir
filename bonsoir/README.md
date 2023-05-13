@@ -10,9 +10,9 @@ and on Apple's popular framework [Bonjour](https://developer.apple.com/documenta
 In fact, <q>Bonsoir</q> can be translated into <q>Good evening</q> (and <q>Bonjour</q> into <q>Good morning</q>
 or <q>Good afternoon</q> depending on the current moment of the day).
 
-[![Likes](https://badges.bar/bonsoir/likes)](https://pub.dev/packages/bonsoir/score)
-[![Popularity](https://badges.bar/bonsoir/popularity)](https://pub.dev/packages/bonsoir/score)
-[![Pub points](https://badges.bar/bonsoir/pub%20points)](https://pub.dev/packages/bonsoir/score)
+[![Pub Likes](https://img.shields.io/pub/likes/bonsoir?style=flat-square)](https://pub.dev/packages/bonsoir/score)
+[![Pub Popularity](https://img.shields.io/pub/popularity/bonsoir?style=flat-square)](https://pub.dev/packages/bonsoir/score)
+[![Pub Points](https://img.shields.io/pub/points/bonsoir?style=flat-square)](https://pub.dev/packages/bonsoir/score)
 
 ## Preview
 
