@@ -13,10 +13,10 @@ flutter:
     implements: bonsoir
     platforms:
       ios:
-        pluginClass: BonsoirPlugin
+        pluginClass: SwiftBonsoirPlugin
         sharedDarwinSource: true
       macos:
-        pluginClass: BonsoirPlugin
+        pluginClass: SwiftBonsoirPlugin
         sharedDarwinSource: true
 
 dependencies:
