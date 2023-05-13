@@ -1,3 +1,7 @@
+## [2.2.0+1] - 2023-05-13
+
+* Fixed a compilation error in the Darwin package (thanks [Nico Spencer](https://github.com/nicholasspencer)).
+
 ## [2.2.0] - 2023-05-10
 
 * Updated SDK constraints.

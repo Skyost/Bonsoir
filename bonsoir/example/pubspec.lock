@@ -7,31 +7,31 @@ packages:
       path: ".."
       relative: true
     source: path
-    version: "2.1.0"
+    version: "2.2.0"
   bonsoir_android:
     dependency: transitive
     description:
       name: bonsoir_android
-      sha256: "1cb9db0f478f66b86bbbc3f447c407162b2138bb6fcf35c4dac5b1f3f1fb0bc6"
+      sha256: "21c38f707df0755b5bedd05c5fd52cb5e9fa9f4a4efbcef94cb9669029c73d75"
       url: "https://pub.dev"
     source: hosted
-    version: "2.1.0+2"
+    version: "2.2.0"
   bonsoir_darwin:
     dependency: transitive
     description:
       name: bonsoir_darwin
-      sha256: e6dfa3062cb9dc40cb3b640445a9b1c727677c9e27dc54104b2743e58bd5f80c
+      sha256: "9f8ab369586fd533c5985c6ba425e258668845aaa81e473a5677637457af0126"
       url: "https://pub.dev"
     source: hosted
-    version: "2.0.0+3"
+    version: "2.2.0"
   bonsoir_platform_interface:
     dependency: transitive
     description:
       name: bonsoir_platform_interface
-      sha256: "2f30c5f144309f690f11890e7db52ddc8a4f8a576a1ec9e3761bb430c2b986cd"
+      sha256: "97081d861ff2e7b45edd9e17ae1b35530d5a7ec561e3377e00da2e0cfae500dc"
       url: "https://pub.dev"
     source: hosted
-    version: "2.0.0+1"
+    version: "2.2.0"
   characters:
     dependency: transitive
     description:
@@ -156,4 +156,4 @@ packages:
     version: "2.1.4"
 sdks:
   dart: ">=3.0.0 <4.0.0"
-  flutter: ">=3.0.0"
+  flutter: ">=3.7.0"
