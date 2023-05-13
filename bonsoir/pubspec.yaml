@@ -3,6 +3,12 @@ description: A Zeroconf library that allows you to discover network services and
 repository: https://github.com/Skyost/Bonsoir/tree/master/bonsoir
 issue_tracker: https://github.com/Skyost/Bonsoir/issues
 version: 2.2.0+1
+funding:
+ - https://ko-fi.com/Skyost
+ - https://paypal.me/Skyost
+screenshots:
+  - description: 'Bonsoir preview.'
+    path: images/preview.gif
 
 environment:
   sdk: ">=3.0.0 <4.0.0"
@@ -14,6 +20,14 @@ dependencies:
   bonsoir_platform_interface: ">=2.2.0 <3.0.0"
   bonsoir_android: ">=2.2.0 <3.0.0"
   bonsoir_darwin: ">=2.2.0 <3.0.0"
+
+dependency_overrides:
+  bonsoir_platform_interface:
+    path: ../bonsoir_platform_interface/
+  bonsoir_android:
+    path: ../bonsoir_android/
+  bonsoir_darwin:
+    path: ../bonsoir_darwin/
 
 dev_dependencies:
   flutter_lints: ^2.0.1
