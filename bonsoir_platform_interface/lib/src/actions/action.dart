@@ -1,6 +1,8 @@
+import 'dart:async';
 import 'dart:math';
 
 import 'package:bonsoir_platform_interface/src/events/event.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
@@ -29,8 +31,7 @@ abstract class BonsoirAction<T extends BonsoirEvent> {
 }
 
 /// Abstract class that contains all methods that are communicating with the native side of the plugin.
-abstract class MethodChannelBonsoirAction<T extends BonsoirEvent>
-    extends BonsoirAction<T> {
+abstract class MethodChannelBonsoirAction<T extends BonsoirEvent> extends BonsoirAction<T> {
   /// The channel name.
   static const String _channelName = 'fr.skyost.bonsoir';
 
@@ -68,9 +69,7 @@ abstract class MethodChannelBonsoirAction<T extends BonsoirEvent>
   @override
   Future<void> get ready async {
     await channel.invokeMethod('$_classType.initialize', toJson());
-    _eventStream = EventChannel('$_channelName.$_classType.$_id')
-        .receiveBroadcastStream()
-        .map(transformPlatformEvent);
+    _eventStream = EventChannel('$_channelName.$_classType.$_id').receiveBroadcastStream().map(transformPlatformEvent);
   }
 
   /// Returns whether this instance can be used.
@@ -84,8 +83,7 @@ abstract class MethodChannelBonsoirAction<T extends BonsoirEvent>
   /// Starts to do either a discover or a broadcast.
   @override
   Future<void> start() {
-    assert(isReady,
-        '''$runtimeType should be ready to start in order to call this method.
+    assert(isReady, '''$runtimeType should be ready to start in order to call this method.
 You must wait until this instance is ready by calling "await $runtimeType.ready".
 If you have previously called "$runtimeType.stop()" on this instance, you have to create a new instance of this class.''');
     return channel.invokeMethod('$_classType.start', toJson());
@@ -112,4 +110,41 @@ If you have previously called "$runtimeType.stop()" on this instance, you have t
 
   /// Allows to generate a random identifier.
   static int _createRandomId() => Random().nextInt(100000);
+}
+
+/// Allows the bonsoir action to automatically stop when the network is disconnected.
+mixin AutoStopBonsoirAction<T extends BonsoirEvent> on BonsoirAction<T> {
+  /// The connectivity change subscription.
+  StreamSubscription<ConnectivityResult>? _connectivityChangeSubscription;
+
+  @override
+  @mustCallSuper
+  Future<void> start() async {
+    await super.start();
+    if (_connectivityChangeSubscription != null) {
+      await _cancelConnectivityChangeSubscription();
+    }
+    _connectivityChangeSubscription = Connectivity().onConnectivityChanged.listen(_onConnectivityChanged);
+  }
+
+  @override
+  @mustCallSuper
+  Future<void> stop() async {
+    await _cancelConnectivityChangeSubscription();
+    await super.stop();
+  }
+
+  /// Cancels the connectivity change subscription.
+  @protected
+  Future<void> _cancelConnectivityChangeSubscription() async {
+    await _connectivityChangeSubscription?.cancel();
+    _connectivityChangeSubscription = null;
+  }
+
+  /// Triggered when the connectivity has changed.
+  void _onConnectivityChanged(ConnectivityResult result) {
+    if (result == ConnectivityResult.none) {
+      stop();
+    }
+  }
 }

@@ -4,8 +4,7 @@ import 'package:bonsoir_platform_interface/src/service/service.dart';
 import 'package:flutter/foundation.dart';
 
 /// Implementation of [MethodChannelBonsoirEvents] for the broadcast action.
-class BonsoirBroadcastAction
-    extends MethodChannelBonsoirAction<BonsoirBroadcastEvent> {
+class BonsoirBroadcastAction extends MethodChannelBonsoirAction<BonsoirBroadcastEvent> with AutoStopBonsoirAction<BonsoirBroadcastEvent> {
   /// The Bonsoir service.
   final BonsoirService service;
 

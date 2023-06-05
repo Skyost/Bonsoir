@@ -3,8 +3,7 @@ import 'package:bonsoir_platform_interface/src/events/discovery_event.dart';
 import 'package:flutter/foundation.dart';
 
 /// Implementation of [MethodChannelBonsoirEvents] for the discovery action.
-class BonsoirDiscoveryAction
-    extends MethodChannelBonsoirAction<BonsoirDiscoveryEvent> {
+class BonsoirDiscoveryAction extends MethodChannelBonsoirAction<BonsoirDiscoveryEvent> with AutoStopBonsoirAction {
   /// The service type.
   final String type;
 

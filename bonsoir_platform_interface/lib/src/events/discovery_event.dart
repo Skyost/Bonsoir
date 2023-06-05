@@ -16,10 +16,7 @@ class BonsoirDiscoveryEvent extends BonsoirEvent<BonsoirDiscoveryEventType> {
             (type) => type.id == json['id'],
             orElse: () => BonsoirDiscoveryEventType.unknown,
           ),
-          service: json.containsKey('service')
-              ? BonsoirService.fromJson(
-                  Map<String, dynamic>.from(json['service']))
-              : null,
+          service: json.containsKey('service') ? BonsoirService.fromJson(Map<String, dynamic>.from(json['service'])) : null,
         );
 }
 
