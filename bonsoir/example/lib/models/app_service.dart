@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:bonsoir/bonsoir.dart';
-import 'package:device_info/device_info.dart';
+import 'package:device_info_plus/device_info_plus.dart';
 
 /// Allows to get the Bonsoir service corresponding to the current device.
 class AppService {
