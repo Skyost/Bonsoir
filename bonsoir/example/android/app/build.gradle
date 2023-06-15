@@ -26,10 +26,9 @@ apply plugin: 'kotlin-android'
 apply from: "$flutterRoot/packages/flutter_tools/gradle/flutter.gradle"
 
 android {
+    namespace "fr.skyost.bonsoir_example"
     compileSdkVersion flutter.compileSdkVersion
     ndkVersion flutter.ndkVersion
-
-    namespace 'fr.skyost.bonsoir.example'
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
@@ -40,16 +39,16 @@ android {
         jvmTarget = '1.8'
     }
 
-    lintOptions {
-        disable 'InvalidPackage'
+    sourceSets {
+        main.java.srcDirs += 'src/main/kotlin'
     }
 
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
         applicationId "fr.skyost.bonsoir_example"
         // You can update the following values to match your application needs.
-        // For more information, see: https://docs.flutter.dev/deployment/android#reviewing-the-build-configuration.
-        minSdkVersion flutter.minSdkVersion
+        // For more information, see: https://docs.flutter.dev/deployment/android#reviewing-the-gradle-build-configuration.
+        minSdkVersion 19
         targetSdkVersion flutter.targetSdkVersion
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
