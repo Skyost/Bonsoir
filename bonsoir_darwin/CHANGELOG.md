@@ -1,3 +1,7 @@
+## [3.0.0] - 2023-08-01
+
+* Now, services are not directly resolved by default.
+
 ## [2.2.0+1] - 2023-05-13
 
 * Fixed a compilation error in the Darwin package (thanks [Nico Spencer](https://github.com/nicholasspencer)).

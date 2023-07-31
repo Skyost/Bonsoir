@@ -13,9 +13,9 @@ import kotlin.collections.HashMap
  * Kudos https://stackoverflow.com/a/57998099/3608831.
  */
 class Resolver(
-        private val nsdManager: NsdManager,
-        private val onResolved: (NsdServiceInfo) -> Unit,
-        private val onFailed: (NsdServiceInfo, Int) -> Unit
+    private val nsdManager: NsdManager,
+    private val onResolved: (NsdServiceInfo) -> Unit,
+    private val onFailed: (NsdServiceInfo, Int) -> Unit
 ) : NsdManager.ResolveListener {
 
     /**
@@ -36,10 +36,11 @@ class Resolver(
     /**
      * Contains all resolved services address.
      */
-    private val resolvedServices: MutableMap<String, ResolvedServiceInfo> = Collections.synchronizedMap(HashMap<String, ResolvedServiceInfo>())
+    private val resolvedServices: MutableMap<String, ResolvedServiceInfo> =
+        Collections.synchronizedMap(HashMap<String, ResolvedServiceInfo>())
 
     override fun onServiceResolved(service: NsdServiceInfo) {
-        if(isDisposed) {
+        if (isDisposed) {
             return
         }
 
@@ -49,7 +50,7 @@ class Resolver(
     }
 
     override fun onResolveFailed(service: NsdServiceInfo, errorCode: Int) {
-        if(isDisposed) {
+        if (isDisposed) {
             return
         }
 
@@ -60,7 +61,7 @@ class Resolver(
     /**
      * Should be triggered when a service has been found.
      */
-    fun onServiceFound(service: NsdServiceInfo) {
+    fun resolveWhenPossible(service: NsdServiceInfo) {
         if (isBusy.compareAndSet(false, true)) {
             resolve(service)
         } else {
@@ -94,7 +95,7 @@ class Resolver(
      */
     private fun resolveNextInQueue() {
         var nextNsdService: NsdServiceInfo? = pendingServices.poll()
-        while(nextNsdService != null && hasResolvedService(nextNsdService)) {
+        while (nextNsdService != null && hasResolvedService(nextNsdService)) {
             nextNsdService = pendingServices.poll()
         }
 
@@ -109,7 +110,7 @@ class Resolver(
      * Resolves the given service if needed.
      */
     private fun resolve(service: NsdServiceInfo) {
-        if(!isDisposed) {
+        if (!isDisposed) {
             nsdManager.resolveService(service, this)
         }
     }

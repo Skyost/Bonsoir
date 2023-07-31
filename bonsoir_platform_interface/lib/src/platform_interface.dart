@@ -34,15 +34,11 @@ abstract class BonsoirPlatformInterface extends PlatformInterface {
   BonsoirAction<BonsoirDiscoveryEvent> createDiscoveryAction(String type, {bool printLogs = kDebugMode});
 }
 
-/// A Bonsoir class that allows to either broadcast a service or to discover services on the network.
+/// A Bonsoir class that allows to either broadcast a service or to discover services on the network using a method channel.
 class MethodChannelBonsoir extends BonsoirPlatformInterface {
   @override
-  BonsoirAction<BonsoirBroadcastEvent> createBroadcastAction(BonsoirService service, {bool printLogs = kDebugMode}) {
-    return BonsoirBroadcastAction(service: service, printLogs: printLogs);
-  }
+  BonsoirAction<BonsoirBroadcastEvent> createBroadcastAction(BonsoirService service, {bool printLogs = kDebugMode}) => MethodChannelBonsoirBroadcastAction(service: service, printLogs: printLogs);
 
   @override
-  BonsoirAction<BonsoirDiscoveryEvent> createDiscoveryAction(String type, {bool printLogs = kDebugMode}) {
-    return BonsoirDiscoveryAction(type: type, printLogs: printLogs);
-  }
+  BonsoirAction<BonsoirDiscoveryEvent> createDiscoveryAction(String type, {bool printLogs = kDebugMode}) => MethodChannelBonsoirDiscoveryAction(type: type, printLogs: printLogs);
 }

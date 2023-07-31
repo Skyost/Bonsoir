@@ -53,8 +53,11 @@ await discovery.ready;
 
 // If you want to listen to the discovery :
 discovery.eventStream.listen((event) {
-  if (event.type == BonsoirDiscoveryEventType.discoveryServiceResolved) {
+  if (event.type == BonsoirDiscoveryEventType.discoveryServiceFound) {
     print('Service found : ${event.service.toJson()}')
+    event.service.resolve(discovery.serviceResolver);
+  } else if (event.type == BonsoirDiscoveryEventType.discoveryServiceResolved) {
+    print('Service resolved : ${event.service.toJson()}')
   } else if (event.type == BonsoirDiscoveryEventType.discoveryServiceLost) {
     print('Service lost : ${event.service.toJson()}')
   }

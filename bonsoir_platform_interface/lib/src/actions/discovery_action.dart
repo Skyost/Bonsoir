@@ -1,14 +1,15 @@
 import 'package:bonsoir_platform_interface/src/actions/action.dart';
 import 'package:bonsoir_platform_interface/src/events/discovery_event.dart';
+import 'package:bonsoir_platform_interface/src/service/service.dart';
 import 'package:flutter/foundation.dart';
 
 /// Implementation of [MethodChannelBonsoirEvents] for the discovery action.
-class BonsoirDiscoveryAction extends MethodChannelBonsoirAction<BonsoirDiscoveryEvent> with AutoStopBonsoirAction {
+class MethodChannelBonsoirDiscoveryAction extends MethodChannelBonsoirAction<BonsoirDiscoveryEvent> with AutoStopBonsoirAction, ServiceResolver {
   /// The service type.
   final String type;
 
   /// Creates a new method channel action instance for the discovery action.
-  BonsoirDiscoveryAction({
+  MethodChannelBonsoirDiscoveryAction({
     required this.type,
     bool printLogs = kDebugMode,
   }) : super(
@@ -27,4 +28,7 @@ class BonsoirDiscoveryAction extends MethodChannelBonsoirAction<BonsoirDiscovery
   @override
   @protected
   Map<String, dynamic> toJson() => super.toJson()..['type'] = type;
+
+  @override
+  Future<void> resolveService(BonsoirService service) => invokeMethod('resolveService', service.toJson(prefix: ''));
 }

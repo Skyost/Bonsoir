@@ -58,10 +58,7 @@ class BonsoirServiceBrowserDelegate: NSObject, NetServiceBrowserDelegate, NetSer
         eventSink?(SuccessObject(id: "discoveryServiceFound", service: service).toJson())
         
         service.delegate = self
-        if(services[service.name] == nil) {
-            services[service.name] = service
-            service.resolve(withTimeout: 10.0)
-        }
+        services[service.name] = service
     }
 
     func netServiceBrowser(_ browser: NetServiceBrowser, didRemove service: NetService, moreComing: Bool) {
@@ -104,6 +101,13 @@ class BonsoirServiceBrowserDelegate: NSObject, NetServiceBrowserDelegate, NetSer
     func onCancel(withArguments arguments: Any?) -> FlutterError? {
       eventSink = nil
       return nil
+    }
+    
+    /// Resolves a service.
+    public func resolveService(name: String, type: String) -> Bool? {
+        let service: NetService? = services[name]
+        service?.resolve(withTimeout: 10.0)
+        return service != nil
     }
 
     /// Disposes the current class instance.

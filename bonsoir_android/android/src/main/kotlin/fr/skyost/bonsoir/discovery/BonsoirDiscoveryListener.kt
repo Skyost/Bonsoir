@@ -20,17 +20,18 @@ import io.flutter.plugin.common.EventChannel
  * @param messenger The Flutter binary messenger.
  */
 class BonsoirDiscoveryListener(
-        private val id: Int,
-        private val printLogs: Boolean,
-        private val onDispose: Runnable,
-        private val nsdManager: NsdManager,
-        messenger: BinaryMessenger
+    private val id: Int,
+    private val printLogs: Boolean,
+    private val onDispose: Runnable,
+    private val nsdManager: NsdManager,
+    messenger: BinaryMessenger
 ) : NsdManager.DiscoveryListener {
 
     /**
      * The current event channel.
      */
-    private val eventChannel: EventChannel = EventChannel(messenger, "${BonsoirPlugin.channel}.discovery.$id")
+    private val eventChannel: EventChannel =
+        EventChannel(messenger, "${BonsoirPlugin.channel}.discovery.$id")
 
     /**
      * The current event sink.
@@ -95,10 +96,21 @@ class BonsoirDiscoveryListener(
         }
 
         Handler(Looper.getMainLooper()).post {
-            eventSink?.success(SuccessObject("discoveryServiceFound", service).toJson(resolver.getResolvedServiceIpAddress(service)))
+            eventSink?.success(
+                SuccessObject(
+                    "discoveryServiceFound",
+                    service
+                ).toJson(resolver.getResolvedServiceIpAddress(service))
+            )
         }
+    }
 
-        resolver.onServiceFound(service)
+    fun resolveService(name: String, type: String) {
+        val service = NsdServiceInfo().apply {
+            serviceName = name
+            serviceType = type
+        }
+        resolver.resolveWhenPossible(service)
     }
 
     override fun onServiceLost(service: NsdServiceInfo) {
@@ -110,7 +122,11 @@ class BonsoirDiscoveryListener(
         }
 
         Handler(Looper.getMainLooper()).post {
-            eventSink?.success(SuccessObject("discoveryServiceLost", service).toJson(resolvedServiceInfo))
+            eventSink?.success(
+                SuccessObject("discoveryServiceLost", service).toJson(
+                    resolvedServiceInfo
+                )
+            )
         }
     }
 
@@ -126,11 +142,18 @@ class BonsoirDiscoveryListener(
 
     override fun onStopDiscoveryFailed(serviceType: String, errorCode: Int) {
         if (printLogs) {
-            Log.d(BonsoirPlugin.tag, "[$id] Bonsoir has encountered an error while stopping the discovery : $errorCode")
+            Log.d(
+                BonsoirPlugin.tag,
+                "[$id] Bonsoir has encountered an error while stopping the discovery : $errorCode"
+            )
         }
 
         Handler(Looper.getMainLooper()).post {
-            eventSink?.error("discoveryError", "Bonsoir has encountered an error while stopping the discovery", errorCode)
+            eventSink?.error(
+                "discoveryError",
+                "Bonsoir has encountered an error while stopping the discovery",
+                errorCode
+            )
         }
     }
 
@@ -143,7 +166,12 @@ class BonsoirDiscoveryListener(
         }
 
         Handler(Looper.getMainLooper()).post {
-            eventSink?.success(SuccessObject("discoveryServiceResolved", service).toJson(resolver.getResolvedServiceIpAddress(service)))
+            eventSink?.success(
+                SuccessObject(
+                    "discoveryServiceResolved",
+                    service
+                ).toJson(resolver.getResolvedServiceIpAddress(service))
+            )
         }
     }
 
@@ -156,7 +184,11 @@ class BonsoirDiscoveryListener(
         }
 
         Handler(Looper.getMainLooper()).post {
-            eventSink?.success(SuccessObject("discoveryServiceResolveFailed", service).toJson(resolver.getResolvedServiceIpAddress(service)))
+            eventSink?.success(
+                SuccessObject("discoveryServiceResolveFailed", service).toJson(
+                    resolver.getResolvedServiceIpAddress(service)
+                )
+            )
         }
     }
 

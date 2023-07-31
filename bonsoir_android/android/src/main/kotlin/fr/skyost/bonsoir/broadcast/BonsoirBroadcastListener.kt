@@ -21,17 +21,18 @@ import io.flutter.plugin.common.EventChannel.EventSink
  * @param messenger The Flutter binary messenger.
  */
 class BonsoirBroadcastListener(
-        private val id: Int,
-        private val printLogs: Boolean,
-        private val onDispose: Runnable,
-        private val nsdManager: NsdManager,
-        messenger: BinaryMessenger
+    private val id: Int,
+    private val printLogs: Boolean,
+    private val onDispose: Runnable,
+    private val nsdManager: NsdManager,
+    messenger: BinaryMessenger
 ) : NsdManager.RegistrationListener {
 
     /**
      * The current event channel.
      */
-    private val eventChannel: EventChannel = EventChannel(messenger, "${BonsoirPlugin.channel}.broadcast.$id")
+    private val eventChannel: EventChannel =
+        EventChannel(messenger, "${BonsoirPlugin.channel}.broadcast.$id")
 
     /**
      * The current event sink.
@@ -74,7 +75,10 @@ class BonsoirBroadcastListener(
 
     override fun onRegistrationFailed(service: NsdServiceInfo, errorCode: Int) {
         if (printLogs) {
-            Log.d(BonsoirPlugin.tag, "[$id] Bonsoir service registration failed : $service, error code : $errorCode")
+            Log.d(
+                BonsoirPlugin.tag,
+                "[$id] Bonsoir service registration failed : $service, error code : $errorCode"
+            )
         }
         Handler(Looper.getMainLooper()).post {
             eventSink?.error("broadcastError", "Bonsoir service registration failed.", errorCode)
@@ -94,7 +98,10 @@ class BonsoirBroadcastListener(
 
     override fun onUnregistrationFailed(service: NsdServiceInfo, errorCode: Int) {
         if (printLogs) {
-            Log.d(BonsoirPlugin.tag, "[$id] Bonsoir service unregistration failed : $service, error code : $errorCode")
+            Log.d(
+                BonsoirPlugin.tag,
+                "[$id] Bonsoir service unregistration failed : $service, error code : $errorCode"
+            )
         }
         Handler(Looper.getMainLooper()).post {
             eventSink?.error("broadcastError", "Bonsoir service unregistration failed.", errorCode)
@@ -106,7 +113,7 @@ class BonsoirBroadcastListener(
      * Disposes the current class instance.
      */
     fun dispose(unregister: Boolean = true) {
-        if(unregister && isBroadcastActive) {
+        if (unregister && isBroadcastActive) {
             nsdManager.unregisterService(this)
             isBroadcastActive = false
         }

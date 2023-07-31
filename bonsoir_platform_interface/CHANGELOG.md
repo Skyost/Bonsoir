@@ -1,3 +1,7 @@
+## [3.0.0] - 2023-08-01
+
+* Added a `ServiceResolver` class.
+
 ## [2.2.0] - 2023-05-10
 
 * Updated SDK constraints.

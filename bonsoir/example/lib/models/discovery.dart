@@ -51,7 +51,8 @@ class BonsoirDiscoveryModel extends ChangeNotifier {
     }
 
     ResolvedBonsoirService service = event.service as ResolvedBonsoirService;
-    if (event.type == BonsoirDiscoveryEventType.discoveryServiceResolved) {
+    if (event.type == BonsoirDiscoveryEventType.discoveryServiceFound) {
+      service.resolve(_bonsoirDiscovery!.serviceResolver);
       _resolvedServices.add(service);
       notifyListeners();
     } else if (event.type == BonsoirDiscoveryEventType.discoveryServiceLost) {

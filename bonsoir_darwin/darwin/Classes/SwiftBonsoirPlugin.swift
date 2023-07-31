@@ -77,6 +77,13 @@ public class SwiftBonsoirPlugin: NSObject, FlutterPlugin {
         case "discovery.start":
             browsers[id]?.searchForServices(ofType: arguments["type"] as! String, inDomain: "local.")
             result(true)
+        case "discovery.resolveService":
+            let resolveStarted: Bool = false
+            let delegate: BonsoirServiceBrowserDelegate? = browsers[id]?.delegate as! BonsoirServiceBrowserDelegate?
+            if delegate != nil {
+                resolveStarted = browsers[id]!.resolveService(arguments["name"] as! String, arguments["type"] as! String)
+            }
+            result(resolveStarted)
         case "discovery.stop":
             (browsers[id]?.delegate as! BonsoirServiceBrowserDelegate?)?.dispose()
             result(true)

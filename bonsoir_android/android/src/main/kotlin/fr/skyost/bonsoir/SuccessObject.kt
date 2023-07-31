@@ -21,8 +21,9 @@ data class SuccessObject(private val id: String, private val service: NsdService
     fun toJson(resolvedServiceInfo: ResolvedServiceInfo? = null): Map<String, Any> {
         val json: HashMap<String, Any> = HashMap()
         json["id"] = id
-        if(service != null) {
-            json["service"] = serviceToJson(service, resolvedServiceInfo ?: ResolvedServiceInfo(service))
+        if (service != null) {
+            json["service"] =
+                serviceToJson(service, resolvedServiceInfo ?: ResolvedServiceInfo(service))
         }
         return json
     }
@@ -35,13 +36,16 @@ data class SuccessObject(private val id: String, private val service: NsdService
      *
      * @return The map.
      */
-    private fun serviceToJson(service: NsdServiceInfo, resolvedServiceInfo: ResolvedServiceInfo = ResolvedServiceInfo(service)): Map<String, Any?> {
+    private fun serviceToJson(
+        service: NsdServiceInfo,
+        resolvedServiceInfo: ResolvedServiceInfo = ResolvedServiceInfo(service)
+    ): Map<String, Any?> {
         return mapOf(
-                "service.name" to service.serviceName,
-                "service.type" to service.serviceType,
-                "service.port" to resolvedServiceInfo.port,
-                "service.ip" to resolvedServiceInfo.ip,
-                "service.attributes" to getAttributes(service)
+            "service.name" to service.serviceName,
+            "service.type" to service.serviceType,
+            "service.port" to resolvedServiceInfo.port,
+            "service.ip" to resolvedServiceInfo.ip,
+            "service.attributes" to getAttributes(service)
         )
     }
 
@@ -58,11 +62,10 @@ data class SuccessObject(private val id: String, private val service: NsdService
             return result
         }
 
-        for(entry in service.attributes.entries) {
+        for (entry in service.attributes.entries) {
             if (entry.value != null) {
                 result[entry.key] = String(entry.value)
-            }
-            else {
+            } else {
                 result[entry.key] = ""
             }
         }

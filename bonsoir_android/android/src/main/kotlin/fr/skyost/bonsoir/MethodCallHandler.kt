@@ -20,9 +20,9 @@ import java.util.*
  * @param messenger The binary messenger.
  */
 class MethodCallHandler(
-        private val applicationContext: Context,
-        private val multicastLock: WifiManager.MulticastLock,
-        private val messenger: BinaryMessenger
+    private val applicationContext: Context,
+    private val multicastLock: WifiManager.MulticastLock,
+    private val messenger: BinaryMessenger
 ) : MethodChannel.MethodCallHandler {
     /**
      * Contains all registration listeners (Broadcast).
@@ -35,27 +35,32 @@ class MethodCallHandler(
     private val discoveryListeners: HashMap<Int, BonsoirDiscoveryListener> = HashMap()
 
     override fun onMethodCall(@NonNull call: MethodCall, @NonNull result: MethodChannel.Result) {
-        val nsdManager: NsdManager = applicationContext.getSystemService(Context.NSD_SERVICE) as NsdManager
+        val nsdManager: NsdManager =
+            applicationContext.getSystemService(Context.NSD_SERVICE) as NsdManager
         val id: Int = call.argument<Int>("id")!!
         when (call.method) {
             "broadcast.initialize" -> {
-                registrationListeners[id] = BonsoirBroadcastListener(id, call.argument<Boolean>("printLogs")!!, Runnable {
-                    multicastLock.release()
-                    registrationListeners.remove(id)
-                }, nsdManager, messenger)
+                registrationListeners[id] =
+                    BonsoirBroadcastListener(id, call.argument<Boolean>("printLogs")!!, Runnable {
+                        multicastLock.release()
+                        registrationListeners.remove(id)
+                    }, nsdManager, messenger)
                 result.success(true)
             }
+
             "broadcast.start" -> {
                 multicastLock.acquire()
 
-                val service = NsdServiceInfo()
-                service.serviceName = call.argument<String>("service.name")
-                service.serviceType = call.argument<String>("service.type")
-                service.port = call.argument<Int>("service.port")!!
+                val service = NsdServiceInfo().apply {
+                    serviceName = call.argument<String>("service.name")
+                    serviceType = call.argument<String>("service.type")
+                    port = call.argument<Int>("service.port")!!
+                }
 
                 if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
-                    val attributes: Map<String, String> = call.argument<Map<String, String>>("service.attributes")!!
-                    for(entry in attributes.entries) {
+                    val attributes: Map<String, String> =
+                        call.argument<Map<String, String>>("service.attributes")!!
+                    for (entry in attributes.entries) {
                         service.setAttribute(entry.key, entry.value)
                     }
                 }
@@ -63,27 +68,41 @@ class MethodCallHandler(
                 registrationListeners[id]?.registerService(service)
                 result.success(true)
             }
+
             "broadcast.stop" -> {
                 registrationListeners[id]?.dispose()
                 result.success(true)
             }
+
             "discovery.initialize" -> {
-                discoveryListeners[id] = BonsoirDiscoveryListener(id, call.argument<Boolean>("printLogs")!!, Runnable {
-                    multicastLock.release()
-                    discoveryListeners.remove(id)
-                }, nsdManager, messenger)
+                discoveryListeners[id] =
+                    BonsoirDiscoveryListener(id, call.argument<Boolean>("printLogs")!!, Runnable {
+                        multicastLock.release()
+                        discoveryListeners.remove(id)
+                    }, nsdManager, messenger)
                 result.success(true)
             }
+
             "discovery.start" -> {
                 multicastLock.acquire()
 
                 discoveryListeners[id]?.discoverServices(call.argument<String>("type")!!)
                 result.success(true)
             }
+
+            "discovery.resolveService" -> {
+                discoveryListeners[id]?.resolveService(
+                    call.argument<String>("name")!!,
+                    call.argument<String>("type")!!
+                )
+                result.success(true)
+            }
+
             "discovery.stop" -> {
                 discoveryListeners[id]?.dispose()
                 result.success(true)
             }
+
             else -> result.notImplemented()
         }
     }

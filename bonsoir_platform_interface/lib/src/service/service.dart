@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:bonsoir_platform_interface/src/actions/action.dart';
 import 'package:bonsoir_platform_interface/src/service/resolved_service.dart';
 import 'package:flutter/foundation.dart';
 
@@ -73,6 +74,9 @@ class BonsoirService {
         '${prefix}port': port,
         '${prefix}attributes': attributes ?? {},
       };
+
+  /// Tries to resolve this service.
+  Future<void> resolve(ServiceResolver resolver) => resolver.resolveService(this);
 
   @override
   bool operator ==(dynamic other) {

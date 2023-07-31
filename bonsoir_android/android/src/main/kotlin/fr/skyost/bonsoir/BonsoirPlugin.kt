@@ -50,7 +50,10 @@ public class BonsoirPlugin : FlutterPlugin {
     private lateinit var multicastLock: WifiManager.MulticastLock
 
     override fun onAttachedToEngine(@NonNull flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
-        startListening(flutterPluginBinding.applicationContext, flutterPluginBinding.binaryMessenger)
+        startListening(
+            flutterPluginBinding.applicationContext,
+            flutterPluginBinding.binaryMessenger
+        )
     }
 
     override fun onDetachedFromEngine(@NonNull binding: FlutterPlugin.FlutterPluginBinding) {
@@ -58,7 +61,10 @@ public class BonsoirPlugin : FlutterPlugin {
     }
 
     private fun startListening(applicationContext: Context, messenger: BinaryMessenger) {
-        multicastLock = (applicationContext.applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager).createMulticastLock("bonsoirMulticastLock")
+        multicastLock =
+            (applicationContext.applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager).createMulticastLock(
+                "bonsoirMulticastLock"
+            )
         multicastLock.setReferenceCounted(true)
 
         methodCallHandler = MethodCallHandler(applicationContext, multicastLock, messenger)
