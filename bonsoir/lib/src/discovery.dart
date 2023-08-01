@@ -24,9 +24,10 @@ class BonsoirDiscovery extends BonsoirActionHandler<BonsoirDiscoveryEvent> {
     ServiceResolver? serviceResolver,
   }) {
     BonsoirAction<BonsoirDiscoveryEvent> action = BonsoirPlatformInterface.instance.createDiscoveryAction(type, printLogs: printLogs);
+    serviceResolver ??= action is ServiceResolver ? (action as ServiceResolver) : _NoServiceResolver();
     return BonsoirDiscovery._internal(
       type: type,
-      serviceResolver: action is ServiceResolver ? (action as ServiceResolver) : _NoServiceResolver(),
+      serviceResolver: serviceResolver,
       action: action,
     );
   }
