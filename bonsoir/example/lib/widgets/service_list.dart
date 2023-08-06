@@ -6,11 +6,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// Allows to display all discovered services.
 class ServiceList extends ConsumerWidget {
+  /// Creates a new service list instance.
+  const ServiceList({
+    super.key,
+  });
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     BonsoirDiscoveryModel model = ref.watch(discoveryModelProvider);
-    List<ResolvedBonsoirService> discoveredServices = model.discoveredServices;
-    if (discoveredServices.isEmpty) {
+    if (model.services.isEmpty) {
       return const Padding(
         padding: EdgeInsets.all(20),
         child: Center(
@@ -25,17 +29,21 @@ class ServiceList extends ConsumerWidget {
       );
     }
 
-    return ListView.builder(
-      itemCount: discoveredServices.length,
-      itemBuilder: (context, index) => _ServiceWidget(service: discoveredServices[index]),
+    return ListView(
+      children: [
+        for (BonsoirService service in model.services)
+          _ServiceWidget(
+            service: service,
+          )
+      ],
     );
   }
 }
 
 /// Allows to display a discovered service.
-class _ServiceWidget extends StatelessWidget {
+class _ServiceWidget extends ConsumerWidget {
   /// The discovered service.
-  final ResolvedBonsoirService service;
+  final BonsoirService service;
 
   /// Creates a new service widget.
   const _ServiceWidget({
@@ -43,8 +51,22 @@ class _ServiceWidget extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) => ListTile(
-        title: Text(service.name),
-        subtitle: Text('Type : ${service.type}, ip : ${service.ip}, port : ${service.port}'),
-      );
+  Widget build(BuildContext context, WidgetRef ref) {
+    String subtitle = 'Type : ${service.type}';
+    if (service is ResolvedBonsoirService) {
+      subtitle += ', ip : ${(service as ResolvedBonsoirService).ip}, port : ${service.port}';
+    }
+
+    VoidCallback? serviceResolverFunction = ref.watch(discoveryModelProvider.select((model) => model.getServiceResolverFunction(service)));
+    return ListTile(
+      title: Text(service.name),
+      subtitle: Text(subtitle),
+      trailing: service is ResolvedBonsoirService
+          ? null
+          : TextButton(
+              onPressed: serviceResolverFunction!,
+              child: const Text('RESOLVE'),
+            ),
+    );
+  }
 }

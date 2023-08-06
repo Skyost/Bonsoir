@@ -4,6 +4,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// Allows to switch the app broadcast state.
 class BroadcastSwitch extends ConsumerWidget {
+  /// Creates a new broadcast switch instance.
+  const BroadcastSwitch({
+    super.key,
+  });
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     BonsoirBroadcastModel model = ref.watch(broadcastModelProvider);

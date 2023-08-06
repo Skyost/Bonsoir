@@ -112,7 +112,7 @@ If you have previously called "$runtimeType.stop()" on this instance, you have t
   /// Invokes a method on the method channel.
   @protected
   Future<R?> invokeMethod<R>(String method, [Map<String, dynamic>? arguments]) => _channel.invokeMethod<R>(
-        '$_classType.stop',
+        '$_classType.$method',
         {
           ...toJson(),
           if (arguments != null) ...arguments,

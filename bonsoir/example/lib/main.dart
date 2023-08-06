@@ -5,19 +5,24 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// Plugin's main method.
-void main() => runApp(ProviderScope(child: BonsoirExampleMainWidget()));
+void main() => runApp(const ProviderScope(child: BonsoirExampleMainWidget()));
 
 /// The main widget.
 class BonsoirExampleMainWidget extends StatelessWidget {
+  /// Creates a new main widget instance.
+  const BonsoirExampleMainWidget({
+    super.key,
+  });
+
   @override
   Widget build(BuildContext context) => MaterialApp(
         home: Scaffold(
           appBar: AppBar(
-            title: TitleWidget(),
-            actions: [BroadcastSwitch()],
+            title: const TitleWidget(),
+            actions: const [BroadcastSwitch()],
             centerTitle: false,
           ),
-          body: ServiceList(),
+          body: const ServiceList(),
         ),
       );
 }

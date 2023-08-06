@@ -56,7 +56,7 @@ class BonsoirService {
     Map<String, dynamic> json, {
     String prefix = 'service.',
   }) {
-    if (json.containsKey('${prefix}ip')) {
+    if (json['${prefix}ip'] != null) {
       return ResolvedBonsoirService.fromJson(json, prefix: prefix);
     }
     return BonsoirService(

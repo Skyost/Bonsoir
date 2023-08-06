@@ -7,11 +7,14 @@ environment:
 
 dependencies:
   flutter_riverpod: ^2.3.6
-  device_info_plus: ^9.0.2
+  device_info_plus: ^9.0.3
   flutter:
     sdk: flutter
   bonsoir:
     path: ../
+
+dev_dependencies:
+  flutter_lints: ^2.0.2
 
 dependency_overrides:
   bonsoir_platform_interface:
