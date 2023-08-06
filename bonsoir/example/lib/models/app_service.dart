@@ -8,7 +8,7 @@ class AppService {
   /// The service type.
   static const String type = '_bonsoirdemo._tcp';
 
-  /// The service port (in this example we're not doing anything on that port but you should).
+  /// The service port (in this example we're not doing anything on that port, but you should).
   static const int port = 4000;
 
   /// The cached service.
@@ -25,6 +25,8 @@ class AppService {
       name = (await DeviceInfoPlugin().androidInfo).model;
     } else if (Platform.isIOS) {
       name = (await DeviceInfoPlugin().iosInfo).localizedModel;
+    } else if (Platform.isMacOS) {
+      name = (await DeviceInfoPlugin().macOsInfo).computerName;
     } else {
       name = 'Flutter';
     }
