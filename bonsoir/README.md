@@ -52,10 +52,10 @@ BonsoirDiscovery discovery = BonsoirDiscovery(type: type);
 await discovery.ready;
 
 // If you want to listen to the discovery :
-discovery.eventStream.listen((event) {
+discovery.eventStream!.listen((event) { // `eventStream` is not null as the discovery instance is "ready" !
   if (event.type == BonsoirDiscoveryEventType.discoveryServiceFound) {
     print('Service found : ${event.service.toJson()}')
-    event.service.resolve(discovery.serviceResolver);
+    event.service!.resolve(discovery.serviceResolver); // Should be called when the user wants to connect to this service.
   } else if (event.type == BonsoirDiscoveryEventType.discoveryServiceResolved) {
     print('Service resolved : ${event.service.toJson()}')
   } else if (event.type == BonsoirDiscoveryEventType.discoveryServiceLost) {

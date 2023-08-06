@@ -1,4 +1,9 @@
-## [3.0.0] - 2023-08-01
+## [3.0.0+1] - 2023-08-06
+
+* Fixed the README examples.
+* Fixed every package changelog date.
+
+## [3.0.0] - 2023-08-06
 
 * Now, services are not directly resolved by default.
 

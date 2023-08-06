@@ -1,4 +1,4 @@
-## [3.0.0] - 2023-08-01
+## [3.0.0] - 2023-08-06
 
 * Now, services are not directly resolved by default.
 

@@ -2,7 +2,7 @@ name: bonsoir
 description: A Zeroconf library that allows you to discover network services and to broadcast your own. Based on Apple Bonjour and Android NSD.
 repository: https://github.com/Skyost/Bonsoir/tree/master/bonsoir
 issue_tracker: https://github.com/Skyost/Bonsoir/issues
-version: 3.0.0
+version: 3.0.0+1
 funding:
  - https://ko-fi.com/Skyost
  - https://paypal.me/Skyost
