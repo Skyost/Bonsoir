@@ -1,3 +1,7 @@
+## [3.0.0+1] - 2023-08-06
+
+* Bumped `bonsoir_platform_interface` version, it was causing an error in `bonsoir`.
+
 ## [3.0.0] - 2023-08-06
 
 * Now, services are not directly resolved by default.
