@@ -17,7 +17,6 @@ class MethodChannelBonsoirBroadcastAction extends MethodChannelBonsoirAction<Bon
           printLogs: printLogs,
         );
 
-  /// Transforms a platform event to a broadcast event.
   @override
   @protected
   BonsoirBroadcastEvent transformPlatformEvent(dynamic event) {

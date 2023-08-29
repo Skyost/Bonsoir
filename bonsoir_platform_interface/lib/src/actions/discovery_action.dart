@@ -17,7 +17,6 @@ class MethodChannelBonsoirDiscoveryAction extends MethodChannelBonsoirAction<Bon
           printLogs: printLogs,
         );
 
-  /// Transforms a platform event to a discovery event.
   @override
   @protected
   BonsoirDiscoveryEvent transformPlatformEvent(dynamic event) {

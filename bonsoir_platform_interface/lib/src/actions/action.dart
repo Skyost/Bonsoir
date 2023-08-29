@@ -9,10 +9,12 @@ import 'package:flutter/services.dart';
 
 /// This class serves as the stream source for the implementations to override.
 abstract class BonsoirAction<T extends BonsoirEvent> {
-  /// Regular event stream.
+  /// The event stream.
+  /// Subscribe to it to receive this instance updates.
   Stream<T>? get eventStream;
 
   /// The ready getter, that returns when the platform is ready for the operation requested.
+  /// Await this method to know when the plugin will be ready.
   Future<void> get ready;
 
   /// This starts the required action (eg. Discovery, or Broadcast).
@@ -61,27 +63,21 @@ abstract class MethodChannelBonsoirAction<T extends BonsoirEvent> extends Bonsoi
   })  : _id = _createRandomId(),
         _classType = classType;
 
-  /// The event stream.
-  /// Subscribe to it to receive this instance updates.
   @override
   Stream<T>? get eventStream => _eventStream;
 
-  /// Await this method to know when the plugin will be ready.
   @override
   Future<void> get ready async {
     await _channel.invokeMethod('$_classType.initialize', toJson());
     _eventStream = EventChannel('$_channelName.$_classType.$_id').receiveBroadcastStream().map(transformPlatformEvent);
   }
 
-  /// Returns whether this instance can be used.
   @override
   bool get isReady => _eventStream != null && !_isStopped;
 
-  /// Returns whether this instance has been stopped.
   @override
   bool get isStopped => _isStopped;
 
-  /// Starts to do either a discover or a broadcast.
   @override
   Future<void> start() {
     assert(isReady, '''$runtimeType should be ready to start in order to call this method.
@@ -90,7 +86,6 @@ If you have previously called "$runtimeType.stop()" on this instance, you have t
     return _channel.invokeMethod('$_classType.start', toJson());
   }
 
-  /// Stops the current discover or broadcast.
   @override
   Future<void> stop() async {
     await _channel.invokeMethod('$_classType.stop', toJson());
@@ -101,7 +96,6 @@ If you have previously called "$runtimeType.stop()" on this instance, you have t
   @protected
   T transformPlatformEvent(dynamic event);
 
-  /// Converts this Bonsoir class to a JSON map.
   @override
   @protected
   Map<String, dynamic> toJson() => {
