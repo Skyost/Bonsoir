@@ -14,10 +14,4 @@ class BonsoirBroadcast extends BonsoirActionHandler<BonsoirBroadcastEvent> {
   }) : super(
           action: BonsoirPlatformInterface.instance.createBroadcastAction(service, printLogs: printLogs),
         );
-
-  @protected
-  Map<String, dynamic> toJson() => {
-        ...super.toJson(),
-        ...service.toJson(),
-      };
 }

@@ -11,10 +11,9 @@ class MethodChannelBonsoirBroadcastAction extends MethodChannelBonsoirAction<Bon
   /// Creates a new method channel action instance for the broadcast action.
   MethodChannelBonsoirBroadcastAction({
     required this.service,
-    bool printLogs = kDebugMode,
+    super.printLogs,
   }) : super(
           classType: 'broadcast',
-          printLogs: printLogs,
         );
 
   @override

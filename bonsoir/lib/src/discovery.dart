@@ -31,9 +31,6 @@ class BonsoirDiscovery extends BonsoirActionHandler<BonsoirDiscoveryEvent> {
       action: action,
     );
   }
-
-  /// This returns a JSON representation of this discovery.
-  Map<String, dynamic> toJson() => super.toJson()..['type'] = type;
 }
 
 /// Created and used as a service resolver if none is provided.

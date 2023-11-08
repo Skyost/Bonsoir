@@ -11,10 +11,9 @@ class MethodChannelBonsoirDiscoveryAction extends MethodChannelBonsoirAction<Bon
   /// Creates a new method channel action instance for the discovery action.
   MethodChannelBonsoirDiscoveryAction({
     required this.type,
-    bool printLogs = kDebugMode,
+    super.printLogs,
   }) : super(
           classType: 'discovery',
-          printLogs: printLogs,
         );
 
   @override

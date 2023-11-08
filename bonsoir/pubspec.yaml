@@ -30,7 +30,7 @@ dependency_overrides:
     path: ../bonsoir_darwin/
 
 dev_dependencies:
-  flutter_lints: ^2.0.2
+  flutter_lints: ^3.0.1
 
 flutter:
   plugin:
