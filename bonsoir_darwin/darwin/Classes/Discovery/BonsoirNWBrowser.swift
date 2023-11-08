@@ -32,9 +32,9 @@ class BonsoirNWBrowser: NSObject, FlutterStreamHandler {
     
     /// Contains all found services.
     var services: [BonsoirService] = []
-	
-	/// Contains all active connections.
-	var activeConnections: [NWConnection] = []
+    
+    /// Contains all services wh're currently resolving.
+    var resolvingServices: [DNSServiceRef?: BonsoirService] = [:]
 
     /// Initializes this class.
     public init(id: Int, printLogs: Bool, onDispose: @escaping (Bool) -> Void, messenger: FlutterBinaryMessenger, type: String) {
@@ -42,7 +42,7 @@ class BonsoirNWBrowser: NSObject, FlutterStreamHandler {
         self.printLogs = printLogs
         self.onDispose = onDispose
         self.type = type
-        browser = NWBrowser(for: .bonjour(type: type, domain: nil), using: .tcp)
+        browser = NWBrowser(for: .bonjour(type: type, domain: "local."), using: .tcp)
         super.init()
         browser.stateUpdateHandler = stateHandler
         browser.browseResultsChangedHandler = browseHandler
@@ -85,12 +85,12 @@ class BonsoirNWBrowser: NSObject, FlutterStreamHandler {
             switch change {
             case .added(let result):
                 if case .service(let name, let type, _, _) = result.endpoint {
-                    let service = BonsoirService(name: name, type: type, port: 0, ip: nil, attributes: nil)
+                    let service = BonsoirService(name: name, type: type, port: 0, host: nil, attributes: nil)
                     if case .bonjour(let records) = result.metadata {
                         service.attributes = records.dictionary
                     }
                     if printLogs {
-                        SwiftBonsoirPlugin.log(category: "discovery", id: id, message: "Bonsoir has found a service : \(service)")
+                        SwiftBonsoirPlugin.log(category: "discovery", id: id, message: "Bonsoir has found a service : \(service.description)")
                     }
                     eventSink?(SuccessObject(id: "discoveryServiceFound", service: service).toJson())
                     services.append(service)
@@ -102,7 +102,7 @@ class BonsoirNWBrowser: NSObject, FlutterStreamHandler {
                         break
                     }
                     if printLogs {
-                        SwiftBonsoirPlugin.log(category: "discovery", id: id, message: "A Bonsoir service has been lost : \(service!)")
+                        SwiftBonsoirPlugin.log(category: "discovery", id: id, message: "A Bonsoir service has been lost : \(service!.description)")
                     }
                     eventSink?(SuccessObject(id: "discoveryServiceLost", service: service).toJson())
                     if let index = self.services.firstIndex(where: { $0 === service }) {
@@ -117,7 +117,7 @@ class BonsoirNWBrowser: NSObject, FlutterStreamHandler {
                             break
                         }
                         if printLogs {
-                            SwiftBonsoirPlugin.log(category: "discovery", id: id, message: "A Bonsoir service has changed : \(service!)")
+                            SwiftBonsoirPlugin.log(category: "discovery", id: id, message: "A Bonsoir service has changed : \(service!.description)")
                         }
                         eventSink?(SuccessObject(id: "discoveryServiceLost", service: service).toJson())
                         service!.name = newName
@@ -152,51 +152,48 @@ class BonsoirNWBrowser: NSObject, FlutterStreamHandler {
                 if service == nil {
                     return false
                 }
-                let connection = NWConnection(to: result.endpoint, using: .tcp)
-                connection.stateUpdateHandler = { state in
-                    switch state {
-                    case .ready:
-                        if let innerEndpoint = connection.currentPath?.remoteEndpoint, case .hostPort(let host, let port) = innerEndpoint {
-                            switch host {
-                            case .name(let name, _):
-                                service!.ip = name
-                            case .ipv4(let address):
-                                service!.ip = String(decoding: address.rawValue, as: UTF8.self)
-                            case .ipv6(let address):
-                                service!.ip = String(decoding: address.rawValue, as: UTF8.self)
-                            default:
-                                break
+                var sdRef: DNSServiceRef? = nil
+                let error = DNSServiceResolve(&sdRef, 0, 0, name, type, "local.", { (sdRef, flags, interfaceIndex, errorCode, fullName, hosttarget, port, txtLen, txtRecord, context) in
+                    let browser = Unmanaged<BonsoirNWBrowser>.fromOpaque(context!).takeUnretainedValue()
+                    let service = browser.resolvingServices[sdRef]
+                    if errorCode == kDNSServiceErr_NoError {
+                        if let host = hosttarget {
+                            service?.host = String(cString: host)
+                            service?.port = Int(port)
+                            if browser.printLogs == true {
+                                SwiftBonsoirPlugin.log(category: "discovery", id: browser.id, message: "Bonsoir has resolved a service : \(String(describing: service?.description))")
                             }
-                            service!.port = Int(port.rawValue)
-                            if self.printLogs {
-                                SwiftBonsoirPlugin.log(category: "discovery", id: self.id, message: "Bonsoir has resolved a service : \(service!)")
-                            }
-                            self.eventSink?(SuccessObject(id: "discoveryServiceResolved", service: service).toJson())
+                            browser.eventSink?(SuccessObject(id: "discoveryServiceResolved", service: service).toJson())
+                            return
                         }
-                        self.cancelConnection(connection: connection)
-                    case .failed(let error):
-                        if self.printLogs {
-                            SwiftBonsoirPlugin.log(category: "discovery", id: self.id, message: "Bonsoir has failed to resolve a service : \(error)")
-                        }
-                        self.cancelConnection(connection: connection)
-                        self.eventSink?(SuccessObject(id: "discoveryServiceResolveFailed", service: service).toJson())
-                    default:
-                        break
                     }
+                    if browser.printLogs {
+                        SwiftBonsoirPlugin.log(category: "discovery", id: browser.id, message: "Bonsoir has failed to resolve a service : \(errorCode)")
+                    }
+                    browser.stopResolution(sdRef: sdRef)
+                    browser.eventSink?(SuccessObject(id: "discoveryServiceResolveFailed", service: service).toJson())
+                }, Unmanaged.passUnretained(self).toOpaque())
+                if error == kDNSServiceErr_NoError {
+                    resolvingServices[sdRef] = service
+                    DNSServiceProcessResult(sdRef)
+                } else {
+                    if printLogs {
+                        SwiftBonsoirPlugin.log(category: "discovery", id: id, message: "Bonsoir has failed to resolve a service : \(error)")
+                    }
+                    eventSink?(SuccessObject(id: "discoveryServiceResolveFailed", service: service).toJson())
                 }
-				activeConnections.append(connection)
-                connection.start(queue: .global())
                 return true
             }
         }
         return false
     }
     
-    private func cancelConnection(connection: NWConnection) {
-        connection.cancel()
-        if let index = self.activeConnections.firstIndex(where: { $0 === connection }) {
-            self.activeConnections.remove(at: index)
+    /// Stops the resolution of the given service.
+    private func stopResolution(sdRef: DNSServiceRef?, remove: Bool = true) {
+        if remove {
+            resolvingServices.removeValue(forKey: sdRef)
         }
+        DNSServiceRefDeallocate(sdRef)
     }
     
     /// Starts the discovery.
@@ -212,10 +209,10 @@ class BonsoirNWBrowser: NSObject, FlutterStreamHandler {
     /// Disposes the current class instance.
     public func dispose(stopDiscovery: Bool = true) {
         services.removeAll()
-		for connection in activeConnections {
-			connection.forceCancel()
-		}
-		activeConnections.removeAll()
+        for sdRef in resolvingServices.keys {
+            stopResolution(sdRef: sdRef, remove: false)
+        }
+        resolvingServices.removeAll()
         onDispose(stopDiscovery)
     }
 }

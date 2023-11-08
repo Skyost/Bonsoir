@@ -44,9 +44,9 @@ public class SwiftBonsoirPlugin: NSObject, FlutterPlugin {
         let id = arguments["id"] as! Int
         switch call.method {
         case "broadcast.initialize":
-            let service = BonsoirService(name: arguments["service.name"] as! String, type: arguments["service.type"] as! String, port: arguments["service.port"] as! Int, ip: nil, attributes: arguments["service.attributes"] as! [String : String]?)
-            if let ip = arguments["service.ip"] as? String? {
-                service.ip = ip
+            let service = BonsoirService(name: arguments["service.name"] as! String, type: arguments["service.type"] as! String, port: arguments["service.port"] as! Int, host: nil, attributes: arguments["service.attributes"] as! [String : String]?)
+            if let host = arguments["service.host"] as? String? {
+                service.host = host
             }
             let listener = BonsoirNWListener(id: id, printLogs: arguments["printLogs"] as! Bool, onDispose: { stopBroadcast in
                 if stopBroadcast {

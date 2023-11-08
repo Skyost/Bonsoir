@@ -13,17 +13,17 @@ class BonsoirService {
     var port: Int
     
     /// The response service name.
-    var ip: String?
+    var host: String?
     
     /// The response service name.
     var attributes: [String : String]?
     
     /// Creates a new service instance.
-    public init(name: String, type: String, port: Int, ip: String?, attributes: [String : String]?) {
+    public init(name: String, type: String, port: Int, host: String?, attributes: [String : String]?) {
         self.name = name
         self.type = type
         self.port = port
-        self.ip = ip
+        self.host = host
         self.attributes = attributes
     }
 
@@ -33,7 +33,7 @@ class BonsoirService {
             "\(prefix)name": name,
             "\(prefix)type": type,
             "\(prefix)port": port,
-            "\(prefix)ip": ip,
+            "\(prefix)host": host,
             "\(prefix)attributes": attributes ?? [:]
         ]
     }
