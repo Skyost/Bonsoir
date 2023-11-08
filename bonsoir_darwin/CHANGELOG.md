@@ -1,3 +1,6 @@
+* Removed the dependence on the native `NetService` library.
+* `service.ip` is now `service.host`.
+
 ## [3.0.0] - 2023-08-06
 
 * Now, services are not directly resolved by default.

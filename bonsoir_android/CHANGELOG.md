@@ -1,3 +1,5 @@
+* `service.ip` is now `service.host`.
+
 ## [3.0.0+1] - 2023-08-06
 
 * Bumped `bonsoir_platform_interface` version, it was causing an error in `bonsoir`.

@@ -147,7 +147,7 @@ class Resolver(
 /**
  * Contains some info about a resolved NSD service.
  */
-data class ResolvedServiceInfo(val port: Int?, val ip: String?) {
+data class ResolvedServiceInfo(val port: Int?, val host: String?) {
     /**
      * Creates an object instance from a given service.
      */

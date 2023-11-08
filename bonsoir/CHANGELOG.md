@@ -1,3 +1,6 @@
+* Removed the dependence on the native `NetService` library.
+* `service.ip` is now `service.host`.
+
 ## [3.0.0+1] - 2023-08-06
 
 * Fixed the README examples.

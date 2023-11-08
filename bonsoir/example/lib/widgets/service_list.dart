@@ -54,7 +54,7 @@ class _ServiceWidget extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     String subtitle = 'Type : ${service.type}';
     if (service is ResolvedBonsoirService) {
-      subtitle += ', ip : ${(service as ResolvedBonsoirService).ip}, port : ${service.port}';
+      subtitle += ', host : ${(service as ResolvedBonsoirService).host}, port : ${service.port}';
     }
 
     VoidCallback? serviceResolverFunction = ref.watch(discoveryModelProvider.select((model) => model.getServiceResolverFunction(service)));
