@@ -8,7 +8,7 @@ import Network
 
 /// Allows to find net services on local network.
 @available(iOS 13.0, macOS 10.15, *)
-class BonsoirNWBrowser: NSObject, FlutterStreamHandler {
+class BonsoirServiceDiscovery: NSObject, FlutterStreamHandler {
     /// The delegate identifier.
     let id: Int
 
@@ -154,24 +154,24 @@ class BonsoirNWBrowser: NSObject, FlutterStreamHandler {
                 }
                 var sdRef: DNSServiceRef? = nil
                 let error = DNSServiceResolve(&sdRef, 0, 0, name, type, "local.", { (sdRef, flags, interfaceIndex, errorCode, fullName, hosttarget, port, txtLen, txtRecord, context) in
-                    let browser = Unmanaged<BonsoirNWBrowser>.fromOpaque(context!).takeUnretainedValue()
-                    let service = browser.resolvingServices[sdRef]
+                    let discovery = Unmanaged<BonsoirServiceDiscovery>.fromOpaque(context!).takeUnretainedValue()
+                    let service = discovery.resolvingServices[sdRef]
                     if errorCode == kDNSServiceErr_NoError {
                         if let host = hosttarget {
                             service?.host = String(cString: host)
                             service?.port = Int(port)
-                            if browser.printLogs == true {
-                                SwiftBonsoirPlugin.log(category: "discovery", id: browser.id, message: "Bonsoir has resolved a service : \(String(describing: service?.description))")
+                            if discovery.printLogs == true {
+                                SwiftBonsoirPlugin.log(category: "discovery", id: discovery.id, message: "Bonsoir has resolved a service : \(String(describing: service?.description))")
                             }
-                            browser.eventSink?(SuccessObject(id: "discoveryServiceResolved", service: service).toJson())
+                            discovery.eventSink?(SuccessObject(id: "discoveryServiceResolved", service: service).toJson())
                             return
                         }
                     }
-                    if browser.printLogs {
-                        SwiftBonsoirPlugin.log(category: "discovery", id: browser.id, message: "Bonsoir has failed to resolve a service : \(errorCode)")
+                    if discovery.printLogs {
+                        SwiftBonsoirPlugin.log(category: "discovery", id: discovery.id, message: "Bonsoir has failed to resolve a service : \(errorCode)")
                     }
-                    browser.stopResolution(sdRef: sdRef)
-                    browser.eventSink?(SuccessObject(id: "discoveryServiceResolveFailed", service: service).toJson())
+                    discovery.stopResolution(sdRef: sdRef)
+                    discovery.eventSink?(SuccessObject(id: "discoveryServiceResolveFailed", service: service).toJson())
                 }, Unmanaged.passUnretained(self).toOpaque())
                 if error == kDNSServiceErr_NoError {
                     resolvingServices[sdRef] = service

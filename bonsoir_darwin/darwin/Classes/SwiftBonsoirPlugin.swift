@@ -14,11 +14,11 @@ public class SwiftBonsoirPlugin: NSObject, FlutterPlugin {
     /// The package name.
     static let package: String = "fr.skyost.bonsoir"
 
-    /// Contains all created listeners (Broadcast).
-    var listeners: [Int: BonsoirNWListener] = [:]
+    /// Contains all created broadcasts).
+    var broadcasts: [Int: BonsoirServiceBroadcast] = [:]
 
-    /// Contains all created browsers (Discovery).
-    var browsers: [Int: BonsoirNWBrowser] = [:]
+    /// Contains all created browsers.
+    var discoveries: [Int: BonsoirServiceDiscovery] = [:]
 
     /// The binary messenger instance.
     let messenger: FlutterBinaryMessenger
@@ -48,49 +48,47 @@ public class SwiftBonsoirPlugin: NSObject, FlutterPlugin {
             if let host = arguments["service.host"] as? String? {
                 service.host = host
             }
-            let listener = BonsoirNWListener(id: id, printLogs: arguments["printLogs"] as! Bool, onDispose: { stopBroadcast in
+            broadcasts[id] = BonsoirServiceBroadcast(id: id, printLogs: arguments["printLogs"] as! Bool, onDispose: { stopBroadcast in
                 if stopBroadcast {
-                    self.listeners[id]?.cancel()
+                    self.broadcasts[id]?.cancel()
                 }
-                self.listeners.removeValue(forKey: id)
+                self.broadcasts.removeValue(forKey: id)
             }, messenger: messenger, service: service)
-            listeners[id] = listener
             result(true)
         case "broadcast.start":
-            listeners[id]?.start()
-            result(listeners[id] != nil)
+            broadcasts[id]?.start()
+            result(broadcasts[id] != nil)
         case "broadcast.stop":
-            listeners[id]?.dispose()
-            result(listeners[id] != nil)
+            broadcasts[id]?.dispose()
+            result(broadcasts[id] != nil)
         case "discovery.initialize":
-            let browser = BonsoirNWBrowser(id: id, printLogs: arguments["printLogs"] as! Bool, onDispose: { stopDiscovery in
+            discoveries[id] = BonsoirServiceDiscovery(id: id, printLogs: arguments["printLogs"] as! Bool, onDispose: { stopDiscovery in
                 if stopDiscovery {
-                    self.browsers[id]?.cancel()
+                    self.discoveries[id]?.cancel()
                 }
-                self.browsers.removeValue(forKey: id)
+                self.discoveries.removeValue(forKey: id)
             }, messenger: messenger, type: arguments["type"] as! String)
-            browsers[id] = browser
             result(true)
         case "discovery.start":
-            browsers[id]?.start()
-            result(browsers[id] != nil)
+            discoveries[id]?.start()
+            result(discoveries[id] != nil)
         case "discovery.resolveService":
-            let resolveStarted: Bool = browsers[id]?.resolveService(name: arguments["name"] as! String, type: arguments["type"] as! String) ?? false
+            let resolveStarted: Bool = discoveries[id]?.resolveService(name: arguments["name"] as! String, type: arguments["type"] as! String) ?? false
             result(resolveStarted)
         case "discovery.stop":
-            browsers[id]?.dispose()
-            result(browsers[id] != nil)
+            discoveries[id]?.dispose()
+            result(discoveries[id] != nil)
         default:
             result(FlutterMethodNotImplemented)
         }
     }
     
     public func detachFromEngineForRegistrar(registrar: FlutterPluginRegistrar) {
-        for listener in listeners.values {
-            listener.dispose()
+        for broadcast in broadcasts.values {
+            broadcast.dispose()
         }
-        for browser in browsers.values {
-            browser.dispose()
+        for discovery in discoveries.values {
+            discovery.dispose()
         }
     }
     
