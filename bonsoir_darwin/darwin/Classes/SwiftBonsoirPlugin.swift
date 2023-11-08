@@ -6,9 +6,10 @@
 #if canImport(os)
     import os
 #endif
-import Foundation
+import Network
 
 /// The main plugin Swift class.
+@available(iOS 13.0, macOS 10.15, *)
 public class SwiftBonsoirPlugin: NSObject, FlutterPlugin {
     /// The package name.
     static let package: String = "fr.skyost.bonsoir"
@@ -43,22 +44,20 @@ public class SwiftBonsoirPlugin: NSObject, FlutterPlugin {
         let id = arguments["id"] as! Int
         switch call.method {
         case "broadcast.initialize":
-            let service = NWListener.Service(type: arguments["service.type"] as! String, name: arguments["service.name"] as! String)
-            let attributes = arguments["service.attributes"]
-            if attributes != nil {
-                service.txtRecordObject = NWTXTRecord(attributes as! [String : String])
+            let service = BonsoirService(name: arguments["service.name"] as! String, type: arguments["service.type"] as! String, port: arguments["service.port"] as! Int, ip: nil, attributes: arguments["service.attributes"] as! [String : String]?)
+            if let ip = arguments["service.ip"] as? String? {
+                service.ip = ip
             }
             let listener = BonsoirNWListener(id: id, printLogs: arguments["printLogs"] as! Bool, onDispose: { stopBroadcast in
                 if stopBroadcast {
-                    listener.cancel()
+                    self.listeners[id]?.cancel()
                 }
                 self.listeners.removeValue(forKey: id)
-            }, messenger: messenger, port: arguments["service.port"] as! Int)
-            listener.service = service
+            }, messenger: messenger, service: service)
             listeners[id] = listener
-            result(listeners[id] != nil)
+            result(true)
         case "broadcast.start":
-            listeners[id]?.start(queue: .main)
+            listeners[id]?.start()
             result(listeners[id] != nil)
         case "broadcast.stop":
             listeners[id]?.dispose()
@@ -66,21 +65,17 @@ public class SwiftBonsoirPlugin: NSObject, FlutterPlugin {
         case "discovery.initialize":
             let browser = BonsoirNWBrowser(id: id, printLogs: arguments["printLogs"] as! Bool, onDispose: { stopDiscovery in
                 if stopDiscovery {
-                    browser.cancel()
+                    self.browsers[id]?.cancel()
                 }
                 self.browsers.removeValue(forKey: id)
             }, messenger: messenger, type: arguments["type"] as! String)
             browsers[id] = browser
-            result(browsers[id] != nil)
+            result(true)
         case "discovery.start":
-            browsers[id]?.start(queue: .main)
+            browsers[id]?.start()
             result(browsers[id] != nil)
         case "discovery.resolveService":
-            var resolveStarted: Bool = false
-            let delegate: BonsoirNWBrowser? = browsers[id]?.delegate as! BonsoirNWBrowser?
-            if delegate != nil {
-                resolveStarted = delegate!.resolveService(name: arguments["name"] as! String, type: arguments["type"] as! String)!
-            }
+            let resolveStarted: Bool = browsers[id]?.resolveService(name: arguments["name"] as! String, type: arguments["type"] as! String) ?? false
             result(resolveStarted)
         case "discovery.stop":
             browsers[id]?.dispose()
@@ -91,37 +86,20 @@ public class SwiftBonsoirPlugin: NSObject, FlutterPlugin {
     }
     
     public func detachFromEngineForRegistrar(registrar: FlutterPluginRegistrar) {
-        for service in services.values {
-            (service.delegate as! BonsoirNWListener).dispose()
+        for listener in listeners.values {
+            listener.dispose()
         }
         for browser in browsers.values {
-            (browser.delegate as! BonsoirNWBrowser).dispose()
+            browser.dispose()
         }
     }
     
     /// Logs a given message.
     public static func log(category: String, id: Int, message: String) {
         #if canImport(os)
-        if #available(iOS 10.0, macOS 10.12, *) {
             os_log("[%d] %s", log: OSLog(subsystem: "fr.skyost.bonsoir", category: category), type: OSLogType.info, id, message)
-            return
-        }
-        else {
+        #else
             NSLog("\n[\(id)] \(message)")
-        }
         #endif
-        
-        NSLog("\n[\(id)] \(message)")
-    }
-    
-    /// Encodes the specified attributes.
-    private func encodeAttributes(attributes: [String: String?]) -> [String: Data] {
-        var result: [String: Data] = [:]
-        for (key, value) in attributes {
-            if(value != nil) {
-                result[key] = String(describing: value!).data(using: .utf8)
-            }
-        }
-        return result
     }
 }

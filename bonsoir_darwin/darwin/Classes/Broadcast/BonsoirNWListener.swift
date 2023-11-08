@@ -4,11 +4,11 @@
 #if canImport(FlutterMacOS)
     import FlutterMacOS
 #endif
-import Foundation
 import Network
 
 /// Allows to broadcast a given service to the local network.
-class BonsoirNWListener: NSObject, NWListener, FlutterStreamHandler {
+@available(iOS 13.0, macOS 10.15, *)
+class BonsoirNWListener: NSObject, FlutterStreamHandler {
     /// The delegate identifier.
     let id: Int
 
@@ -17,6 +17,12 @@ class BonsoirNWListener: NSObject, NWListener, FlutterStreamHandler {
 
     /// Triggered when this instance is being disposed.
     let onDispose: (Bool) -> Void
+    
+    /// The advertised service.
+    let service: BonsoirService
+    
+    /// The listener object.
+    let listener: NWListener
 
     /// The current event channel.
     var eventChannel: FlutterEventChannel?
@@ -25,12 +31,16 @@ class BonsoirNWListener: NSObject, NWListener, FlutterStreamHandler {
     var eventSink: FlutterEventSink?
 
     /// Initializes this class.
-    public init(id: Int, printLogs: Bool, onDispose: @escaping (Bool) -> Void, messenger: FlutterBinaryMessenger, port: Int) {
+    public init(id: Int, printLogs: Bool, onDispose: @escaping (Bool) -> Void, messenger: FlutterBinaryMessenger, service: BonsoirService) {
         self.id = id
         self.printLogs = printLogs
         self.onDispose = onDispose
-        self.stateUpdateHandler = stateHandler
-        super.init(using: .tcp, on: port)
+        self.service = service
+        listener = try! NWListener(using: .tcp, on: NWEndpoint.Port(String(service.port))!)
+        super.init()
+        listener.newConnectionHandler = { connection in }
+        listener.stateUpdateHandler = stateHandler
+        listener.service = NWListener.Service(name: service.name, type: service.type, txtRecord: NWTXTRecord(service.attributes ?? [:]))
         eventChannel = FlutterEventChannel(name: "\(SwiftBonsoirPlugin.package).broadcast.\(id)", binaryMessenger: messenger)
         eventChannel?.setStreamHandler(self)
     }
@@ -42,7 +52,7 @@ class BonsoirNWListener: NSObject, NWListener, FlutterStreamHandler {
             if printLogs {
                 SwiftBonsoirPlugin.log(category: "broadcast", id: id, message: "Bonsoir service broadcast initialized : \(service)")
             }
-        case .waiting(let error):
+        case .waiting(_):
             if printLogs {
                 SwiftBonsoirPlugin.log(category: "broadcast", id: id, message: "Bonsoir service broadcast waiting for a network to become available : \(service)")
             }
@@ -50,7 +60,7 @@ class BonsoirNWListener: NSObject, NWListener, FlutterStreamHandler {
             if printLogs {
                 SwiftBonsoirPlugin.log(category: "broadcast", id: id, message: "Bonsoir service broadcasted : \(service)")
             }
-            eventSink?(SuccessObject(id: "broadcastStarted", service: BonsoirService(service: service)).toJson())
+            eventSink?(SuccessObject(id: "broadcastStarted", service: service).toJson())
         case .failed(let error):
             if printLogs {
                 SwiftBonsoirPlugin.log(category: "broadcast", id: id, message: "Bonsoir service failed to broadcast : \(service), error code : \(error)")
@@ -62,7 +72,7 @@ class BonsoirNWListener: NSObject, NWListener, FlutterStreamHandler {
                 SwiftBonsoirPlugin.log(category: "broadcast", id: id, message: "Bonsoir service broadcast stopped : \(service)")
             }
             
-            eventSink?(SuccessObject(id: "broadcastStopped", service: BonsoirService(service: service)).toJson())
+            eventSink?(SuccessObject(id: "broadcastStopped", service: service).toJson())
             dispose(stopBroadcast: false)
         default:
             break
@@ -77,6 +87,16 @@ class BonsoirNWListener: NSObject, NWListener, FlutterStreamHandler {
     func onCancel(withArguments arguments: Any?) -> FlutterError? {
         eventSink = nil
         return nil
+    }
+    
+    /// Starts the broadcast.
+    public func start() {
+        listener.start(queue: .main)
+    }
+    
+    /// Cancels the broadcast.
+    public func cancel() {
+        listener.cancel()
     }
 
     /// Disposes the current class instance.

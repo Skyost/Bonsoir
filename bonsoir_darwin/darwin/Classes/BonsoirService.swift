@@ -1,44 +1,40 @@
 import Network
 
 /// Represents a Bonsoir service.
+@available(iOS 13.0, macOS 10.15, *)
 class BonsoirService {
     /// The response service name.
-    let name: String?
+    var name: String
     
     /// The response service type.
-    let type: String?
+    var type: String
     
     /// The response service port.
-    let port: Int?
+    var port: Int
     
     /// The response service name.
-    let ip: String?
+    var ip: String?
     
     /// The response service name.
-    let attributes: [String : String]?
-
+    var attributes: [String : String]?
+    
     /// Creates a new service instance.
-    public init(name: String?, type: String?, port: Int?, ip: String?, attributes: [String : String]?) {
+    public init(name: String, type: String, port: Int, ip: String?, attributes: [String : String]?) {
         self.name = name
         self.type = type
         self.port = port
         self.ip = ip
         self.attributes = attributes
     }
-    
-    /// Creates a new service instance.
-    public init(service: NWListener.Service) {
-        self.init(name: name, type: type, port: port, ip: '127.0.0.1', attributes: service.txtRecordObject.dictionary) 
-    }
-    
+
     /// Converts a given service to a dictionary.
-    private func toJson(prefix: String = "service.") -> [String: Any?] {
+    public func toJson(prefix: String = "service.") -> [String: Any?] {
         return [
             "\(prefix)name": name,
             "\(prefix)type": type,
             "\(prefix)port": port,
             "\(prefix)ip": ip,
-            "\(prefix)attributes": attributes
+            "\(prefix)attributes": attributes ?? [:]
         ]
     }
 	

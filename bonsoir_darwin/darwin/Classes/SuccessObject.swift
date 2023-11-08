@@ -2,6 +2,7 @@ import Foundation
 import Network
 
 /// Sent to the event channel when there is no error.
+@available(iOS 13.0, macOS 10.15, *)
 class SuccessObject {
     /// The response id.
     let id: String
