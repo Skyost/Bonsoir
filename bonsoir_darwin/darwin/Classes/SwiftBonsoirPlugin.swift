@@ -13,11 +13,11 @@ public class SwiftBonsoirPlugin: NSObject, FlutterPlugin {
     /// The package name.
     static let package: String = "fr.skyost.bonsoir"
 
-    /// Contains all created services (Broadcast).
-    var services: [Int: NetService] = [:]
+    /// Contains all created listeners (Broadcast).
+    var listeners: [Int: BonsoirNWListener] = [:]
 
     /// Contains all created browsers (Discovery).
-    var browsers: [Int: NetServiceBrowser] = [:]
+    var browsers: [Int: BonsoirNWBrowser] = [:]
 
     /// The binary messenger instance.
     let messenger: FlutterBinaryMessenger
@@ -43,40 +43,38 @@ public class SwiftBonsoirPlugin: NSObject, FlutterPlugin {
         let id = arguments["id"] as! Int
         switch call.method {
         case "broadcast.initialize":
-            let service = NetService(domain: "local.", type: arguments["service.type"] as! String, name: arguments["service.name"] as! String, port: Int32(arguments["service.port"] as! Int))
+            let service = NWListener.Service(type: arguments["service.type"] as! String, name: arguments["service.name"] as! String)
             let attributes = arguments["service.attributes"]
-            if(attributes != nil) {
-                service.setTXTRecord(NetService.data(fromTXTRecord: encodeAttributes(attributes: attributes as! [String : String?])))
+            if attributes != nil {
+                service.txtRecordObject = NWTXTRecord(attributes as! [String : String])
             }
-            let delegate = BonsoirServiceDelegate(id: id, printLogs: arguments["printLogs"] as! Bool, onDispose: { stopBroadcast in
+            let listener = BonsoirNWListener(id: id, printLogs: arguments["printLogs"] as! Bool, onDispose: { stopBroadcast in
                 if stopBroadcast {
-                    service.stop()
+                    listener.cancel()
                 }
-                self.services.removeValue(forKey: id)
-            }, messenger: messenger)
-            service.delegate = delegate
-            services[id] = service
-            result(true)
+                self.listeners.removeValue(forKey: id)
+            }, messenger: messenger, port: arguments["service.port"] as! Int)
+            listener.service = service
+            listeners[id] = listener
+            result(listeners[id] != nil)
         case "broadcast.start":
-            services[id]?.publish()
-            result(true)
+            listeners[id]?.start(queue: .main)
+            result(listeners[id] != nil)
         case "broadcast.stop":
-            (services[id]?.delegate as! BonsoirServiceDelegate?)?.dispose()
-            result(true)
+            listeners[id]?.dispose()
+            result(listeners[id] != nil)
         case "discovery.initialize":
-            let browser = NetServiceBrowser()
-            let delegate = BonsoirServiceBrowserDelegate(id: id, printLogs: arguments["printLogs"] as! Bool, onDispose: { stopDiscovery in
+            let browser = BonsoirNWBrowser(id: id, printLogs: arguments["printLogs"] as! Bool, onDispose: { stopDiscovery in
                 if stopDiscovery {
-                    browser.stop()
+                    browser.cancel()
                 }
                 self.browsers.removeValue(forKey: id)
-            }, messenger: messenger)
-            browser.delegate = delegate
+            }, messenger: messenger, type: arguments["type"] as! String)
             browsers[id] = browser
-            result(true)
+            result(browsers[id] != nil)
         case "discovery.start":
-            browsers[id]?.searchForServices(ofType: arguments["type"] as! String, inDomain: "local.")
-            result(true)
+            browsers[id]?.start(queue: .main)
+            result(browsers[id] != nil)
         case "discovery.resolveService":
             var resolveStarted: Bool = false
             let delegate: BonsoirServiceBrowserDelegate? = browsers[id]?.delegate as! BonsoirServiceBrowserDelegate?
@@ -85,8 +83,8 @@ public class SwiftBonsoirPlugin: NSObject, FlutterPlugin {
             }
             result(resolveStarted)
         case "discovery.stop":
-            (browsers[id]?.delegate as! BonsoirServiceBrowserDelegate?)?.dispose()
-            result(true)
+            browsers[id]?.dispose()
+            result(browsers[id] != nil)
         default:
             result(FlutterMethodNotImplemented)
         }
@@ -94,7 +92,7 @@ public class SwiftBonsoirPlugin: NSObject, FlutterPlugin {
     
     public func detachFromEngineForRegistrar(registrar: FlutterPluginRegistrar) {
         for service in services.values {
-            (service.delegate as! BonsoirServiceDelegate).dispose()
+            (service.delegate as! BonsoirNWListener).dispose()
         }
         for browser in browsers.values {
             (browser.delegate as! BonsoirServiceBrowserDelegate).dispose()
