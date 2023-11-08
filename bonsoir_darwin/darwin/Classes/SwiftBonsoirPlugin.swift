@@ -77,7 +77,7 @@ public class SwiftBonsoirPlugin: NSObject, FlutterPlugin {
             result(browsers[id] != nil)
         case "discovery.resolveService":
             var resolveStarted: Bool = false
-            let delegate: BonsoirServiceBrowserDelegate? = browsers[id]?.delegate as! BonsoirServiceBrowserDelegate?
+            let delegate: BonsoirNWBrowser? = browsers[id]?.delegate as! BonsoirNWBrowser?
             if delegate != nil {
                 resolveStarted = delegate!.resolveService(name: arguments["name"] as! String, type: arguments["type"] as! String)!
             }
@@ -95,7 +95,7 @@ public class SwiftBonsoirPlugin: NSObject, FlutterPlugin {
             (service.delegate as! BonsoirNWListener).dispose()
         }
         for browser in browsers.values {
-            (browser.delegate as! BonsoirServiceBrowserDelegate).dispose()
+            (browser.delegate as! BonsoirNWBrowser).dispose()
         }
     }
     
@@ -105,6 +105,9 @@ public class SwiftBonsoirPlugin: NSObject, FlutterPlugin {
         if #available(iOS 10.0, macOS 10.12, *) {
             os_log("[%d] %s", log: OSLog(subsystem: "fr.skyost.bonsoir", category: category), type: OSLogType.info, id, message)
             return
+        }
+        else {
+            NSLog("\n[\(id)] \(message)")
         }
         #endif
         

@@ -15,7 +15,7 @@ class SuccessObject {
     }
 
     /// Creates a new success object instance.
-    public init(id: String, service: Service?) {
+    public init(id: String, service: BonsoirService?) {
         self.id = id
         self.service = service
     }
