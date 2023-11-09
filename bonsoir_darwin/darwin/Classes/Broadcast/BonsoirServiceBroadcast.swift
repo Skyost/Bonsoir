@@ -16,7 +16,7 @@ class BonsoirServiceBroadcast: NSObject, FlutterStreamHandler {
     let printLogs: Bool
 
     /// Triggered when this instance is being disposed.
-    let onDispose: (Bool) -> Void
+    let onDispose: () -> Void
     
     /// The advertised service.
     let service: BonsoirService
@@ -31,7 +31,7 @@ class BonsoirServiceBroadcast: NSObject, FlutterStreamHandler {
     var eventSink: FlutterEventSink?
 
     /// Initializes this class.
-    public init(id: Int, printLogs: Bool, onDispose: @escaping (Bool) -> Void, messenger: FlutterBinaryMessenger, service: BonsoirService) {
+    public init(id: Int, printLogs: Bool, onDispose: @escaping () -> Void, messenger: FlutterBinaryMessenger, service: BonsoirService) {
         self.id = id
         self.printLogs = printLogs
         self.onDispose = onDispose

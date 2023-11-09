@@ -16,7 +16,7 @@ class BonsoirServiceDiscovery: NSObject, FlutterStreamHandler {
     let printLogs: Bool
 
     /// Triggered when this instance is being disposed.
-    let onDispose: (Bool) -> Void
+    let onDispose: () -> Void
 
     /// The type we're listening to.
     let type: String
@@ -37,7 +37,7 @@ class BonsoirServiceDiscovery: NSObject, FlutterStreamHandler {
     var resolvingServices: [DNSServiceRef?: BonsoirService] = [:]
 
     /// Initializes this class.
-    public init(id: Int, printLogs: Bool, onDispose: @escaping (Bool) -> Void, messenger: FlutterBinaryMessenger, type: String) {
+    public init(id: Int, printLogs: Bool, onDispose: @escaping () -> Void, messenger: FlutterBinaryMessenger, type: String) {
         self.id = id
         self.printLogs = printLogs
         self.onDispose = onDispose
@@ -205,7 +205,7 @@ class BonsoirServiceDiscovery: NSObject, FlutterStreamHandler {
         }
         resolvingServices.removeAll()
         services.removeAll()
-        if case .setup || .ready = browser.state {
+        if [.setup, .ready].contains(browser.state) {
             browser.cancel()
         }
         onDispose()
