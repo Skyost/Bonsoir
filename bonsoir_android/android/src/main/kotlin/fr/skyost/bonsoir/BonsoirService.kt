@@ -2,6 +2,7 @@ package fr.skyost.bonsoir
 
 import android.net.nsd.NsdServiceInfo
 import org.json.JSONObject
+import java.net.InetAddress
 
 /**
  * Represents a Bonsoir service.
@@ -64,8 +65,10 @@ data class BonsoirService(
         val service = NsdServiceInfo().apply {
             serviceName = name
             serviceType = type
-            port = port
-            host = host
+            port = this@BonsoirService.port
+        }
+        if (host != null) {
+            service.host = InetAddress.getByName(host)
         }
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
             for (entry in attributes.entries) {

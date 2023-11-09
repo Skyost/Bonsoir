@@ -43,9 +43,9 @@ class BonsoirServiceBroadcast(
     private var eventSink: EventSink? = null
 
     /**
-     * Whether the broadcast is currently active.
+     * Whether the broadcast is active.
      */
-    private var isBroadcastActive: Boolean = false
+    private var isActive = false
 
     /**
      * Initializes this instance.
@@ -70,10 +70,10 @@ class BonsoirServiceBroadcast(
     }
 
     override fun onServiceRegistered(service: NsdServiceInfo) {
+        isActive = true
         if (printLogs) {
             Log.d(BonsoirPlugin.tag, "[$id] Bonsoir service registered : ${this.service}")
         }
-        isBroadcastActive = true
         Handler(Looper.getMainLooper()).post {
             eventSink?.success(SuccessObject("broadcastStarted", this.service).toJson())
         }
@@ -93,13 +93,15 @@ class BonsoirServiceBroadcast(
     }
 
     override fun onServiceUnregistered(service: NsdServiceInfo) {
+        val wasActive = isActive
+        isActive = false
         if (printLogs) {
             Log.d(BonsoirPlugin.tag, "[$id] Bonsoir service broadcast stopped : ${this.service}")
         }
         Handler(Looper.getMainLooper()).post {
             eventSink?.success(SuccessObject("broadcastStopped", this.service).toJson())
         }
-        dispose()
+        dispose(wasActive)
     }
 
     override fun onUnregistrationFailed(service: NsdServiceInfo, errorCode: Int) {
@@ -117,8 +119,13 @@ class BonsoirServiceBroadcast(
     /**
      * Disposes the current class instance.
      */
-    fun dispose() {
-        nsdManager.unregisterService(this)
-        onDispose.run()
+    fun dispose(notify: Boolean = isActive) {
+        if (isActive) {
+            isActive = false
+            nsdManager.unregisterService(this)
+        }
+        if (notify) {
+            onDispose.run()
+        }
     }
 }
