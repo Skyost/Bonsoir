@@ -1,4 +1,4 @@
-## [3.1.0]
+## [4.0.0]
 
 * Removed the dependence on the native `NetService` library.
 * `service.ip` is now `service.host`.

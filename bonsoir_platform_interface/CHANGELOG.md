@@ -1,4 +1,4 @@
-## [3.1.0]
+## [4.0.0]
 
 * `service.ip` is now `service.host`.
 
