@@ -39,9 +39,6 @@ class BonsoirServiceBroadcast: NSObject, FlutterStreamHandler {
         super.init()
         eventChannel = FlutterEventChannel(name: "\(SwiftBonsoirPlugin.package).broadcast.\(id)", binaryMessenger: messenger)
         eventChannel?.setStreamHandler(self)
-        if self.service.host != nil && printLogs {
-            SwiftBonsoirPlugin.log(category: "broadcast", id: id, message: "You're trying to broadcast the host \(String(describing: service.host)) associated with the type \(service.type). Please note that, on Darwin platforms, this is not taken into account.")
-        }
     }
     
     func onListen(withArguments arguments: Any?, eventSink: @escaping FlutterEventSink) -> FlutterError? {

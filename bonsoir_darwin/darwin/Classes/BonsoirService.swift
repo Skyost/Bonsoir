@@ -40,6 +40,11 @@ class BonsoirService {
 	
 	/// Returns the description of this object.
 	public var description: String {
-		return "\(toJson(prefix: ""))"
+        let json = toJson(prefix: "")
+        do {
+            let data = try JSONSerialization.data(withJSONObject: json)
+            return String(data: data, encoding: .utf8)!
+        } catch {}
+		return "\(json)"
 	}
 }

@@ -73,6 +73,7 @@ class _ServiceWidget extends ConsumerWidget {
               onPressed: serviceResolverFunction!,
               child: Text('Resolve'.toUpperCase()),
             ),
+      isThreeLine: true,
     );
   }
 }

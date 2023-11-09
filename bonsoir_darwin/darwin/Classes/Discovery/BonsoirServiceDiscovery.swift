@@ -42,7 +42,7 @@ class BonsoirServiceDiscovery: NSObject, FlutterStreamHandler {
         self.printLogs = printLogs
         self.onDispose = onDispose
         self.type = type
-        browser = NWBrowser(for: .bonjour(type: type, domain: "local."), using: .tcp)
+        browser = NWBrowser(for: .bonjourWithTXTRecord(type: type, domain: "local."), using: .tcp)
         super.init()
         browser.stateUpdateHandler = stateHandler
         browser.browseResultsChangedHandler = browseHandler
@@ -70,7 +70,7 @@ class BonsoirServiceDiscovery: NSObject, FlutterStreamHandler {
             dispose()
         case .cancelled:
             if printLogs {
-                SwiftBonsoirPlugin.log(category: "discovery", id: id, message: "Bonsoir discovery stopped : \(browser)")
+                SwiftBonsoirPlugin.log(category: "discovery", id: id, message: "Bonsoir discovery stopped : \(type)")
             }
             eventSink?(SuccessObject(id: "discoveryStopped").toJson())
             dispose(stopDiscovery: false)
@@ -157,21 +157,21 @@ class BonsoirServiceDiscovery: NSObject, FlutterStreamHandler {
                     let discovery = Unmanaged<BonsoirServiceDiscovery>.fromOpaque(context!).takeUnretainedValue()
                     let service = discovery.resolvingServices[sdRef]
                     if errorCode == kDNSServiceErr_NoError {
-                        if let host = hosttarget {
-                            service?.host = String(cString: host)
-                            service?.port = Int(port)
-                            if discovery.printLogs == true {
-                                SwiftBonsoirPlugin.log(category: "discovery", id: discovery.id, message: "Bonsoir has resolved a service : \(String(describing: service?.description))")
-                            }
-                            discovery.eventSink?(SuccessObject(id: "discoveryServiceResolved", service: service).toJson())
-                            return
+                        if hosttarget != nil {
+                            service!.host = String(cString: hosttarget!)
                         }
+                        service!.port = Int(port)
+                        if discovery.printLogs == true {
+                            SwiftBonsoirPlugin.log(category: "discovery", id: discovery.id, message: "Bonsoir has resolved a service : \(service!.description)")
+                        }
+                        discovery.eventSink?(SuccessObject(id: "discoveryServiceResolved", service: service).toJson())
+                    } else {
+                        if discovery.printLogs {
+                            SwiftBonsoirPlugin.log(category: "discovery", id: discovery.id, message: "Bonsoir has failed to resolve a service : \(errorCode)")
+                        }
+                        discovery.stopResolution(sdRef: sdRef)
+                        discovery.eventSink?(SuccessObject(id: "discoveryServiceResolveFailed", service: service).toJson())
                     }
-                    if discovery.printLogs {
-                        SwiftBonsoirPlugin.log(category: "discovery", id: discovery.id, message: "Bonsoir has failed to resolve a service : \(errorCode)")
-                    }
-                    discovery.stopResolution(sdRef: sdRef)
-                    discovery.eventSink?(SuccessObject(id: "discoveryServiceResolveFailed", service: service).toJson())
                 }, Unmanaged.passUnretained(self).toOpaque())
                 if error == kDNSServiceErr_NoError {
                     resolvingServices[sdRef] = service
