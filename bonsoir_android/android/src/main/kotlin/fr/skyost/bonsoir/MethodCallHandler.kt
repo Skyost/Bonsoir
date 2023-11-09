@@ -60,7 +60,6 @@ class MethodCallHandler(
 
             "broadcast.start" -> {
                 multicastLock.acquire()
-
                 broadcasts[id]?.start()
                 result.success(broadcasts[id] != null)
             }
@@ -81,14 +80,14 @@ class MethodCallHandler(
                         },
                         applicationContext.getSystemService(Context.NSD_SERVICE) as NsdManager,
                         messenger,
+                        call.argument<String>("type")!!,
                     )
                 result.success(true)
             }
 
             "discovery.start" -> {
                 multicastLock.acquire()
-
-                discoveries[id]?.discoverServices(call.argument<String>("type")!!)
+                discoveries[id]?.start()
                 result.success(discoveries[id] != null)
             }
 

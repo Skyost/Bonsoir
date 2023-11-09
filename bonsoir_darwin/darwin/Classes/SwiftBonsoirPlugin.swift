@@ -48,10 +48,7 @@ public class SwiftBonsoirPlugin: NSObject, FlutterPlugin {
             if let host = arguments["service.host"] as? String? {
                 service.host = host
             }
-            broadcasts[id] = BonsoirServiceBroadcast(id: id, printLogs: arguments["printLogs"] as! Bool, onDispose: { stopBroadcast in
-                if stopBroadcast {
-                    self.broadcasts[id]?.cancel()
-                }
+            broadcasts[id] = BonsoirServiceBroadcast(id: id, printLogs: arguments["printLogs"] as! Bool, onDispose: {
                 self.broadcasts.removeValue(forKey: id)
             }, messenger: messenger, service: service)
             result(true)
@@ -62,10 +59,7 @@ public class SwiftBonsoirPlugin: NSObject, FlutterPlugin {
             broadcasts[id]?.dispose()
             result(broadcasts[id] != nil)
         case "discovery.initialize":
-            discoveries[id] = BonsoirServiceDiscovery(id: id, printLogs: arguments["printLogs"] as! Bool, onDispose: { stopDiscovery in
-                if stopDiscovery {
-                    self.discoveries[id]?.cancel()
-                }
+            discoveries[id] = BonsoirServiceDiscovery(id: id, printLogs: arguments["printLogs"] as! Bool, onDispose: {
                 self.discoveries.removeValue(forKey: id)
             }, messenger: messenger, type: arguments["type"] as! String)
             result(true)

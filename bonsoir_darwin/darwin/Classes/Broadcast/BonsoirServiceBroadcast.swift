@@ -74,8 +74,8 @@ class BonsoirServiceBroadcast: NSObject, FlutterStreamHandler {
                 if broadcast.printLogs {
                     SwiftBonsoirPlugin.log(category: "broadcast", id: broadcast.id, message: "Bonsoir service failed to broadcast : \(broadcast.service.description), error code : \(errorCode)")
                 }
-                broadcast.cancel(printLogs: false)
                 broadcast.eventSink?(FlutterError.init(code: "broadcastError", message: "Bonsoir service failed to broadcast.", details: errorCode))
+                broadcast.dispose()
             }
         }, Unmanaged.passUnretained(self).toOpaque())
         if error == kDNSServiceErr_NoError {
@@ -87,24 +87,18 @@ class BonsoirServiceBroadcast: NSObject, FlutterStreamHandler {
             if printLogs {
                 SwiftBonsoirPlugin.log(category: "broadcast", id: id, message: "Bonsoir service failed to broadcast : \(service.description), error code : \(error)")
             }
-            cancel(printLogs: false)
             eventSink?(FlutterError.init(code: "broadcastError", message: "Bonsoir service failed to broadcast.", details: error))
+            dispose()
         }
-    }
-    
-    /// Cancels the broadcast.
-    public func cancel(printLogs: Bool = true) {
-        DNSServiceRefDeallocate(sdRef)
-        if printLogs && self.printLogs {
-            SwiftBonsoirPlugin.log(category: "broadcast", id: id, message: "Bonsoir service broadcast stopped : \(service.description)")
-        }
-        
-        eventSink?(SuccessObject(id: "broadcastStopped", service: service).toJson())
-        dispose(stopBroadcast: false)
     }
 
     /// Disposes the current class instance.
-    public func dispose(stopBroadcast: Bool = true) {
-        onDispose(stopBroadcast)
+    public func dispose() {
+        DNSServiceRefDeallocate(sdRef)
+        if printLogs {
+            SwiftBonsoirPlugin.log(category: "broadcast", id: id, message: "Bonsoir service broadcast stopped : \(service.description)")
+        }
+        eventSink?(SuccessObject(id: "broadcastStopped", service: service).toJson())
+        onDispose()
     }
 }

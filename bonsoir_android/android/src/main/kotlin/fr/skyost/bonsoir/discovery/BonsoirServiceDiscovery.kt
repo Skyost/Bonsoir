@@ -21,13 +21,15 @@ import java.util.concurrent.atomic.AtomicBoolean
  * @param onDispose Triggered when this instance is being disposed.
  * @param nsdManager The NSD manager instance.
  * @param messenger The Flutter binary messenger.
+ * @param type The services type to discover.
  */
 class BonsoirServiceDiscovery(
     private val id: Int,
     private val printLogs: Boolean,
     private val onDispose: Runnable,
     private val nsdManager: NsdManager,
-    messenger: BinaryMessenger
+    messenger: BinaryMessenger,
+    private val type: String,
 ) : NsdManager.DiscoveryListener, NsdManager.ResolveListener {
 
     /**
@@ -40,11 +42,6 @@ class BonsoirServiceDiscovery(
      * The current event sink.
      */
     private var eventSink: EventChannel.EventSink? = null
-
-    /**
-     * Whether the discovery is currently active.
-     */
-    private var isDiscoveryActive: Boolean = false
 
     companion object {
         /**
@@ -74,7 +71,10 @@ class BonsoirServiceDiscovery(
         })
     }
 
-    fun discoverServices(type: String) {
+    /**
+     * Starts the discovery.
+     */
+    fun start() {
         nsdManager.discoverServices(type, NsdManager.PROTOCOL_DNS_SD, this)
     }
 
@@ -83,7 +83,6 @@ class BonsoirServiceDiscovery(
             Log.d(BonsoirPlugin.tag, "[$id] Bonsoir discovery started : $regType")
         }
 
-        isDiscoveryActive = true
         Handler(Looper.getMainLooper()).post {
             eventSink?.success(SuccessObject("discoveryStarted").toJson())
         }
@@ -97,7 +96,7 @@ class BonsoirServiceDiscovery(
         Handler(Looper.getMainLooper()).post {
             eventSink?.error("discoveryError", "Bonsoir failed to start discovery", errorCode)
         }
-        dispose(false)
+        dispose()
     }
 
     override fun onServiceFound(service: NsdServiceInfo) {
@@ -127,10 +126,10 @@ class BonsoirServiceDiscovery(
             Log.d(BonsoirPlugin.tag, "[$id] Bonsoir discovery stopped : $serviceType")
         }
 
-        isDiscoveryActive = false
         Handler(Looper.getMainLooper()).post {
             eventSink?.success(SuccessObject("discoveryStopped").toJson())
         }
+        dispose()
     }
 
     override fun onStopDiscoveryFailed(serviceType: String, errorCode: Int) {
@@ -148,7 +147,6 @@ class BonsoirServiceDiscovery(
                 errorCode
             )
         }
-        dispose()
     }
 
     /**
@@ -188,9 +186,7 @@ class BonsoirServiceDiscovery(
         service: NsdServiceInfo,
         discovery: BonsoirServiceDiscovery
     ) {
-        if (isDiscoveryActive) {
-            nsdManager.resolveService(service, discovery)
-        }
+        nsdManager.resolveService(service, discovery)
     }
 
     override fun onServiceResolved(service: NsdServiceInfo) {
@@ -223,11 +219,17 @@ class BonsoirServiceDiscovery(
     /**
      * Disposes the current class instance.
      */
-    fun dispose(stopDiscovery: Boolean = true) {
-        if (stopDiscovery && isDiscoveryActive) {
-            nsdManager.stopServiceDiscovery(this)
-            isDiscoveryActive = false
+    fun dispose() {
+        val iterator = pendingServices.iterator()
+        while (iterator.hasNext()) {
+            if (iterator.next().second == this) {
+                iterator.remove()
+            }
         }
+        if (pendingServices.isEmpty()) {
+            isResolverBusy.set(false)
+        }
+        nsdManager.stopServiceDiscovery(this)
         onDispose.run()
     }
 }

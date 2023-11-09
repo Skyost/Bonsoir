@@ -17,19 +17,19 @@ abstract class BonsoirAction<T extends BonsoirEvent> {
   /// Await this method to know when the plugin will be ready.
   Future<void> get ready;
 
-  /// This starts the required action (eg. Discovery, or Broadcast).
+  /// This starts the required action (eg. discovery, or broadcast).
   Future<void> start();
 
   /// This stops the action (eg. stops discovery or broadcast).
   Future<void> stop();
 
-  /// This returns whether the platform is ready for this event.
+  /// This returns whether the platform is ready for this action.
   bool get isReady;
 
-  /// This returns whether the platform has discarded this event.
+  /// This returns whether the platform has discarded this action.
   bool get isStopped;
 
-  /// This returns a JSON representation of the event.
+  /// This returns a JSON representation of the action.
   Map<String, dynamic> toJson();
 }
 
@@ -80,6 +80,7 @@ abstract class MethodChannelBonsoirAction<T extends BonsoirEvent> extends Bonsoi
 
   @override
   Future<void> start() {
+    assert(!isStopped, 'You should not try to start a stopped action.');
     assert(isReady, '''$runtimeType should be ready to start in order to call this method.
 You must wait until this instance is ready by calling "await $runtimeType.ready".
 If you have previously called "$runtimeType.stop()" on this instance, you have to create a new instance of this class.''');

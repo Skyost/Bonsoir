@@ -62,6 +62,9 @@ class BonsoirServiceBroadcast(
         })
     }
 
+    /**
+     * Starts the service registration.
+     */
     fun start() {
         nsdManager.registerService(service.toNsdService(), NsdManager.PROTOCOL_DNS_SD, this)
     }
@@ -86,7 +89,7 @@ class BonsoirServiceBroadcast(
         Handler(Looper.getMainLooper()).post {
             eventSink?.error("broadcastError", "Bonsoir service registration failed.", errorCode)
         }
-        dispose(false)
+        dispose()
     }
 
     override fun onServiceUnregistered(service: NsdServiceInfo) {
@@ -96,7 +99,7 @@ class BonsoirServiceBroadcast(
         Handler(Looper.getMainLooper()).post {
             eventSink?.success(SuccessObject("broadcastStopped", this.service).toJson())
         }
-        // dispose(false)
+        dispose()
     }
 
     override fun onUnregistrationFailed(service: NsdServiceInfo, errorCode: Int) {
@@ -109,17 +112,13 @@ class BonsoirServiceBroadcast(
         Handler(Looper.getMainLooper()).post {
             eventSink?.error("broadcastError", "Bonsoir service unregistration failed.", errorCode)
         }
-        // dispose()
     }
 
     /**
      * Disposes the current class instance.
      */
-    fun dispose(unregister: Boolean = true) {
-        if (unregister && isBroadcastActive) {
-            nsdManager.unregisterService(this)
-            isBroadcastActive = false
-        }
+    fun dispose() {
+        nsdManager.unregisterService(this)
         onDispose.run()
     }
 }

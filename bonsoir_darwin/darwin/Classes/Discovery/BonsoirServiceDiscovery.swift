@@ -17,7 +17,7 @@ class BonsoirServiceDiscovery: NSObject, FlutterStreamHandler {
 
     /// Triggered when this instance is being disposed.
     let onDispose: (Bool) -> Void
-    
+
     /// The type we're listening to.
     let type: String
     
@@ -53,10 +53,6 @@ class BonsoirServiceDiscovery: NSObject, FlutterStreamHandler {
     /// Handles state changes.
     func stateHandler(_ newState: NWBrowser.State) {
         switch newState {
-        case .setup:
-            if printLogs {
-                SwiftBonsoirPlugin.log(category: "broadcast", id: id, message: "Bonsoir discovery initialized : \(type)")
-            }
         case .ready:
             if printLogs {
                 SwiftBonsoirPlugin.log(category: "discovery", id: id, message: "Bonsoir discovery started : \(type)")
@@ -73,7 +69,7 @@ class BonsoirServiceDiscovery: NSObject, FlutterStreamHandler {
                 SwiftBonsoirPlugin.log(category: "discovery", id: id, message: "Bonsoir discovery stopped : \(type)")
             }
             eventSink?(SuccessObject(id: "discoveryStopped").toJson())
-            dispose(stopDiscovery: false)
+            dispose()
         default:
             break
         }
@@ -169,7 +165,7 @@ class BonsoirServiceDiscovery: NSObject, FlutterStreamHandler {
                         if discovery.printLogs {
                             SwiftBonsoirPlugin.log(category: "discovery", id: discovery.id, message: "Bonsoir has failed to resolve a service : \(errorCode)")
                         }
-                        discovery.stopResolution(sdRef: sdRef)
+                        discovery.stopResolution(sdRef: sdRef, remove: sdRef != nil)
                         discovery.eventSink?(SuccessObject(id: "discoveryServiceResolveFailed", service: service).toJson())
                     }
                 }, Unmanaged.passUnretained(self).toOpaque())
@@ -180,6 +176,7 @@ class BonsoirServiceDiscovery: NSObject, FlutterStreamHandler {
                     if printLogs {
                         SwiftBonsoirPlugin.log(category: "discovery", id: id, message: "Bonsoir has failed to resolve a service : \(error)")
                     }
+                    stopResolution(sdRef: sdRef, remove: false)
                     eventSink?(SuccessObject(id: "discoveryServiceResolveFailed", service: service).toJson())
                 }
                 return true
@@ -200,19 +197,17 @@ class BonsoirServiceDiscovery: NSObject, FlutterStreamHandler {
     public func start() {
         browser.start(queue: .main)
     }
-    
-    /// Cancels the discovery.
-    public func cancel() {
-        browser.cancel()
-    }
-    
+
     /// Disposes the current class instance.
-    public func dispose(stopDiscovery: Bool = true) {
-        services.removeAll()
+    public func dispose() {
         for sdRef in resolvingServices.keys {
             stopResolution(sdRef: sdRef, remove: false)
         }
         resolvingServices.removeAll()
-        onDispose(stopDiscovery)
+        services.removeAll()
+        if case .setup || .ready = browser.state {
+            browser.cancel()
+        }
+        onDispose()
     }
 }
