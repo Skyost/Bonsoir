@@ -143,10 +143,13 @@ class BonsoirServiceDiscovery: NSObject, FlutterStreamHandler {
     /// Resolves a service.
     public func resolveService(name: String, type: String) -> Bool {
         for result in browser.browseResults {
-            if case .service(let name, let type, _, _) = result.endpoint {
+            if case .service(let serviceName, let serviceType, _, _) = result.endpoint {
+                if name != serviceName || type != serviceType {
+                    continue
+                }
                 let service = services.first(where: {$0.name == name && $0.type == type})
                 if service == nil {
-                    return false
+                    continue
                 }
                 var sdRef: DNSServiceRef? = nil
                 let error = DNSServiceResolve(&sdRef, 0, 0, name, type, "local.", { (sdRef, flags, interfaceIndex, errorCode, fullName, hosttarget, port, txtLen, txtRecord, context) in
