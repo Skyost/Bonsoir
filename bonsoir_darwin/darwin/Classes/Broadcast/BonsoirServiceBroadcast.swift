@@ -77,7 +77,7 @@ class BonsoirServiceBroadcast: NSObject, FlutterStreamHandler {
                 if broadcast.printLogs {
                     SwiftBonsoirPlugin.log(category: "broadcast", id: broadcast.id, message: "Bonsoir service failed to broadcast : \(broadcast.service.description), error code : \(errorCode)")
                 }
-                broadcast.cancel()
+                broadcast.cancel(printLogs: false)
                 broadcast.eventSink?(FlutterError.init(code: "broadcastError", message: "Bonsoir service failed to broadcast.", details: errorCode))
             }
         }, Unmanaged.passUnretained(self).toOpaque())
@@ -90,15 +90,15 @@ class BonsoirServiceBroadcast: NSObject, FlutterStreamHandler {
             if printLogs {
                 SwiftBonsoirPlugin.log(category: "broadcast", id: id, message: "Bonsoir service failed to broadcast : \(service.description), error code : \(error)")
             }
-            cancel()
+            cancel(printLogs: false)
             eventSink?(FlutterError.init(code: "broadcastError", message: "Bonsoir service failed to broadcast.", details: error))
         }
     }
     
     /// Cancels the broadcast.
-    public func cancel() {
+    public func cancel(printLogs: Bool = true) {
         DNSServiceRefDeallocate(sdRef)
-        if printLogs {
+        if printLogs && self.printLogs {
             SwiftBonsoirPlugin.log(category: "broadcast", id: id, message: "Bonsoir service broadcast stopped : \(service.description)")
         }
         

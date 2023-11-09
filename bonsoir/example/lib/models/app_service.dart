@@ -32,7 +32,12 @@ class AppService {
     }
     name += ' Bonsoir Demo';
 
-    _service = BonsoirService(name: name, type: type, port: port);
+    _service = BonsoirService(
+      name: name,
+      type: type,
+      port: port,
+      attributes: {},
+    );
     return _service!;
   }
 }
