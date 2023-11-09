@@ -44,7 +44,7 @@ data class SuccessObject(private val id: String, private val service: NsdService
             "service.name" to service.serviceName,
             "service.type" to service.serviceType,
             "service.port" to resolvedServiceInfo.port,
-            "service.ip" to resolvedServiceInfo.ip,
+            "service.host" to resolvedServiceInfo.host,
             "service.attributes" to getAttributes(service)
         )
     }

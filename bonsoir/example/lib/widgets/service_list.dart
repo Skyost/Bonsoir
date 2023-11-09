@@ -53,8 +53,14 @@ class _ServiceWidget extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     String subtitle = 'Type : ${service.type}';
+    if (service.attributes.containsKey(AppService.attributeOs)) {
+      subtitle += ', OS : ${service.attributes[AppService.attributeOs]}';
+    }
+    if (service.attributes.containsKey(AppService.attributeUuid)) {
+      subtitle += ', UUID : ${service.attributes[AppService.attributeUuid]}';
+    }
     if (service is ResolvedBonsoirService) {
-      subtitle += ', ip : ${(service as ResolvedBonsoirService).ip}, port : ${service.port}';
+      subtitle += '\nHost : ${(service as ResolvedBonsoirService).host}, port : ${service.port}';
     }
 
     VoidCallback? serviceResolverFunction = ref.watch(discoveryModelProvider.select((model) => model.getServiceResolverFunction(service)));
@@ -65,8 +71,9 @@ class _ServiceWidget extends ConsumerWidget {
           ? null
           : TextButton(
               onPressed: serviceResolverFunction!,
-              child: const Text('RESOLVE'),
+              child: Text('Resolve'.toUpperCase()),
             ),
+      isThreeLine: true,
     );
   }
 }

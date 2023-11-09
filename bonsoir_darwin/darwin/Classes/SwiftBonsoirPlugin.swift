@@ -6,18 +6,19 @@
 #if canImport(os)
     import os
 #endif
-import Foundation
+import Network
 
 /// The main plugin Swift class.
+@available(iOS 13.0, macOS 10.15, *)
 public class SwiftBonsoirPlugin: NSObject, FlutterPlugin {
     /// The package name.
     static let package: String = "fr.skyost.bonsoir"
 
-    /// Contains all created services (Broadcast).
-    var services: [Int: NetService] = [:]
+    /// Contains all created broadcasts).
+    var broadcasts: [Int: BonsoirServiceBroadcast] = [:]
 
-    /// Contains all created browsers (Discovery).
-    var browsers: [Int: NetServiceBrowser] = [:]
+    /// Contains all created browsers.
+    var discoveries: [Int: BonsoirServiceDiscovery] = [:]
 
     /// The binary messenger instance.
     let messenger: FlutterBinaryMessenger
@@ -43,84 +44,60 @@ public class SwiftBonsoirPlugin: NSObject, FlutterPlugin {
         let id = arguments["id"] as! Int
         switch call.method {
         case "broadcast.initialize":
-            let service = NetService(domain: "local.", type: arguments["service.type"] as! String, name: arguments["service.name"] as! String, port: Int32(arguments["service.port"] as! Int))
-            let attributes = arguments["service.attributes"]
-            if(attributes != nil) {
-                service.setTXTRecord(NetService.data(fromTXTRecord: encodeAttributes(attributes: attributes as! [String : String?])))
+            let service = BonsoirService(name: arguments["service.name"] as! String, type: arguments["service.type"] as! String, port: arguments["service.port"] as! Int, host: nil, attributes: arguments["service.attributes"] as! [String : String]?)
+            if let host = arguments["service.host"] as? String? {
+                service.host = host
             }
-            let delegate = BonsoirServiceDelegate(id: id, printLogs: arguments["printLogs"] as! Bool, onDispose: { stopBroadcast in
+            broadcasts[id] = BonsoirServiceBroadcast(id: id, printLogs: arguments["printLogs"] as! Bool, onDispose: { stopBroadcast in
                 if stopBroadcast {
-                    service.stop()
+                    self.broadcasts[id]?.cancel()
                 }
-                self.services.removeValue(forKey: id)
-            }, messenger: messenger)
-            service.delegate = delegate
-            services[id] = service
+                self.broadcasts.removeValue(forKey: id)
+            }, messenger: messenger, service: service)
             result(true)
         case "broadcast.start":
-            services[id]?.publish()
-            result(true)
+            broadcasts[id]?.start()
+            result(broadcasts[id] != nil)
         case "broadcast.stop":
-            (services[id]?.delegate as! BonsoirServiceDelegate?)?.dispose()
-            result(true)
+            broadcasts[id]?.dispose()
+            result(broadcasts[id] != nil)
         case "discovery.initialize":
-            let browser = NetServiceBrowser()
-            let delegate = BonsoirServiceBrowserDelegate(id: id, printLogs: arguments["printLogs"] as! Bool, onDispose: { stopDiscovery in
+            discoveries[id] = BonsoirServiceDiscovery(id: id, printLogs: arguments["printLogs"] as! Bool, onDispose: { stopDiscovery in
                 if stopDiscovery {
-                    browser.stop()
+                    self.discoveries[id]?.cancel()
                 }
-                self.browsers.removeValue(forKey: id)
-            }, messenger: messenger)
-            browser.delegate = delegate
-            browsers[id] = browser
+                self.discoveries.removeValue(forKey: id)
+            }, messenger: messenger, type: arguments["type"] as! String)
             result(true)
         case "discovery.start":
-            browsers[id]?.searchForServices(ofType: arguments["type"] as! String, inDomain: "local.")
-            result(true)
+            discoveries[id]?.start()
+            result(discoveries[id] != nil)
         case "discovery.resolveService":
-            var resolveStarted: Bool = false
-            let delegate: BonsoirServiceBrowserDelegate? = browsers[id]?.delegate as! BonsoirServiceBrowserDelegate?
-            if delegate != nil {
-                resolveStarted = delegate!.resolveService(name: arguments["name"] as! String, type: arguments["type"] as! String)!
-            }
+            let resolveStarted: Bool = discoveries[id]?.resolveService(name: arguments["name"] as! String, type: arguments["type"] as! String) ?? false
             result(resolveStarted)
         case "discovery.stop":
-            (browsers[id]?.delegate as! BonsoirServiceBrowserDelegate?)?.dispose()
-            result(true)
+            discoveries[id]?.dispose()
+            result(discoveries[id] != nil)
         default:
             result(FlutterMethodNotImplemented)
         }
     }
     
     public func detachFromEngineForRegistrar(registrar: FlutterPluginRegistrar) {
-        for service in services.values {
-            (service.delegate as! BonsoirServiceDelegate).dispose()
+        for broadcast in broadcasts.values {
+            broadcast.dispose()
         }
-        for browser in browsers.values {
-            (browser.delegate as! BonsoirServiceBrowserDelegate).dispose()
+        for discovery in discoveries.values {
+            discovery.dispose()
         }
     }
     
     /// Logs a given message.
     public static func log(category: String, id: Int, message: String) {
         #if canImport(os)
-        if #available(iOS 10.0, macOS 10.12, *) {
             os_log("[%d] %s", log: OSLog(subsystem: "fr.skyost.bonsoir", category: category), type: OSLogType.info, id, message)
-            return
-        }
+        #else
+            NSLog("\n[\(id)] \(message)")
         #endif
-        
-        NSLog("\n[\(id)] \(message)")
-    }
-    
-    /// Encodes the specified attributes.
-    private func encodeAttributes(attributes: [String: String?]) -> [String: Data] {
-        var result: [String: Data] = [:]
-        for (key, value) in attributes {
-            if(value != nil) {
-                result[key] = String(describing: value!).data(using: .utf8)
-            }
-        }
-        return result
     }
 }
