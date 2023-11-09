@@ -1,3 +1,5 @@
+## [3.1.0]
+
 * `service.ip` is now `service.host`.
 
 ## [3.0.0] - 2023-08-06
