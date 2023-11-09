@@ -6,9 +6,12 @@ import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import fr.skyost.bonsoir.BonsoirPlugin
+import fr.skyost.bonsoir.BonsoirService
 import fr.skyost.bonsoir.SuccessObject
 import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.EventChannel
+import java.util.concurrent.ConcurrentLinkedQueue
+import java.util.concurrent.atomic.AtomicBoolean
 
 /**
  * Allows to find NSD services on local network.
@@ -16,16 +19,16 @@ import io.flutter.plugin.common.EventChannel
  * @param id The listener identifier.
  * @param printLogs Whether to print debug logs.
  * @param onDispose Triggered when this instance is being disposed.
- * @param nsdManager The NSD manager.
+ * @param nsdManager The NSD manager instance.
  * @param messenger The Flutter binary messenger.
  */
-class BonsoirDiscoveryListener(
+class BonsoirServiceDiscovery(
     private val id: Int,
     private val printLogs: Boolean,
     private val onDispose: Runnable,
     private val nsdManager: NsdManager,
     messenger: BinaryMessenger
-) : NsdManager.DiscoveryListener {
+) : NsdManager.DiscoveryListener, NsdManager.ResolveListener {
 
     /**
      * The current event channel.
@@ -39,14 +42,22 @@ class BonsoirDiscoveryListener(
     private var eventSink: EventChannel.EventSink? = null
 
     /**
-     * The current resolver instance.
-     */
-    private val resolver: Resolver
-
-    /**
      * Whether the discovery is currently active.
      */
     private var isDiscoveryActive: Boolean = false
+
+    companion object {
+        /**
+         * Whether the resolver is currently busy.
+         */
+        private val isResolverBusy: AtomicBoolean = AtomicBoolean(false)
+
+        /**
+         * All services pending for resolution.
+         */
+        private val pendingServices =
+            ConcurrentLinkedQueue<Pair<NsdServiceInfo, BonsoirServiceDiscovery>>()
+    }
 
     /**
      * Initializes this instance.
@@ -54,14 +65,13 @@ class BonsoirDiscoveryListener(
     init {
         eventChannel.setStreamHandler(object : EventChannel.StreamHandler {
             override fun onListen(arguments: Any?, eventSink: EventChannel.EventSink) {
-                this@BonsoirDiscoveryListener.eventSink = eventSink
+                this@BonsoirServiceDiscovery.eventSink = eventSink
             }
 
             override fun onCancel(arguments: Any?) {
                 eventSink = null
             }
         })
-        resolver = Resolver(nsdManager, ::onServiceResolved, ::onFailedToResolveService)
     }
 
     fun discoverServices(type: String) {
@@ -84,49 +94,31 @@ class BonsoirDiscoveryListener(
             Log.d(BonsoirPlugin.tag, "[$id] Bonsoir failed to start discovery : $errorCode")
         }
 
-        isDiscoveryActive = false
         Handler(Looper.getMainLooper()).post {
             eventSink?.error("discoveryError", "Bonsoir failed to start discovery", errorCode)
         }
+        dispose(false)
     }
 
     override fun onServiceFound(service: NsdServiceInfo) {
+        val bonsoirService = BonsoirService(service)
         if (printLogs) {
-            Log.d(BonsoirPlugin.tag, "[$id] Bonsoir has found a service : $service")
+            Log.d(BonsoirPlugin.tag, "[$id] Bonsoir has found a service : $bonsoirService")
         }
 
         Handler(Looper.getMainLooper()).post {
-            eventSink?.success(
-                SuccessObject(
-                    "discoveryServiceFound",
-                    service
-                ).toJson(resolver.getResolvedServiceIpAddress(service))
-            )
+            eventSink?.success(SuccessObject("discoveryServiceFound", bonsoirService).toJson())
         }
-    }
-
-    fun resolveService(name: String, type: String) {
-        val service = NsdServiceInfo().apply {
-            serviceName = name
-            serviceType = type
-        }
-        resolver.resolveWhenPossible(service)
     }
 
     override fun onServiceLost(service: NsdServiceInfo) {
-        val resolvedServiceInfo: ResolvedServiceInfo = resolver.getResolvedServiceIpAddress(service)
-        resolver.onServiceLost(service)
-
+        val bonsoirService = BonsoirService(service)
         if (printLogs) {
-            Log.d(BonsoirPlugin.tag, "[$id] A Bonsoir service has been lost : $service")
+            Log.d(BonsoirPlugin.tag, "[$id] A Bonsoir service has been lost : $bonsoirService")
         }
 
         Handler(Looper.getMainLooper()).post {
-            eventSink?.success(
-                SuccessObject("discoveryServiceLost", service).toJson(
-                    resolvedServiceInfo
-                )
-            )
+            eventSink?.success(SuccessObject("discoveryServiceLost", bonsoirService).toJson())
         }
     }
 
@@ -135,6 +127,7 @@ class BonsoirDiscoveryListener(
             Log.d(BonsoirPlugin.tag, "[$id] Bonsoir discovery stopped : $serviceType")
         }
 
+        isDiscoveryActive = false
         Handler(Looper.getMainLooper()).post {
             eventSink?.success(SuccessObject("discoveryStopped").toJson())
         }
@@ -155,41 +148,76 @@ class BonsoirDiscoveryListener(
                 errorCode
             )
         }
+        dispose()
     }
 
     /**
-     * Triggered when a service has been resolved.
+     * Resolves the given service.
      */
-    private fun onServiceResolved(service: NsdServiceInfo) {
+    fun resolveService(name: String, type: String) {
+        val service = NsdServiceInfo().apply {
+            serviceName = name
+            serviceType = type
+        }
+        if (isResolverBusy.compareAndSet(false, true)) {
+            forceServiceResolution(service, this)
+        } else {
+            pendingServices.add(Pair(service, this))
+        }
+    }
+
+    /**
+     * Resolves the next NSD service pending resolution.
+     */
+    private fun resolveNextInQueue() {
+        val nextService: Pair<NsdServiceInfo, BonsoirServiceDiscovery>? = pendingServices.poll()
+        if (nextService == null) {
+            isResolverBusy.set(false)
+        } else {
+            forceServiceResolution(nextService.first, nextService.second)
+        }
+    }
+
+    /**
+     * Forces a service resolution.
+     *
+     * @param service The service.
+     * @param discovery The discovery instance.
+     */
+    private fun forceServiceResolution(
+        service: NsdServiceInfo,
+        discovery: BonsoirServiceDiscovery
+    ) {
+        if (isDiscoveryActive) {
+            nsdManager.resolveService(service, discovery)
+        }
+    }
+
+    override fun onServiceResolved(service: NsdServiceInfo) {
+        val bonsoirService = BonsoirService(service)
         if (printLogs) {
-            Log.d(BonsoirPlugin.tag, "[$id] Bonsoir has resolved a service : $service")
+            Log.d(BonsoirPlugin.tag, "[$id] Bonsoir has resolved a service : $bonsoirService")
         }
 
         Handler(Looper.getMainLooper()).post {
             eventSink?.success(
-                SuccessObject(
-                    "discoveryServiceResolved",
-                    service
-                ).toJson(resolver.getResolvedServiceIpAddress(service))
+                SuccessObject("discoveryServiceResolved", bonsoirService).toJson()
             )
         }
+        resolveNextInQueue()
     }
 
-    /**
-     * Triggered when a service failed to resolve.
-     */
-    private fun onFailedToResolveService(service: NsdServiceInfo, errorCode: Int) {
+    override fun onResolveFailed(service: NsdServiceInfo, errorCode: Int) {
         if (printLogs) {
             Log.d(BonsoirPlugin.tag, "[$id] Bonsoir has failed to resolve a service : $errorCode")
         }
 
         Handler(Looper.getMainLooper()).post {
             eventSink?.success(
-                SuccessObject("discoveryServiceResolveFailed", service).toJson(
-                    resolver.getResolvedServiceIpAddress(service)
-                )
+                SuccessObject("discoveryServiceResolveFailed", BonsoirService(service)).toJson()
             )
         }
+        resolveNextInQueue()
     }
 
     /**
@@ -200,7 +228,6 @@ class BonsoirDiscoveryListener(
             nsdManager.stopServiceDiscovery(this)
             isDiscoveryActive = false
         }
-        resolver.dispose()
         onDispose.run()
     }
 }

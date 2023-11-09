@@ -2,11 +2,9 @@ package fr.skyost.bonsoir
 
 import android.content.Context
 import android.net.nsd.NsdManager
-import android.net.nsd.NsdServiceInfo
 import android.net.wifi.WifiManager
-import androidx.annotation.NonNull
-import fr.skyost.bonsoir.broadcast.BonsoirBroadcastListener
-import fr.skyost.bonsoir.discovery.BonsoirDiscoveryListener
+import fr.skyost.bonsoir.broadcast.BonsoirServiceBroadcast
+import fr.skyost.bonsoir.discovery.BonsoirServiceDiscovery
 import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
@@ -25,82 +23,86 @@ class MethodCallHandler(
     private val messenger: BinaryMessenger
 ) : MethodChannel.MethodCallHandler {
     /**
-     * Contains all registration listeners (Broadcast).
+     * Contains all broadcast instances.
      */
-    private val registrationListeners: HashMap<Int, BonsoirBroadcastListener> = HashMap()
+    private val broadcasts: HashMap<Int, BonsoirServiceBroadcast> = HashMap()
 
     /**
-     * Contains all discovery listeners (Discovery).
+     * Contains all discovery instances.
      */
-    private val discoveryListeners: HashMap<Int, BonsoirDiscoveryListener> = HashMap()
+    private val discoveries: HashMap<Int, BonsoirServiceDiscovery> = HashMap()
 
-    override fun onMethodCall(@NonNull call: MethodCall, @NonNull result: MethodChannel.Result) {
-        val nsdManager: NsdManager =
-            applicationContext.getSystemService(Context.NSD_SERVICE) as NsdManager
+    override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {
         val id: Int = call.argument<Int>("id")!!
         when (call.method) {
             "broadcast.initialize" -> {
-                registrationListeners[id] =
-                    BonsoirBroadcastListener(id, call.argument<Boolean>("printLogs")!!, Runnable {
-                        multicastLock.release()
-                        registrationListeners.remove(id)
-                    }, nsdManager, messenger)
+                val service = BonsoirService(
+                    call.argument<String>("service.name")!!,
+                    call.argument<String>("service.type")!!,
+                    call.argument<Int>("service.port")!!,
+                    call.argument<String>("service.host")!!,
+                    call.argument<MutableMap<String, String>>("service.attributes")!!,
+                )
+                broadcasts[id] =
+                    BonsoirServiceBroadcast(
+                        id,
+                        call.argument<Boolean>("printLogs")!!,
+                        {
+                            multicastLock.release()
+                            broadcasts.remove(id)
+                        },
+                        applicationContext.getSystemService(Context.NSD_SERVICE) as NsdManager,
+                        messenger,
+                        service,
+                    )
                 result.success(true)
             }
 
             "broadcast.start" -> {
                 multicastLock.acquire()
 
-                val service = NsdServiceInfo().apply {
-                    serviceName = call.argument<String>("service.name")
-                    serviceType = call.argument<String>("service.type")
-                    port = call.argument<Int>("service.port")!!
-                }
-
-                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
-                    val attributes: Map<String, String> =
-                        call.argument<Map<String, String>>("service.attributes")!!
-                    for (entry in attributes.entries) {
-                        service.setAttribute(entry.key, entry.value)
-                    }
-                }
-
-                registrationListeners[id]?.registerService(service)
-                result.success(true)
+                broadcasts[id]?.start()
+                result.success(broadcasts[id] != null)
             }
 
             "broadcast.stop" -> {
-                registrationListeners[id]?.dispose()
-                result.success(true)
+                broadcasts[id]?.dispose()
+                result.success(broadcasts[id] != null)
             }
 
             "discovery.initialize" -> {
-                discoveryListeners[id] =
-                    BonsoirDiscoveryListener(id, call.argument<Boolean>("printLogs")!!, Runnable {
-                        multicastLock.release()
-                        discoveryListeners.remove(id)
-                    }, nsdManager, messenger)
+                discoveries[id] =
+                    BonsoirServiceDiscovery(
+                        id,
+                        call.argument<Boolean>("printLogs")!!,
+                        {
+                            multicastLock.release()
+                            discoveries.remove(id)
+                        },
+                        applicationContext.getSystemService(Context.NSD_SERVICE) as NsdManager,
+                        messenger,
+                    )
                 result.success(true)
             }
 
             "discovery.start" -> {
                 multicastLock.acquire()
 
-                discoveryListeners[id]?.discoverServices(call.argument<String>("type")!!)
-                result.success(true)
+                discoveries[id]?.discoverServices(call.argument<String>("type")!!)
+                result.success(discoveries[id] != null)
             }
 
             "discovery.resolveService" -> {
-                discoveryListeners[id]?.resolveService(
+                discoveries[id]?.resolveService(
                     call.argument<String>("name")!!,
                     call.argument<String>("type")!!
                 )
-                result.success(true)
+                result.success(discoveries[id] != null)
             }
 
             "discovery.stop" -> {
-                discoveryListeners[id]?.dispose()
-                result.success(true)
+                discoveries[id]?.dispose()
+                result.success(discoveries[id] != null)
             }
 
             else -> result.notImplemented()
@@ -111,11 +113,11 @@ class MethodCallHandler(
      * Disposes the current instance.
      */
     fun dispose() {
-        for (registrationListener in ArrayList(registrationListeners.values)) {
-            registrationListener.dispose()
+        for (broadcast in ArrayList(broadcasts.values)) {
+            broadcast.dispose()
         }
-        for (discoveryListener in ArrayList(discoveryListeners.values)) {
-            discoveryListener.dispose()
+        for (discovery in ArrayList(discoveries.values)) {
+            discovery.dispose()
         }
     }
 }

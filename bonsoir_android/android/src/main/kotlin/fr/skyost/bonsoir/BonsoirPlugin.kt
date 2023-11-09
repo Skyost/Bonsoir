@@ -2,7 +2,6 @@ package fr.skyost.bonsoir
 
 import android.content.Context
 import android.net.wifi.WifiManager
-import androidx.annotation.NonNull
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.MethodChannel
@@ -49,22 +48,21 @@ public class BonsoirPlugin : FlutterPlugin {
      */
     private lateinit var multicastLock: WifiManager.MulticastLock
 
-    override fun onAttachedToEngine(@NonNull flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
+    override fun onAttachedToEngine(flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
         startListening(
             flutterPluginBinding.applicationContext,
             flutterPluginBinding.binaryMessenger
         )
     }
 
-    override fun onDetachedFromEngine(@NonNull binding: FlutterPlugin.FlutterPluginBinding) {
+    override fun onDetachedFromEngine(binding: FlutterPlugin.FlutterPluginBinding) {
         stopListening()
     }
 
     private fun startListening(applicationContext: Context, messenger: BinaryMessenger) {
-        multicastLock =
-            (applicationContext.applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager).createMulticastLock(
-                "bonsoirMulticastLock"
-            )
+        val wifiManager =
+            applicationContext.applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
+        multicastLock = wifiManager.createMulticastLock("bonsoirMulticastLock")
         multicastLock.setReferenceCounted(true)
 
         methodCallHandler = MethodCallHandler(applicationContext, multicastLock, messenger)
