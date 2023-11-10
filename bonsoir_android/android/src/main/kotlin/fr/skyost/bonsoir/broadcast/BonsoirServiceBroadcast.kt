@@ -66,7 +66,9 @@ class BonsoirServiceBroadcast(
      * Starts the service registration.
      */
     fun start() {
-        nsdManager.registerService(service.toNsdService(), NsdManager.PROTOCOL_DNS_SD, this)
+        if (!isActive) {
+            nsdManager.registerService(service.toNsdService(), NsdManager.PROTOCOL_DNS_SD, this)
+        }
     }
 
     override fun onServiceRegistered(service: NsdServiceInfo) {

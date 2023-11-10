@@ -1,3 +1,7 @@
+## [4.0.1] - 2023-11-11
+
+* Fixed a bug where a given broadcast was able to start more than one time.
+
 ## [4.0.0] - 2023-11-10
 
 * `service.ip` is now `service.host`.
