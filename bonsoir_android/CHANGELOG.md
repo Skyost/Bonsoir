@@ -1,4 +1,4 @@
-## [4.0.0]
+## [4.0.0] - 2023-11-10
 
 * `service.ip` is now `service.host`.
 
