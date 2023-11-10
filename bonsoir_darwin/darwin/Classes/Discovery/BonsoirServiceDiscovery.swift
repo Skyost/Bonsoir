@@ -159,7 +159,7 @@ class BonsoirServiceDiscovery: NSObject, FlutterStreamHandler {
                         if hosttarget != nil {
                             service!.host = String(cString: hosttarget!)
                         }
-                        service!.port = Int(port)
+                        service!.port = Int(CFSwapInt16BigToHost(port))
                         if discovery.printLogs == true {
                             SwiftBonsoirPlugin.log(category: "discovery", id: discovery.id, message: "Bonsoir has resolved a service : \(service!.description)")
                         }
@@ -168,9 +168,9 @@ class BonsoirServiceDiscovery: NSObject, FlutterStreamHandler {
                         if discovery.printLogs {
                             SwiftBonsoirPlugin.log(category: "discovery", id: discovery.id, message: "Bonsoir has failed to resolve a service : \(errorCode)")
                         }
-                        discovery.stopResolution(sdRef: sdRef, remove: sdRef != nil)
                         discovery.eventSink?(SuccessObject(id: "discoveryServiceResolveFailed", service: service).toJson())
                     }
+                    discovery.stopResolution(sdRef: sdRef, remove: sdRef != nil)
                 }, Unmanaged.passUnretained(self).toOpaque())
                 if error == kDNSServiceErr_NoError {
                     resolvingServices[sdRef] = service
