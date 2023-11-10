@@ -1,3 +1,7 @@
+## [4.0.1] - 2023-11-11
+
+* Fixed wrong ports number.
+
 ## [4.0.0] - 2023-11-10
 
 * Removed the dependence on the native `NetService` library.
