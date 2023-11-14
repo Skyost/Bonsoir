@@ -61,7 +61,19 @@ namespace bonsoir_windows {
 
         virtual void dispose();
 
-        void on_event(EventObject event);
+        void on_success(std::string _id, std::string _message) {
+            on_success(_id, _message, std::optional<BonsoirService>());
+        }
+
+        void on_success(std::string _id, std::string _message, std::optional <BonsoirService> _service) {
+            SuccessObject success_object = SuccessObject(_id, _message, _service);
+            on_event(&success_object);
+        }
+
+        void on_error(std::string _message, EncodableValue _error) {
+            ErrorObject error_object = ErrorObject(_message, _error);
+            on_event(&error_object);
+        }
 
         void log(std::string message);
 
@@ -71,7 +83,9 @@ namespace bonsoir_windows {
         DNSServiceRef sdRef;
         std::shared_ptr <EventChannel<EncodableValue>> event_channel;
     private:
+        void on_event(EventObject *event);
+
         std::mutex mutex;
-        std::queue <EventObject> event_queue;
+        std::queue<EventObject *> event_queue;
     };
 }

@@ -1,5 +1,4 @@
 import 'package:bonsoir_platform_interface/src/events/event.dart';
-import 'package:bonsoir_platform_interface/src/service/service.dart';
 
 /// A Bonsoir discovery event.
 class BonsoirDiscoveryEvent extends BonsoirEvent<BonsoirDiscoveryEventType> {
@@ -8,16 +7,6 @@ class BonsoirDiscoveryEvent extends BonsoirEvent<BonsoirDiscoveryEventType> {
     required super.type,
     super.service,
   });
-
-  /// Creates a new Bonsoir discovery event from the given JSON map.
-  BonsoirDiscoveryEvent.fromJson(Map<String, dynamic> json)
-      : this(
-          type: BonsoirDiscoveryEventType.values.firstWhere(
-            (type) => type.id == json['id'],
-            orElse: () => BonsoirDiscoveryEventType.unknown,
-          ),
-          service: json.containsKey('service') ? BonsoirService.fromJson(Map<String, dynamic>.from(json['service'])) : null,
-        );
 }
 
 /// Available Bonsoir discovery event types.
