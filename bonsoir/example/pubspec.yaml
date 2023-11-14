@@ -6,12 +6,13 @@ environment:
   sdk: ">=3.0.0 <4.0.0"
 
 dependencies:
-  flutter_riverpod: ^2.4.5
-  device_info_plus: ^9.1.0
   flutter:
     sdk: flutter
   bonsoir:
-    path: ../
+    path:
+      ../
+  flutter_riverpod: ^2.4.5
+  device_info_plus: ^9.1.0
   uuid: ^4.2.1
 
 dev_dependencies:
@@ -24,6 +25,8 @@ dependency_overrides:
     path: ../../bonsoir_android/
   bonsoir_darwin:
     path: ../../bonsoir_darwin/
+  bonsoir_windows:
+    path: ../../bonsoir_windows/
 
 flutter:
   uses-material-design: true

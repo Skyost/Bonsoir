@@ -15,21 +15,21 @@ packages:
       path: ".."
       relative: true
     source: path
-    version: "4.0.0"
+    version: "4.0.1"
   bonsoir_android:
     dependency: "direct overridden"
     description:
       path: "../../bonsoir_android"
       relative: true
     source: path
-    version: "4.0.0"
+    version: "4.0.1"
   bonsoir_darwin:
     dependency: "direct overridden"
     description:
       path: "../../bonsoir_darwin"
       relative: true
     source: path
-    version: "4.0.0"
+    version: "4.0.1"
   bonsoir_platform_interface:
     dependency: "direct overridden"
     description:
@@ -37,6 +37,13 @@ packages:
       relative: true
     source: path
     version: "4.0.0"
+  bonsoir_windows:
+    dependency: "direct overridden"
+    description:
+      path: "../../bonsoir_windows"
+      relative: true
+    source: path
+    version: "4.0.1"
   characters:
     dependency: transitive
     description:

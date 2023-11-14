@@ -28,9 +28,6 @@ abstract class BonsoirAction<T extends BonsoirEvent> {
 
   /// This returns whether the platform has discarded this action.
   bool get isStopped;
-
-  /// This returns a JSON representation of the action.
-  Map<String, dynamic> toJson();
 }
 
 /// Abstract class that contains all methods that are communicating with the native side of the plugin.
@@ -97,7 +94,6 @@ If you have previously called "$runtimeType.stop()" on this instance, you have t
   @protected
   T transformPlatformEvent(dynamic event);
 
-  @override
   @protected
   Map<String, dynamic> toJson() => {
         'id': _id,

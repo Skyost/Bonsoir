@@ -1,3 +1,7 @@
+## [4.0.1]
+
+* First implementation of Bonsoir for Windows.
+
 ## [4.0.0] - 2023-11-10
 
 * Removed the dependence on the native `NetService` library.
