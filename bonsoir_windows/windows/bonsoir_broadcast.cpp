@@ -4,36 +4,20 @@
 
 #include <flutter/binary_messenger.h>
 #include <flutter/event_channel.h>
-#include <flutter/event_stream_handler_functions.h>
 #include <flutter/method_codec.h>
+#include <iostream>
 
 #include "include/dns_sd.h"
 #include "bonsoir_broadcast.h"
-#include "success_object.h"
+#include "bonsoir_windows_plugin.h"
 
 using namespace flutter;
 
 namespace bonsoir_windows {
-    BonsoirBroadcast::BonsoirBroadcast(int _id, bool _print_logs, BonsoirService _service, BinaryMessenger* _binaryMessenger, std::function<void()> _on_dispose):
-        sdRef(nullptr),
-        id(_id),
-        print_logs(_print_logs),
-        service(_service),
-        event_channel(std::make_shared<EventChannel<EncodableValue>>(_binaryMessenger, "fr.skyost.bonsoir.broadcast." + std::to_string(id), &StandardMethodCodec::GetInstance())),
-        on_dispose(_on_dispose)
-    {
-        event_channel->SetStreamHandler(
-            std::make_unique<StreamHandlerFunctions<EncodableValue>>(
-                [this](const EncodableValue* arguments, std::unique_ptr<EventSink<EncodableValue>>&& events)->std::unique_ptr<StreamHandlerError<EncodableValue>> {
-                    this->event_sink = std::move(events);
-                    return nullptr;
-                },
-                [this](const EncodableValue* arguments)->std::unique_ptr<StreamHandlerError<EncodableValue>> {
-                    this->event_sink = nullptr;
-                    return nullptr;
-                })
-        );
-    }
+    BonsoirBroadcast::BonsoirBroadcast(int _id, bool _print_logs, BinaryMessenger* _binary_messenger, std::function<void()> _on_dispose, BonsoirService _service):
+        BonsoirAction("broadcast", _id, _print_logs, _binary_messenger, _on_dispose),
+        service(_service)
+    {}
 
     void BonsoirBroadcast::start() {
         DNSServiceErrorType error = DNSServiceRegister(
@@ -52,26 +36,21 @@ namespace bonsoir_windows {
         );
         if (error == kDNSServiceErr_NoError) {
             if (print_logs) {
-                OutputDebugString(L"test");
+                log("Bonsoir service broadcast initialized : " + service.get_description());
             }
             DNSServiceProcessResult(sdRef);
         }
         else {
-            if (print_logs) {
-                OutputDebugString(L"error");
-            }
-            event_sink->Error("broadcastError", "Bonsoir service failed to broadcast : " + service.get_description() + ", error code : " + std::to_string(error), error);
+            on_event(ErrorObject("Bonsoir service failed to broadcast : " + service.get_description() + ", error code : " + std::to_string(error), EncodableValue(error)));
             dispose();
         }
     }
 
     void BonsoirBroadcast::dispose() {
-        DNSServiceRefDeallocate(sdRef);
         if (print_logs) {
-            OutputDebugString(L"stop");
+            log("Bonsoir service broadcast stopped : " + service.get_description());
         }
-        event_sink->Success(SuccessObject("broadcastStopped", service).to_encodable());
-        on_dispose();
+        BonsoirAction::dispose();
     }
 
     void registerCallback(
@@ -84,17 +63,12 @@ namespace bonsoir_windows {
         void* context
     ) {
         auto broadcast = (BonsoirBroadcast*)context;
+        auto service = broadcast->service;
         if (errorCode == kDNSServiceErr_NoError) {
-            if (broadcast->print_logs) {
-                OutputDebugString(L"test2");
-            }
-            broadcast->event_sink->Success(SuccessObject("broadcastStarted", broadcast->service).to_encodable());
+            broadcast->on_event(SuccessObject("broadcastStarted", "Bonsoir service broadcast started : " + service.get_description(), service));
         }
         else {
-            if (broadcast->print_logs) {
-                OutputDebugString(L"error");
-            }
-            broadcast->event_sink->Error("broadcastError", "Bonsoir service failed to broadcast.", errorCode);
+            broadcast->on_event(ErrorObject("Bonsoir service failed to broadcast : " + service.get_description(), EncodableValue(errorCode)));
             broadcast->dispose();
         }
     }

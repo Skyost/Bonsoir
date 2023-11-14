@@ -43,12 +43,22 @@ namespace bonsoir_windows {
         const auto* arguments = std::get_if<EncodableMap>(method_call.arguments());
         const auto id = std::get<int>(arguments->find(EncodableValue("id"))->second);
         if (method.compare("broadcast.initialize") == 0) {
-            BonsoirService service = BonsoirService(std::get<std::string>(arguments->find(EncodableValue("service.name"))->second), std::get<std::string>(arguments->find(EncodableValue("service.type"))->second), std::get<int>(arguments->find(EncodableValue("service.port"))->second));
+            BonsoirService service = BonsoirService(
+                std::get<std::string>(arguments->find(EncodableValue("service.name"))->second),
+                std::get<std::string>(arguments->find(EncodableValue("service.type"))->second),
+                std::get<int>(arguments->find(EncodableValue("service.port"))->second)
+            );
             // TODO: Implement attributes and ip.
-            const BonsoirBroadcast broadcast = BonsoirBroadcast(id, std::get<bool>(arguments->find(EncodableValue("printLogs"))->second), service, messenger, [this, id]() {
-                broadcasts.erase(id);
-            });
-            broadcasts.insert({ id, broadcast });
+            BonsoirBroadcast broadcast = BonsoirBroadcast(
+                id,
+                std::get<bool>(arguments->find(EncodableValue("printLogs"))->second),
+                messenger,
+                [this, id]() {
+                    broadcasts.erase(id);
+                },
+                service
+            );
+            broadcasts.insert({ broadcast.id, broadcast });
             result->Success(EncodableValue(true));
         }
         else if (method.compare("broadcast.start") == 0) {

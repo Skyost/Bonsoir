@@ -23,10 +23,10 @@ list(APPEND PLUGIN_SOURCES
 add_library(${PLUGIN_NAME} SHARED
   "include/bonsoir_windows/bonsoir_windows_plugin_c_api.h"
   "bonsoir_windows_plugin_c_api.cpp"
+  "bonsoir_action.cpp"
   "bonsoir_discovery.cpp"
   "bonsoir_broadcast.cpp"
   "bonsoir_service.cpp"
-  "success_object.cpp"
   ${PLUGIN_SOURCES}
 )
 
