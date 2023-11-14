@@ -20,6 +20,12 @@ namespace bonsoir_windows {
     {}
 
     void BonsoirBroadcast::start() {
+        TXTRecordRef txt_record;
+        TXTRecordCreate(&txt_record, 0, nullptr);
+        for (auto const& [key, value] : service.attributes) {
+            uint8_t length = static_cast<uint8_t>(value.length());
+            TXTRecordSetValue(&txt_record, key.c_str(), length, value.c_str());
+        }
         DNSServiceErrorType error = DNSServiceRegister(
             &sdRef,
             0,
@@ -29,11 +35,12 @@ namespace bonsoir_windows {
             "local.",
             service.host.has_value() ? service.host.value().c_str() : nullptr,
             htons((unsigned short)service.port),
-            0,
-            nullptr,
+            TXTRecordGetLength(&txt_record),
+            TXTRecordGetBytesPtr(&txt_record),
             registerCallback,
             this
         );
+        TXTRecordDeallocate(&txt_record);
         if (error == kDNSServiceErr_NoError) {
             if (print_logs) {
                 log("Bonsoir service broadcast initialized : " + service.get_description());
@@ -63,7 +70,7 @@ namespace bonsoir_windows {
         void* context
     ) {
         auto broadcast = (BonsoirBroadcast*)context;
-        auto service = broadcast->service;
+        BonsoirService service = broadcast->service;
         if (errorCode == kDNSServiceErr_NoError) {
             broadcast->on_event(SuccessObject("broadcastStarted", "Bonsoir service broadcast started : " + service.get_description(), service));
         }

@@ -9,6 +9,7 @@
 
 #include <memory>
 #include "bonsoir_broadcast.h"
+#include "bonsoir_discovery.h"
 
 using namespace flutter;
 
@@ -31,8 +32,8 @@ namespace bonsoir_windows {
         void HandleMethodCall(const MethodCall <EncodableValue> &method_call, std::unique_ptr <MethodResult<EncodableValue>> result);
     private:
         BinaryMessenger* messenger;
-        std::unordered_map<int, BonsoirBroadcast> broadcasts;
-        // std::unordered_map<int, BonsoirDiscovery> discoveries;
+        std::map<int, BonsoirBroadcast> broadcasts = std::map<int, BonsoirBroadcast>{};
+        std::map<int, BonsoirDiscovery> discoveries = std::map<int, BonsoirDiscovery>{};
     };
 
 }
