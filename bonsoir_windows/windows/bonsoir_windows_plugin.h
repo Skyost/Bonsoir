@@ -29,11 +29,13 @@ namespace bonsoir_windows {
         BonsoirWindowsPlugin &operator=(const BonsoirWindowsPlugin &) = delete;
 
         // Called when a method is called on this plugin's channel from Dart.
-        void HandleMethodCall(const MethodCall <EncodableValue> &method_call, std::unique_ptr <MethodResult<EncodableValue>> result);
+        void HandleMethodCall(const MethodCall <EncodableValue> &method_call,
+                              std::unique_ptr <MethodResult<EncodableValue>> result);
+
     private:
-        BinaryMessenger* messenger;
-        std::map<int, BonsoirBroadcast> broadcasts = std::map<int, BonsoirBroadcast>{};
-        std::map<int, BonsoirDiscovery> discoveries = std::map<int, BonsoirDiscovery>{};
+        BinaryMessenger *messenger;
+        std::map<int, std::unique_ptr<BonsoirBroadcast>> broadcasts;
+        std::map<int, std::unique_ptr<BonsoirDiscovery>> discoveries;
     };
 
 }

@@ -12,19 +12,23 @@ namespace bonsoir_windows {
             sdRef(nullptr),
             action(_action),
             id(_id),
+            event_channel(std::make_shared < EventChannel < EncodableValue
+                    >> (_binary_messenger, "fr.skyost.bonsoir." + _action + "." + std::to_string(
+                            id), &StandardMethodCodec::GetInstance())),
             print_logs(_print_logs),
-            event_channel(std::make_shared<EventChannel<EncodableValue>>(_binary_messenger, "fr.skyost.bonsoir." + _action + "." + std::to_string(id), &StandardMethodCodec::GetInstance())),
             on_dispose(_on_dispose)
     {
         event_channel->SetStreamHandler(
             std::make_unique<StreamHandlerFunctions<EncodableValue>>(
                 [this](const EncodableValue* arguments, std::unique_ptr<EventSink<EncodableValue>>&& events)->std::unique_ptr<StreamHandlerError<EncodableValue>> {
-                    this->event_sink = std::move(events);
+                    std::unique_lock <std::mutex> _ul(mutex);
+                    event_sink = std::move(events);
                     process_event_queue();
                     return nullptr;
                 },
                 [this](const EncodableValue* arguments)->std::unique_ptr<StreamHandlerError<EncodableValue>> {
-                    this->event_sink = nullptr;
+                    std::unique_lock <std::mutex> _ul(mutex);
+                    event_sink.release();
                     return nullptr;
                 }
             )
@@ -33,6 +37,7 @@ namespace bonsoir_windows {
 
     void BonsoirAction::dispose() {
         DNSServiceRefDeallocate(sdRef);
+        sdRef = nullptr;
         event_channel->SetStreamHandler(nullptr);
         on_dispose();
     }
@@ -50,7 +55,7 @@ namespace bonsoir_windows {
     }
 
     void BonsoirAction::process_event_queue() {
-        if (event_sink == nullptr) {
+        if (!event_sink) {
             return;
         }
         while (!event_queue.empty()) {

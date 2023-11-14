@@ -14,12 +14,16 @@ using namespace flutter;
 
 namespace bonsoir_windows {
 	class BonsoirBroadcast : public BonsoirAction {
-	public:
-		BonsoirService service;
-		BonsoirBroadcast(int _id, bool _print_logs, flutter::BinaryMessenger* _binary_messenger, std::function<void()>, BonsoirService _service);
-		void start();
-		void dispose();
-	};
+    public:
+        BonsoirService service;
+
+        BonsoirBroadcast(int _id, bool _print_logs, flutter::BinaryMessenger *_binary_messenger,
+                         std::function<void()>, BonsoirService _service);
+
+        void start() override;
+
+        void dispose() override;
+    };
 	void registerCallback(
 		DNSServiceRef sdRef,
 		DNSServiceFlags flags,

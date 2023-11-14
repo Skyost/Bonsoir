@@ -9,11 +9,16 @@ namespace bonsoir_windows {
 		std::string type;
 		std::list<BonsoirService> services;
 		std::map<DNSServiceRef, BonsoirService*> resolving_services = std::map<DNSServiceRef, BonsoirService*>{};
-		BonsoirDiscovery(int _id, bool _print_logs, flutter::BinaryMessenger* _binary_messenger, std::function<void()>, std::string type);
-		void start();
-		void resolveService(std::string service_name, std::string service_type);
-		void stopResolution(DNSServiceRef resolveRef, bool remove);
-		void dispose();
+		BonsoirDiscovery(int _id, bool _print_logs, flutter::BinaryMessenger *_binary_messenger,
+                         std::function<void()>, std::string type);
+
+        void start() override;
+
+        void resolveService(std::string service_name, std::string service_type);
+
+        void stopResolution(DNSServiceRef resolveRef, bool remove);
+
+        void dispose() override;
 	};
 	void browseCallback(
 		DNSServiceRef sdRef,
