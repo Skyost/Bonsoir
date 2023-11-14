@@ -4,5 +4,11 @@ The Windows implementation of [`bonsoir`](https://pub.dev/packages/bonsoir).
 
 ## Usage
 
-This package is [endorsed](https://flutter.dev/docs/development/packages-and-plugins/developing-packages#endorsed-federated-plugin),
-which means you can simply use `bonsoir` normally. This package will be automatically included in your app when you do.
+This package
+is [endorsed](https://flutter.dev/docs/development/packages-and-plugins/developing-packages#endorsed-federated-plugin),
+which means you can simply use `bonsoir` normally. This package will be automatically included in
+your app when you do.
+
+## Thanks
+
+Thanks to [Bennik2000](https://github.com/Bennik2000) for its implementation.

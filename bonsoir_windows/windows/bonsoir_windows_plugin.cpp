@@ -111,7 +111,7 @@ namespace bonsoir_windows {
                 result->Success(EncodableValue(false));
                 return;
             }
-            // iterator->second->start();
+            iterator->second->start();
             result->Success(EncodableValue(true));
         }
         else if (method.compare("discovery.resolveService") == 0) {

@@ -23,8 +23,9 @@ namespace bonsoir_windows {
             this
         );
         if (error == kDNSServiceErr_NoError) {
+            is_running.store(true, std::memory_order_release);
+            discovery_thread = std::thread(&BonsoirDiscovery::processDiscoveryResult, this);
             on_event(SuccessObject("discoveryStarted", "Bonsoir discovery started : " + type));
-            DNSServiceProcessResult(sdRef);
         }
         else {
             on_event(ErrorObject("Bonsoir has encountered an error during discovery : " + std::to_string(error), EncodableValue(error)));
@@ -52,8 +53,8 @@ namespace bonsoir_windows {
             this
         );
         if (error == kDNSServiceErr_NoError) {
-            resolving_services.insert({ resolveRef, service });
-            DNSServiceProcessResult(sdRef);
+            resolving_services.insert({resolveRef, service});
+            DNSServiceProcessResult(resolveRef);
         }
         else {
             on_event(ErrorObject("Bonsoir has failed to resolve a service : " + std::to_string(error), EncodableValue(error)));
@@ -71,25 +72,36 @@ namespace bonsoir_windows {
         if (print_logs) {
             log("Bonsoir discovery stopped : " + type);
         }
-        for (auto const& [key, value] : resolving_services) {
+        is_running.store(false, std::memory_order_release);
+        for (auto const &[key, value]: resolving_services) {
             stopResolution(key, false);
         }
         resolving_services.clear();
         services.clear();
         BonsoirAction::dispose();
+        discovery_thread.join();
     }
 
-    void browseCallback(DNSServiceRef sdRef, DNSServiceFlags flags, uint32_t interfaceIndex, DNSServiceErrorType errorCode, const char* serviceName, const char* regtype, const char* replyDomain, void* context) {
-        auto discovery = (BonsoirDiscovery*)context;
+    void BonsoirDiscovery::processDiscoveryResult() {
+        while (is_running.load(std::memory_order_acquire)) {
+            DNSServiceProcessResult(this->sdRef);
+        }
+    }
+
+    void browseCallback(DNSServiceRef sdRef, DNSServiceFlags flags, uint32_t interfaceIndex,
+                        DNSServiceErrorType errorCode, const char *serviceName, const char *regtype,
+                        const char *replyDomain, void *context) {
+        auto discovery = (BonsoirDiscovery *) context;
         std::string type = discovery->type;
         if (errorCode == kDNSServiceErr_NoError) {
             bool add = (flags & kDNSServiceFlagsAdd) != 0;
             if (add) {
-                BonsoirService service = BonsoirService(serviceName, regtype, 0, std::optional<std::string>(), std::map<std::string, std::string>());
+                BonsoirService service = BonsoirService(serviceName, regtype, 0,
+                                                        std::optional<std::string>(),
+                                                        std::map<std::string, std::string>());
                 // TODO: Handle TXT records
                 discovery->services.push_back(service);
                 discovery->on_event(SuccessObject("discoveryServiceFound", "Bonsoir has found a service : " + service.get_description(), service));
-                DNSServiceRefDeallocate(sdRef);
             }
             else {
                 BonsoirService* service = nullptr;
@@ -111,8 +123,8 @@ namespace bonsoir_windows {
     }
 
     void resolveCallback(DNSServiceRef sdRef, DNSServiceFlags flags, uint32_t interfaceIndex, DNSServiceErrorType errorCode, const char* fullname, const char* hosttarget, uint16_t port, uint16_t txtLen, const unsigned char* txtRecord, void* context) {
-        auto discovery = (BonsoirDiscovery*)context;
-        auto service = discovery->resolving_services.at(sdRef);
+        auto discovery = (BonsoirDiscovery *) context;
+        auto service = discovery->resolving_services[sdRef];
         if (errorCode == kDNSServiceErr_NoError) {
             if (hosttarget != NULL) {
                 service->host = hosttarget;
