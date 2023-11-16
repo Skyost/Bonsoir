@@ -30,7 +30,16 @@ namespace bonsoir_windows {
       registrar->AddPlugin(std::move(plugin));
     }
 
-    BonsoirWindowsPlugin::~BonsoirWindowsPlugin() {}
+    BonsoirWindowsPlugin::~BonsoirWindowsPlugin() {
+      for (auto &[id, broadcast] : broadcasts) {
+        broadcast->dispose();
+      }
+      broadcasts.clear();
+      for (auto &[id, discovery] : discoveries) {
+        discovery->dispose();
+      }
+      discoveries.clear();
+    }
 
     void BonsoirWindowsPlugin::HandleMethodCall(const MethodCall <EncodableValue> &method_call, std::unique_ptr <MethodResult<EncodableValue>> result) {
       const auto &method = method_call.method_name();
