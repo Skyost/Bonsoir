@@ -20,8 +20,6 @@ namespace bonsoir_windows {
         void resolveService(std::string service_name, std::string service_type);
 
         void dispose() override;
-    private:
-        std::thread queryThread;
     };
 
     void browseCallback(DWORD status, PVOID context, PDNS_RECORD dnsRecord);

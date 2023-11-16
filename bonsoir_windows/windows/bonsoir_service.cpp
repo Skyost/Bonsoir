@@ -35,7 +35,7 @@ namespace bonsoir_windows {
                 attributes_string.substr(0, attributes_string.length() - 2);
         }
         attributes_string += "}";
-        return "{" + name + ", " + type + ", " + std::to_string(port) + ", " + host.value_or("NULL") + ", " + attributes_string + "}";
+        return "{name=" + name + ", type=" + type + ", port=" + std::to_string(port) + ", host=" + host.value_or("NULL") + ", attributes=" + attributes_string + "}";
     }
 
     std::string BonsoirService::get_query_name() {
