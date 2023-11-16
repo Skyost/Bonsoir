@@ -27,7 +27,8 @@ add_library(${PLUGIN_NAME} SHARED
   "bonsoir_discovery.cpp"
   "bonsoir_broadcast.cpp"
   "bonsoir_service.cpp"
-  ${PLUGIN_SOURCES}
+        "utilities.cpp"
+        ${PLUGIN_SOURCES}
 )
 
 # Apply a standard set of build settings that are configured in the
@@ -53,17 +54,7 @@ target_include_directories(
   "include/"
 )
 
-target_link_libraries(
-  ${PLUGIN_NAME} 
-  PRIVATE
-  "${CMAKE_CURRENT_SOURCE_DIR}/lib/x64/dnssd.lib"
-)
-
-target_link_libraries(
-  ${PLUGIN_NAME} 
-  PRIVATE
-  "WS2_32.Lib"
-)
+target_link_libraries(${PLUGIN_NAME} PRIVATE dnsapi)
 
 if(MSVC)
     add_compile_options(

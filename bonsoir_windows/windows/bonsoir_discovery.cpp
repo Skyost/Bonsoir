@@ -1,136 +1,141 @@
 #pragma once
 
-#include <winsock.h>
+#include <windows.h>
 
-#include "include/dns_sd.h"
-#include "bonsoir_action.h"
 #include "bonsoir_discovery.h"
+#include "utilities.h"
+
+using namespace flutter;
 
 namespace bonsoir_windows {
-    BonsoirDiscovery::BonsoirDiscovery(int _id, bool _print_logs, flutter::BinaryMessenger *_binary_messenger, std::function<void()> _on_dispose, std::string _type) :
-            BonsoirAction("discovery", _id, _print_logs, _binary_messenger, _on_dispose),
-            type(_type) {}
+    BonsoirDiscovery::BonsoirDiscovery(int _id, bool _print_logs, BinaryMessenger *_binary_messenger, std::function<void()> _on_dispose, std::string _type) : BonsoirAction("discovery", _id,
+                                                                                                                                                                            _print_logs,
+                                                                                                                                                                            _binary_messenger,
+                                                                                                                                                                            _on_dispose), type(_type) {}
 
     void BonsoirDiscovery::start() {
-        DNSServiceErrorType error = DNSServiceBrowse(
-                &sdRef,
-                0,
-                0,
-                type.c_str(),
-                "local.",
-                browseCallback,
-                this
-        );
-        if (error == kDNSServiceErr_NoError) {
-            is_running.store(true, std::memory_order_release);
-            discovery_thread = std::thread(&BonsoirDiscovery::processDiscoveryResult, this);
+        auto queryName = toUtf16(type + ".local");
+        DNS_SERVICE_BROWSE_REQUEST browseRequest{};
+        browseRequest.Version = DNS_QUERY_REQUEST_VERSION1;
+        browseRequest.InterfaceIndex = 0;
+        browseRequest.QueryName = queryName.c_str();
+        browseRequest.pBrowseCallback = browseCallback;
+        browseRequest.pQueryContext = this;
+        DNS_STATUS status = DnsServiceBrowse(&browseRequest, &cancelHandle);
+        if (status == DNS_REQUEST_PENDING) {
             on_success("discoveryStarted", "Bonsoir discovery started : " + type);
         } else {
-            on_error("Bonsoir has encountered an error during discovery : " + std::to_string(error), EncodableValue(error));
+            on_error("Bonsoir has encountered an error during discovery : " + std::to_string(status), EncodableValue(std::to_string(status)));
             dispose();
         }
     }
 
-    void BonsoirDiscovery::resolveService(std::string service_name, std::string service_type) {
-        BonsoirService * service = nullptr;
+    BonsoirService *BonsoirDiscovery::findService(std::string service_name, std::string service_type) {
         for (auto &found_service: services) {
             if (found_service.name == service_name && found_service.type == service_type) {
-                service = &found_service;
-                break;
+                return &found_service;
             }
         }
-        DNSServiceRef resolveRef = nullptr;
-        DNSServiceErrorType error = DNSServiceResolve(
-                &resolveRef,
-                0,
-                0,
-                service_name.c_str(),
-                service_type.c_str(),
-                "local.",
-                resolveCallback,
-                this
-        );
-        if (error == kDNSServiceErr_NoError) {
-            resolving_services.insert({resolveRef, service});
-            DNSServiceProcessResult(resolveRef);
-        } else {
-            on_error("Bonsoir has failed to resolve a service : " + std::to_string(error), EncodableValue(error));
-        }
+        return nullptr;
     }
 
-    void BonsoirDiscovery::stopResolution(DNSServiceRef resolveRef, bool remove) {
-        if (remove) {
-            resolving_services.erase(resolveRef);
+    void BonsoirDiscovery::resolveService(std::string service_name, std::string service_type) {
+        BonsoirService *service = findService(service_name, service_type);
+        if (service == nullptr) {
+            on_error("Trying to resolve an undiscovered service : " + service_name, EncodableValue(service_name));
+            return;
         }
-        DNSServiceRefDeallocate(resolveRef);
+
+        auto queryName = toUtf16(service_name + "." + service_type + ".local");
+        DNS_SERVICE_RESOLVE_REQUEST resolveRequest{};
+        DNS_SERVICE_CANCEL resolveCancelHandle{};
+        resolveRequest.Version = DNS_QUERY_REQUEST_VERSION1;
+        resolveRequest.InterfaceIndex = 0;
+        resolveRequest.QueryName = const_cast<PWSTR>(queryName.c_str());
+        resolveRequest.pResolveCompletionCallback = resolveCallback;
+        resolveRequest.pQueryContext = this;
+        DNS_STATUS status = DnsServiceResolve(&resolveRequest, &resolveCancelHandle);
+        if (status == DNS_REQUEST_PENDING) {
+            resolving_services[service] = &resolveCancelHandle;
+        } else {
+            on_error("Bonsoir has failed to resolve a service : " + std::to_string(status), EncodableValue(status));
+        }
     }
 
     void BonsoirDiscovery::dispose() {
-        if (print_logs) {
-            log("Bonsoir discovery stopped : " + type);
-        }
-        is_running.store(false, std::memory_order_release);
         for (auto const &[key, value]: resolving_services) {
-            stopResolution(key, false);
+            DnsServiceResolveCancel(value);
         }
         resolving_services.clear();
         services.clear();
+        DnsServiceBrowseCancel(&cancelHandle);
         BonsoirAction::dispose();
-        discovery_thread.join();
+        log("Bonsoir discovery stopped : " + type);
     }
 
-    void BonsoirDiscovery::processDiscoveryResult() {
-        while (is_running.load(std::memory_order_acquire)) {
-            DNSServiceProcessResult(this->sdRef);
-        }
-    }
-
-    void browseCallback(DNSServiceRef sdRef, DNSServiceFlags flags, uint32_t interfaceIndex,
-                        DNSServiceErrorType errorCode, const char *serviceName, const char *regtype,
-                        const char *replyDomain, void *context) {
+    void browseCallback(DWORD status, PVOID context, PDNS_RECORD dnsRecord) {
         auto discovery = (BonsoirDiscovery *) context;
-        std::string type = discovery->type;
-        if (errorCode == kDNSServiceErr_NoError) {
-            bool add = (flags & kDNSServiceFlagsAdd) != 0;
-            if (add) {
-                BonsoirService service = BonsoirService(serviceName, regtype, 0,
-                                                        std::optional<std::string>(),
-                                                        std::map<std::string, std::string>());
-                // TODO: Handle TXT records
-                discovery->services.push_back(service);
-                discovery->on_success("discoveryServiceFound", "Bonsoir has found a service : " + service.get_description(), service);
-            } else {
-                BonsoirService *service = nullptr;
-                for (auto &found_service: discovery->services) {
-                    if (found_service.name == serviceName && found_service.type == regtype) {
-                        service = &found_service;
-                        break;
+        std::string nameHost = toUtf8(dnsRecord->Data.PTR.pNameHost);
+        auto parts = split(nameHost, '.');
+        std::string name = parts[0];
+        std::string type = parts[1] + "." + parts[2];
+
+        BonsoirService *service = discovery->findService(name, type);
+        if (dnsRecord->dwTtl <= 0 && service) {
+            discovery->services.remove(*service);
+            discovery->on_success("discoveryServiceLost", "A Bonsoir service has been lost : " + service->get_description(), service);
+        } else if (!service) {
+            BonsoirService newService = BonsoirService(name, type, 0, std::optional<std::string>(), std::map<std::string, std::string>());
+            PDNS_RECORD txtRecord = dnsRecord;
+            while (txtRecord != nullptr) {
+                if (txtRecord->wType == DNS_TYPE_TEXT) {
+                    DNS_TXT_DATAW *pData = &txtRecord->Data.TXT;
+                    for (DWORD s = 0; s < pData->dwStringCount; s++) {
+                        std::string record = toUtf8(std::wstring(pData->pStringArray[s]));
+                        int splitIndex = static_cast<int>(record.find("="));
+                        if (splitIndex != std::string::npos) {
+                            newService.attributes.insert({record.substr(0, splitIndex), record.substr(splitIndex + 1, record.length())});
+                        }
                     }
                 }
-                if (service != nullptr) {
-                    discovery->services.remove(*service);
-                    discovery->on_success("discoveryServiceLost", "A Bonsoir service has been lost : " + service->get_description(), *service);
-                }
+                txtRecord = txtRecord->pNext;
             }
-        } else {
-            discovery->on_error("Bonsoir has encountered an error during discovery : " + std::to_string(errorCode), EncodableValue(errorCode));
+            discovery->services.push_back(newService);
+            discovery->on_success("discoveryServiceFound", "Bonsoir has found a service : " + newService.get_description(), &newService);
         }
+        DnsRecordListFree(dnsRecord, DnsFreeRecordList);
     }
 
-    void
-    resolveCallback(DNSServiceRef sdRef, DNSServiceFlags flags, uint32_t interfaceIndex, DNSServiceErrorType errorCode, const char *fullname, const char *hosttarget, uint16_t port, uint16_t txtLen,
-                    const unsigned char *txtRecord, void *context) {
+    void resolveCallback(DWORD status, PVOID context, PDNS_SERVICE_INSTANCE serviceInstance) {
         auto discovery = (BonsoirDiscovery *) context;
-        auto service = discovery->resolving_services[sdRef];
-        if (errorCode == kDNSServiceErr_NoError) {
-            if (hosttarget != NULL) {
-                service->host = hosttarget;
-            }
-            service->port = ntohs(port);
-            discovery->on_success("discoveryServiceResolved", "Bonsoir has resolved a service : " + service->get_description(), *service);
-        } else {
-            discovery->on_success("discoveryServiceResolveFailed", "Bonsoir has failed to resolve a service : " + service->get_description(), *service);
+        BonsoirService *service = nullptr;
+        std::string name = "";
+        if (serviceInstance && serviceInstance->pszInstanceName) {
+            std::string nameHost = toUtf8(serviceInstance->pszInstanceName);
+            auto parts = split(nameHost, '.');
+            name = parts[0];
+            std::string type = parts[1] + "." + parts[2];
+            service = discovery->findService(name, type);
         }
-        discovery->stopResolution(sdRef, sdRef != nullptr);
+        std::cout << status << std::endl;
+        if (status != ERROR_SUCCESS) {
+            if (service) {
+                discovery->on_success("discoveryServiceResolveFailed", "Bonsoir has failed to resolve a service : " + service->get_description(), service);
+            } else {
+                discovery->on_error("Bonsoir has failed to resolve a service : " + std::to_string(status), EncodableValue(std::to_string(status)));
+            }
+            DnsServiceFreeInstance(serviceInstance);
+            return;
+        }
+        if (!service) {
+            discovery->on_error("Trying to resolve an undiscovered service : " + name, EncodableValue(name));
+            DnsServiceFreeInstance(serviceInstance);
+            return;
+        }
+        service->host = toUtf8(serviceInstance->pszHostName);
+        service->port = serviceInstance->wPort;
+        DnsServiceFreeInstance(serviceInstance);
+        discovery->resolving_services.erase(service);
+        discovery->on_success("discoveryServiceResolved", "Bonsoir has resolved a service : " + service->get_description(), service);
     }
-}
+} // namespace bonsoir_windows
