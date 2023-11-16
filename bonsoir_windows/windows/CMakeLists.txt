@@ -55,7 +55,6 @@ target_include_directories(
 )
 
 target_link_libraries(${PLUGIN_NAME} PRIVATE dnsapi)
-target_link_libraries(${PLUGIN_NAME} PRIVATE ws2_32)
 
 if(MSVC)
     add_compile_options(
