@@ -38,6 +38,10 @@ namespace bonsoir_windows {
         return "{" + name + ", " + type + ", " + std::to_string(port) + ", " + host.value_or("NULL") + ", " + attributes_string + "}";
     }
 
+    std::string BonsoirService::get_query_name() {
+        return name + "." + type + ".local";
+    }
+
     bool BonsoirService::operator==(const BonsoirService &other) const {
         if (name != other.name || type != other.type || port != other.port || host != other.host) {
             return false;

@@ -14,4 +14,4 @@ namespace bonsoir_windows {
     std::wstring getComputerName();
 
     bool isValidIPv4(const std::string &ipAddress);
-}  // namespace bonsoir_windows
+    }  // namespace bonsoir_windows

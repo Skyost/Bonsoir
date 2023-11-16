@@ -60,7 +60,11 @@ namespace bonsoir_windows {
 
         BonsoirAction(std::string _action, int _id, bool _print_logs, BinaryMessenger *_binary_messenger, std::function<void()> _on_dispose);
 
-        virtual void start() {}
+        virtual void start();
+
+        bool isRunning();
+
+        void stop();
 
         virtual void dispose();
 
@@ -87,6 +91,7 @@ namespace bonsoir_windows {
         std::shared_ptr <EventChannel<EncodableValue>> event_channel;
 
     private:
+        std::atomic<int> state = 0;
         void on_event(EventObject *event);
 
         std::mutex mutex;

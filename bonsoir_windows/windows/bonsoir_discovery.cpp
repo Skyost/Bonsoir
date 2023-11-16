@@ -23,7 +23,22 @@ namespace bonsoir_windows {
         browseRequest.pQueryContext = this;
         DNS_STATUS status = DnsServiceBrowse(&browseRequest, &cancelHandle);
         if (status == DNS_REQUEST_PENDING) {
+            BonsoirAction::start();
             on_success("discoveryStarted", "Bonsoir discovery started : " + type);
+            queryThread = std::thread([this]() {
+              while (isRunning()) {
+                for (BonsoirService &service : this->services) {
+                  auto queryName = toUtf16("HUGO-OMEN-15.local.local");
+                  DNS_STATUS status = DnsQuery(
+                      queryName.c_str(), DNS_TYPE_PTR,
+                      DNS_QUERY_BYPASS_CACHE, NULL, NULL, NULL);
+                  std::cout << service.get_query_name() << std::endl;
+                  std::cout << status << std::endl;
+                }
+
+                std::this_thread::sleep_for(std::chrono::seconds(5));
+              }
+            });
         } else {
             on_error("Bonsoir has encountered an error during discovery : " + std::to_string(status), EncodableValue(std::to_string(status)));
             dispose();
@@ -31,7 +46,7 @@ namespace bonsoir_windows {
     }
 
     BonsoirService *BonsoirDiscovery::findService(std::string service_name, std::string service_type) {
-        for (auto &found_service: services) {
+        for (auto &found_service : this->services) {
             if (found_service.name == service_name && found_service.type == service_type) {
                 return &found_service;
             }
@@ -46,7 +61,7 @@ namespace bonsoir_windows {
             return;
         }
 
-        auto queryName = toUtf16(service_name + "." + service_type + ".local");
+        auto queryName = toUtf16(service->get_query_name());
         DNS_SERVICE_RESOLVE_REQUEST resolveRequest{};
         DNS_SERVICE_CANCEL resolveCancelHandle{};
         resolveRequest.Version = DNS_QUERY_REQUEST_VERSION1;
@@ -63,47 +78,58 @@ namespace bonsoir_windows {
     }
 
     void BonsoirDiscovery::dispose() {
+        BonsoirAction::stop();
         for (auto const &[key, value]: resolving_services) {
             DnsServiceResolveCancel(value);
         }
         resolving_services.clear();
         services.clear();
+        queryThread.join();
         DnsServiceBrowseCancel(&cancelHandle);
-        log("Bonsoir discovery stopped : " + type);
-        BonsoirAction::dispose();
     }
 
-    void browseCallback(DWORD status, PVOID context, PDNS_RECORD dnsRecord) {
+    void browseCallback(DWORD status, PVOID context, PDNS_RECORD dnsRecord) {          
         auto discovery = (BonsoirDiscovery *) context;
-        std::string nameHost = toUtf8(dnsRecord->Data.PTR.pNameHost);
-        auto parts = split(nameHost, '.');
-        std::string name = parts[0];
-        std::string type = parts[1] + "." + parts[2];
+        if (status == ERROR_SUCCESS) {
+            std::string nameHost = toUtf8(dnsRecord->Data.PTR.pNameHost);
+            auto parts = split(nameHost, '.');
+            std::string name = parts[0];
+            std::string type = parts[1] + "." + parts[2];
 
-        BonsoirService *service = discovery->findService(name, type);
-        if (dnsRecord->dwTtl <= 0 && service) {
-            discovery->services.remove(*service);
-            discovery->on_success("discoveryServiceLost", "A Bonsoir service has been lost : " + service->get_description(), service);
-        } else if (!service) {
-            BonsoirService newService = BonsoirService(name, type, 0, std::optional<std::string>(), std::map<std::string, std::string>());
-            PDNS_RECORD txtRecord = dnsRecord;
-            while (txtRecord != nullptr) {
-                if (txtRecord->wType == DNS_TYPE_TEXT) {
-                    DNS_TXT_DATAW *pData = &txtRecord->Data.TXT;
-                    for (DWORD s = 0; s < pData->dwStringCount; s++) {
-                        std::string record = toUtf8(std::wstring(pData->pStringArray[s]));
-                        int splitIndex = static_cast<int>(record.find("="));
-                        if (splitIndex != std::string::npos) {
-                            newService.attributes.insert({record.substr(0, splitIndex), record.substr(splitIndex + 1, record.length())});
+            BonsoirService *service = discovery->findService(name, type);
+            if (dnsRecord->dwTtl <= 0 && service) {
+                discovery->services.remove(*service);
+                discovery->on_success("discoveryServiceLost", "A Bonsoir service has been lost : " + service->get_description(), service);
+            } else if (!service) {
+                BonsoirService newService = BonsoirService(name, type, 0, std::optional<std::string>(), std::map<std::string, std::string>());
+                PDNS_RECORD txtRecord = dnsRecord;
+                while (txtRecord != nullptr) {
+                    if (txtRecord->wType == DNS_TYPE_TEXT) {
+                        DNS_TXT_DATAW *pData = &txtRecord->Data.TXT;
+                        for (DWORD s = 0; s < pData->dwStringCount; s++) {
+                            std::string record = toUtf8(std::wstring(pData->pStringArray[s]));
+                            int splitIndex = static_cast<int>(record.find("="));
+                            if (splitIndex != std::string::npos) {
+                                newService.attributes.insert({record.substr(0, splitIndex), record.substr(splitIndex + 1, record.length())});
+                            }
                         }
                     }
+                    txtRecord = txtRecord->pNext;
                 }
-                txtRecord = txtRecord->pNext;
+                discovery->services.push_back(newService);
+                discovery->on_success("discoveryServiceFound", "Bonsoir has found a service : " + newService.get_description(), &newService);
             }
-            discovery->services.push_back(newService);
-            discovery->on_success("discoveryServiceFound", "Bonsoir has found a service : " + newService.get_description(), &newService);
+            DnsRecordListFree(dnsRecord, DnsFreeRecordList);
+        } else if (status == ERROR_CANCELLED) {
+            discovery->log("Bonsoir discovery stopped : " + discovery->type);
+            discovery->BonsoirAction::dispose();
+        } else {
+            discovery->on_error(
+                "Bonsoir has encountered an error during discovery : " +
+                         std::to_string(status),
+                     EncodableValue(std::to_string(status)));
+            discovery->dispose();
         }
-        DnsRecordListFree(dnsRecord, DnsFreeRecordList);
     }
 
     void resolveCallback(DWORD status, PVOID context, PDNS_SERVICE_INSTANCE serviceInstance) {
@@ -117,19 +143,22 @@ namespace bonsoir_windows {
             std::string type = parts[1] + "." + parts[2];
             service = discovery->findService(name, type);
         }
-        std::cout << status << std::endl;
         if (status != ERROR_SUCCESS) {
             if (service) {
                 discovery->on_success("discoveryServiceResolveFailed", "Bonsoir has failed to resolve a service : " + service->get_description(), service);
             } else {
                 discovery->on_error("Bonsoir has failed to resolve a service : " + std::to_string(status), EncodableValue(std::to_string(status)));
             }
-            DnsServiceFreeInstance(serviceInstance);
+            if (serviceInstance) {
+                DnsServiceFreeInstance(serviceInstance);
+            }
             return;
         }
         if (!service) {
             discovery->on_error("Trying to resolve an undiscovered service : " + name, EncodableValue(name));
-            DnsServiceFreeInstance(serviceInstance);
+            if (serviceInstance) {
+                DnsServiceFreeInstance(serviceInstance);
+            }
             return;
         }
         service->host = toUtf8(serviceInstance->pszHostName);

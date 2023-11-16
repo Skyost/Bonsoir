@@ -22,6 +22,8 @@ namespace bonsoir_windows {
         void start() override;
 
         void dispose() override;
+    private:
+        DNS_SERVICE_REGISTER_REQUEST registerRequest{};
     };
 
     void registerCallback(DWORD status, PVOID context, PDNS_SERVICE_INSTANCE instance);

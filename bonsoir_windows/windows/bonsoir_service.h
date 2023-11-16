@@ -16,11 +16,11 @@ namespace bonsoir_windows {
 
         BonsoirService(std::string _name, std::string _type, int _port, std::optional <std::string> host, std::map <std::string, std::string> _attributes);
 
-        BonsoirService(const BonsoirService &other) : name(other.name), type(other.type), port(other.port), host(other.host), attributes(other.attributes) {}
-
         EncodableMap to_encodable();
 
         std::string get_description();
+
+        std::string get_query_name();
 
         bool operator==(const BonsoirService &other) const;
     };

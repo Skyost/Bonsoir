@@ -21,11 +21,26 @@ namespace bonsoir_windows {
                 }, [this](const EncodableValue *arguments) -> std::unique_ptr <StreamHandlerError<EncodableValue>> {
                     std::unique_lock <std::mutex> _ul(mutex);
                     event_sink.release();
+                    event_sink = nullptr;
                     return nullptr;
                 }));
     }
 
+    void BonsoirAction::start() {
+        std::cout << "start !" << std::endl;
+        state.store(1, std::memory_order_release);
+    }
+
+    bool BonsoirAction::isRunning() {
+        return state.load(std::memory_order_acquire) != 0;
+    }
+
+    void BonsoirAction::stop() {
+        state.store(0, std::memory_order_release);
+    }
+
     void BonsoirAction::dispose() {
+        stop();
         event_channel->SetStreamHandler(nullptr);
         on_dispose();
     }

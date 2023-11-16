@@ -1,7 +1,5 @@
 #pragma once
 
-#include <windows.h>
-
 #include "bonsoir_action.h"
 #include "bonsoir_service.h"
 
@@ -9,7 +7,7 @@ namespace bonsoir_windows {
     class BonsoirDiscovery : public BonsoirAction {
     public:
         std::string type;
-        std::list <BonsoirService> services;
+        std::list<BonsoirService> services;
         std::map<BonsoirService *, PDNS_SERVICE_CANCEL> resolving_services = std::map < BonsoirService *, PDNS_SERVICE_CANCEL
         >{};
 
@@ -21,9 +19,9 @@ namespace bonsoir_windows {
 
         void resolveService(std::string service_name, std::string service_type);
 
-        void stopResolution(PDNS_SERVICE_CANCEL resolveCancelHandle, bool remove);
-
         void dispose() override;
+    private:
+        std::thread queryThread;
     };
 
     void browseCallback(DWORD status, PVOID context, PDNS_RECORD dnsRecord);
