@@ -1,8 +1,9 @@
 #pragma once
 
-#include "bonsoir_service.h"
-
 #include <optional>
+#include <iostream>
+
+#include "bonsoir_service.h"
 
 namespace bonsoir_windows {
     BonsoirService::BonsoirService(std::string _name, std::string _type, int _port, std::optional <std::string> _host, std::map <std::string, std::string> _attributes) : name(_name), type(_type),
@@ -26,10 +27,13 @@ namespace bonsoir_windows {
 
     std::string BonsoirService::get_description() {
         std::string attributes_string = "{";
-        for (auto const &[key, value]: attributes) {
-            attributes_string += (key + "=" + value + ", ");
+        if (!attributes.empty()) {
+            for (auto const &[key, value] : attributes) {
+              attributes_string += (key + "=" + value + ", ");
+            }
+            attributes_string =
+                attributes_string.substr(0, attributes_string.length() - 2);
         }
-        attributes_string = attributes_string.substr(0, attributes_string.length() - 2);
         attributes_string += "}";
         return "{" + name + ", " + type + ", " + std::to_string(port) + ", " + host.value_or("NULL") + ", " + attributes_string + "}";
     }

@@ -20,9 +20,10 @@ namespace bonsoir_windows {
     void BonsoirBroadcast::start() {
         std::vector <PCWSTR> propertyKeys;
         std::vector <PCWSTR> propertyValues;
-        for (const auto &entry: service.attributes) {
-            PCWSTR duplicatedKey = _wcsdup(toUtf16(entry.first).c_str());
-            PCWSTR duplicatedValue = _wcsdup(toUtf16(entry.second).c_str());
+        for (const auto &[key, value] : service.attributes) {
+            PCWSTR duplicatedKey = _wcsdup(toUtf16(key).c_str());
+            PCWSTR duplicatedValue = _wcsdup(toUtf16(value).c_str());
+            std::cout << key << std::endl;
             if (duplicatedKey != nullptr && duplicatedValue != nullptr) {
                 propertyKeys.push_back(duplicatedKey);
                 propertyValues.push_back(duplicatedValue);
@@ -61,10 +62,8 @@ namespace bonsoir_windows {
 
     void BonsoirBroadcast::dispose() {
         DnsServiceRegisterCancel(&cancelHandle);
+        log("Bonsoir service broadcast stopped : " + service.get_description());
         BonsoirAction::dispose();
-        if (print_logs) {
-            log("Bonsoir service broadcast stopped : " + service.get_description());
-        }
     }
 
     void registerCallback(DWORD status, PVOID context, PDNS_SERVICE_INSTANCE instance) {

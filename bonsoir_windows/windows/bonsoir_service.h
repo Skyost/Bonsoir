@@ -1,7 +1,6 @@
 #pragma once
 
 #include <flutter/encodable_value.h>
-
 #include <optional>
 
 using namespace flutter;

@@ -69,8 +69,8 @@ namespace bonsoir_windows {
         resolving_services.clear();
         services.clear();
         DnsServiceBrowseCancel(&cancelHandle);
-        BonsoirAction::dispose();
         log("Bonsoir discovery stopped : " + type);
+        BonsoirAction::dispose();
     }
 
     void browseCallback(DWORD status, PVOID context, PDNS_RECORD dnsRecord) {
