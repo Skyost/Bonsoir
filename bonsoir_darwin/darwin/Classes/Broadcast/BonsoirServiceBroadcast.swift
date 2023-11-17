@@ -64,6 +64,14 @@ class BonsoirServiceBroadcast: NSObject, FlutterStreamHandler {
         let error = DNSServiceRegister(&sdRef, 0, 0, service.name, service.type, "local.", service.host, CFSwapInt16HostToBig(UInt16(service.port)), UInt16(strlen(txtMac)), txtMac, { sdRef, flags, errorCode, name, regType, domain, context in
             let broadcast = Unmanaged<BonsoirServiceBroadcast>.fromOpaque(context!).takeUnretainedValue()
             if errorCode == kDNSServiceErr_NoError {
+                if broadcast.service.name != name {
+                    let oldName = broadcast.service.name
+                    broadcast.service.name = name
+                    if broadcast.printLogs {
+                        SwiftBonsoirPlugin.log(category: "broadcast", id: broadcast.id, message: "Trying to broadcast a service with a name that already exists : \(broadcast.service.description) (old name was \(oldName))")
+                    }
+                    broadcast.eventSink?(SuccessObject(id: "broadcastNameAlreadyExists", service: broadcast.service).toJson())
+                }
                 if broadcast.printLogs {
                     SwiftBonsoirPlugin.log(category: "broadcast", id: broadcast.id, message: "Bonsoir service broadcasted : \(broadcast.service.description)")
                 }

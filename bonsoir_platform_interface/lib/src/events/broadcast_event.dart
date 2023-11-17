@@ -14,6 +14,9 @@ enum BonsoirBroadcastEventType {
   /// Triggered when the broadcast has started.
   broadcastStarted,
 
+  /// Triggered when a name conflicts occurs.
+  broadcastNameAlreadyExists,
+
   /// Triggered when the broadcast has stopped.
   broadcastStopped,
 

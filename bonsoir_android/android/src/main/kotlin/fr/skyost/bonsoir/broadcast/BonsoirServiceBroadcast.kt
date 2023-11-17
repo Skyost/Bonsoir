@@ -73,6 +73,16 @@ class BonsoirServiceBroadcast(
 
     override fun onServiceRegistered(service: NsdServiceInfo) {
         isActive = true
+        if (this.service.name != service.name) {
+            String oldName = this.service.name;
+            this.service.name = service.name
+            if (printLogs) {
+                Log.d(BonsoirPlugin.tag, "[$id] Trying to broadcast a service with a name that already exists : ${this.service} (old name was ${oldName}).")
+            }
+            Handler(Looper.getMainLooper()).post {
+                eventSink?.success(SuccessObject("broadcastNameAlreadyExists", this.service).toJson())
+            }
+        }
         if (printLogs) {
             Log.d(BonsoirPlugin.tag, "[$id] Bonsoir service registered : ${this.service}")
         }
