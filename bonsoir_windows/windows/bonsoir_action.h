@@ -5,8 +5,8 @@
 #include <flutter/event_sink.h>
 #include <flutter/event_stream_handler.h>
 #include <flutter/standard_method_codec.h>
-#include <windows.h>
 #include <windns.h>
+#include <windows.h>
 
 #include <mutex>
 #include <queue>
@@ -16,85 +16,92 @@
 using namespace flutter;
 
 namespace bonsoir_windows {
-    class BonsoirAction;
+  class BonsoirAction;
 
-    class EventObject {
-    public:
-        std::string message;
+  class EventObject {
+   public:
+    std::string message;
 
-        EventObject(std::string _message);
+    EventObject(std::string _message);
 
-        virtual void process(BonsoirAction *action) {}
-    };
+    virtual void process(BonsoirAction *action) {}
+  };
 
-    class SuccessObject : public EventObject {
-    public:
-        std::string id;
-        BonsoirService *service;
+  class SuccessObject : public EventObject {
+   public:
+    std::string id;
+    BonsoirService *service;
 
-        SuccessObject(std::string _id, std::string _message) : SuccessObject(_id, _message, nullptr) {};
+    SuccessObject(std::string _id, std::string _message)
+      : SuccessObject(_id, _message, nullptr){};
 
-        SuccessObject(std::string _id, std::string _message, BonsoirService *_service);
+    SuccessObject(std::string _id, std::string _message, BonsoirService *_service);
 
-        void process(BonsoirAction *action) override;
+    void process(BonsoirAction *action) override;
 
-        EncodableMap to_encodable();
-    };
+    EncodableMap toEncodable() const;
+  };
 
-    class ErrorObject : public EventObject {
-    public:
-        EncodableValue error;
+  class ErrorObject : public EventObject {
+   public:
+    EncodableValue error;
 
-        ErrorObject(std::string _message, EncodableValue _error);
+    ErrorObject(std::string _message, EncodableValue _error);
 
-        void process(BonsoirAction *action) override;
-    };
+    void process(BonsoirAction *action) override;
+  };
 
-    class BonsoirAction {
-    public:
-        std::string action;
-        int id;
-        bool print_logs;
-        std::function<void()> on_dispose;
-        std::unique_ptr <EventSink<EncodableValue>> event_sink;
+  class BonsoirAction {
+   public:
+    std::string action;
+    int id;
+    bool printLogs;
+    std::function<void()> onDispose;
+    std::unique_ptr<EventSink<EncodableValue>> eventSink;
 
-        BonsoirAction(std::string _action, int _id, bool _print_logs, BinaryMessenger *_binary_messenger, std::function<void()> _on_dispose);
+    BonsoirAction(
+      std::string _action,
+      int _id,
+      bool _printLogs,
+      BinaryMessenger *_binaryMessenger,
+      std::function<void()> _onDispose
+    );
 
-        virtual void start();
+    virtual void start();
 
-        bool isRunning();
+    bool isRunning();
 
-        void stop();
+    void stop();
 
-        virtual void dispose();
+    virtual void dispose();
 
-        void on_success(std::string _id, std::string _message) {
-          on_success(_id, _message, nullptr);
-        }
+    void onSuccess(std::string _id, std::string _message) {
+      onSuccess(_id, _message, nullptr);
+    }
 
-        void on_success(std::string _id, std::string _message, BonsoirService *_service) {
-          SuccessObject success_object = SuccessObject(_id, _message, _service);
-          on_event(&success_object);
-        }
+    void onSuccess(std::string _id, std::string _message, BonsoirService *_service) {
+      SuccessObject successObject = SuccessObject(_id, _message, _service);
+      onEvent(&successObject);
+    }
 
-        void on_error(std::string _message, EncodableValue _error) {
-          ErrorObject error_object = ErrorObject(_message, _error);
-          on_event(&error_object);
-        }
+    void onError(std::string _message, EncodableValue _error) {
+      ErrorObject errorObject = ErrorObject(_message, _error);
+      onEvent(&errorObject);
+    }
 
-        void log(std::string message);
+    void log(std::string message);
 
-        void process_event_queue();
+    void processEventQueue();
 
-    protected:
-        DNS_SERVICE_CANCEL cancelHandle{};
-        std::shared_ptr <EventChannel<EncodableValue>> event_channel;
+   protected:
+    DNS_SERVICE_CANCEL cancelHandle{};
+    std::shared_ptr<EventChannel<EncodableValue>> eventChannel;
 
-    private:
-        std::atomic<int> state = 0;
-        void on_event(EventObject *event);
+   private:
+    std::atomic<int> state = 0;
+    void onEvent(EventObject *event);
 
-        std::mutex mutex;
-        std::queue<EventObject *> event_queue;
-    };
-} // namespace bonsoir_windows
+    std::mutex mutex;
+    std::queue<EventObject *> eventQueue;
+  };
+}  // namespace bonsoir_windows

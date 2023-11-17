@@ -1,17 +1,18 @@
-#include <string>
 #include <windows.h>
-#include <stdexcept>
-#include <vector>
+
 #include <map>
+#include <stdexcept>
+#include <string>
+#include <vector>
 
 namespace bonsoir_windows {
-    std::wstring toUtf16(const std::string string);
+  std::wstring toUtf16(const std::string string);
 
-    std::string toUtf8(const std::wstring wide_string);
+  std::string toUtf8(const std::wstring wide_string);
 
-    std::vector <std::string> split(const std::string text, const char delimiter);
+  std::vector<std::string> split(const std::string text, const char delimiter);
 
-    std::wstring getComputerName();
+  std::wstring getComputerName();
 
-    bool isValidIPv4(const std::string &ipAddress);
-    }  // namespace bonsoir_windows
+  bool isValidIPv4(const std::string &ipAddress);
+}  // namespace bonsoir_windows

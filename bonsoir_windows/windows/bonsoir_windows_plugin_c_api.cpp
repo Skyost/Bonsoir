@@ -5,5 +5,8 @@
 #include "bonsoir_windows_plugin.h"
 
 void BonsoirWindowsPluginCApiRegisterWithRegistrar(FlutterDesktopPluginRegistrarRef registrar) {
-    bonsoir_windows::BonsoirWindowsPlugin::RegisterWithRegistrar(flutter::PluginRegistrarManager::GetInstance()->GetRegistrar<flutter::PluginRegistrarWindows>(registrar));
+  bonsoir_windows::BonsoirWindowsPlugin::RegisterWithRegistrar(
+    flutter::PluginRegistrarManager::GetInstance()
+      ->GetRegistrar<flutter::PluginRegistrarWindows>(registrar)
+  );
 }
