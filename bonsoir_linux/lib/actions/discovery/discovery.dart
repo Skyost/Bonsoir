@@ -98,17 +98,24 @@ If you have previously called "AvahiBonsoirDiscovery.stop()" on this instance, y
     if (event.type != this.type) {
       return;
     }
-    BonsoirService service = BonsoirService(
-      name: event.name,
-      type: event.type,
-      port: 0,
-    );
-    _foundServices[service] = event;
+    BonsoirService? service = _findService(event.serviceName, event.type);
+    bool isNew = false;
+    if (service == null) {
+      service = BonsoirService(
+        name: event.serviceName,
+        type: event.type,
+        port: 0,
+      );
+      isNew = true;
+    }
+    _foundServices[service!] = event;
     // TODO: Handle attributes.
-    onEvent(
-      BonsoirDiscoveryEvent(type: BonsoirDiscoveryEventType.discoveryServiceFound, service: service),
-      'Bonsoir has found a service : ${service.description}',
-    );
+    if (isNew) {
+      onEvent(
+        BonsoirDiscoveryEvent(type: BonsoirDiscoveryEventType.discoveryServiceFound, service: service!),
+        'Bonsoir has found a service : ${service!.description}',
+      );
+    }
   }
 
   /// Triggered when a service has been lost.
@@ -117,7 +124,7 @@ If you have previously called "AvahiBonsoirDiscovery.stop()" on this instance, y
     if (event.type != this.type) {
       return;
     }
-    BonsoirService? service = _findService(event.name, event.type);
+    BonsoirService? service = _findService(event.serviceName, event.type);
     if (service != null) {
       _foundServices.remove(service);
       onEvent(
