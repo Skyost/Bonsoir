@@ -80,25 +80,25 @@ class BonsoirService {
 
   /// Copies this service instance with the given parameters.
   BonsoirService copyWith({
-    required String name,
-    required String type,
-    required int port,
+    String? name,
+    String? type,
+    int? port,
     String? host,
-    Map<String, String> attributes = const {},
+    Map<String, String>? attributes,
   }) =>
-      host == null
-          ? BonsoirService(
-              name: name,
-              type: type,
-              port: port,
-              attributes: attributes,
+      host != null || this is ResolvedBonsoirService
+          ? ResolvedBonsoirService(
+              name: name ?? this.name,
+              type: type ?? this.type,
+              port: port ?? this.port,
+              host: host ?? (this is ResolvedBonsoirService ? (this as ResolvedBonsoirService).host : null),
+              attributes: attributes ?? this.attributes,
             )
-          : ResolvedBonsoirService(
-              name: name,
-              type: type,
-              port: port,
-              host: host,
-              attributes: attributes,
+          : BonsoirService(
+              name: name ?? this.name,
+              type: type ?? this.type,
+              port: port ?? this.port,
+              attributes: attributes ?? this.attributes,
             );
 
   @override
