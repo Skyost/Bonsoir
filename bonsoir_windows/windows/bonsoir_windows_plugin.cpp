@@ -69,7 +69,7 @@ namespace bonsoir_windows {
         std::get<bool>(arguments->find(EncodableValue("printLogs"))->second),
         messenger,
         [this, id]() {
-              broadcasts.erase(id);
+          broadcasts.erase(id);
         },
         service
       ));

@@ -6,7 +6,6 @@
 #include <flutter/event_stream_handler.h>
 #include <flutter/standard_method_codec.h>
 #include <windns.h>
-#include <windows.h>
 
 #include <mutex>
 #include <queue>
