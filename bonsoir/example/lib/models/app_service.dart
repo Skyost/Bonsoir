@@ -40,6 +40,9 @@ class AppService {
     } else if (Platform.isMacOS) {
       name = (await deviceInfo.macOsInfo).computerName;
       os = 'macOS';
+    } else if (Platform.isWindows) {
+      name = (await deviceInfo.windowsInfo).computerName;
+      os = 'Windows';
     } else {
       name = 'Flutter';
       os = 'Unknown';

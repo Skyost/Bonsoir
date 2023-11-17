@@ -5,7 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// Plugin's main method.
-void main() => runApp(const ProviderScope(child: BonsoirExampleMainWidget()));
+void main() {
+  runApp(const ProviderScope(child: BonsoirExampleMainWidget()));
+}
 
 /// The main widget.
 class BonsoirExampleMainWidget extends StatelessWidget {

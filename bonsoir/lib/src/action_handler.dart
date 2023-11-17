@@ -1,5 +1,4 @@
 import 'package:bonsoir_platform_interface/bonsoir_platform_interface.dart';
-import 'package:flutter/material.dart';
 
 /// Allows to handle a Bonsoir action.
 class BonsoirActionHandler<T extends BonsoirEvent> {
@@ -28,8 +27,4 @@ class BonsoirActionHandler<T extends BonsoirEvent> {
 
   /// Regular event stream.
   Stream<T>? get eventStream => _action.eventStream;
-
-  /// This returns a JSON representation of this action handler.
-  @protected
-  Map<String, dynamic> toJson() => _action.toJson();
 }
