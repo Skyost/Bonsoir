@@ -30,6 +30,13 @@ packages:
       relative: true
     source: path
     version: "4.1.0"
+  bonsoir_linux:
+    dependency: "direct overridden"
+    description:
+      path: "../../bonsoir_linux"
+      relative: true
+    source: path
+    version: "4.1.0"
   bonsoir_platform_interface:
     dependency: "direct overridden"
     description:
