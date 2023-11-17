@@ -8,12 +8,7 @@ import 'package:dbus/dbus.dart';
 import 'package:meta/meta.dart';
 
 extension LinuxAvahi on BonsoirService {
-  BonsoirService copyWith(
-          {String? name,
-          String? type,
-          int? port,
-          Map<String, dynamic>? attributes}) =>
-      BonsoirService(
+  BonsoirService copyWith({String? name, String? type, int? port, Map<String, dynamic>? attributes}) => BonsoirService(
         name: name ?? this.name,
         type: type ?? this.type,
         port: port ?? this.port,
@@ -22,8 +17,7 @@ extension LinuxAvahi on BonsoirService {
 }
 
 extension BonsoirStaticClasses on BonsoirBroadcastEvent {
-  static BonsoirBroadcastEvent get unknownEvent =>
-      BonsoirBroadcastEvent(type: BonsoirBroadcastEventType.unknown);
+  static BonsoirBroadcastEvent get unknownEvent => BonsoirBroadcastEvent(type: BonsoirBroadcastEventType.unknown);
 }
 
 extension ItemNewPrintHelpers on AvahiServiceBrowserItemNew {
@@ -38,8 +32,7 @@ extension ItemRemovePrintHelpers on AvahiServiceBrowserItemRemove {
   }
 }
 
-abstract class AvahiBonsoirEvents<T extends BonsoirEvent>
-    extends BonsoirAction<T> {
+abstract class AvahiBonsoirEvents<T extends BonsoirEvent> extends BonsoirAction<T> {
   late final DBusClient busClient;
   final bool printLogs;
   bool _isStopped = false;
@@ -62,8 +55,7 @@ abstract class AvahiBonsoirEvents<T extends BonsoirEvent>
   @override
   bool get isStopped => _isStopped;
 
-  static List<List<int>> convertAttributesToTxtRecord(
-      Map<String, String> attributes) {
+  static List<List<int>> convertAttributesToTxtRecord(Map<String, String> attributes) {
     return attributes.entries
         .map(
           (e) => "${e.key}=${e.value}",

@@ -39,26 +39,20 @@ class AvahiBonsoirBroadcast extends AvahiBonsoirEvents<BonsoirBroadcastEvent> {
 
   @override
   Future<void> start() async {
-    _subscriptions['StateChanged'] = _entryGroup.stateChanged.listen((event) {
+    _subscriptions['StateChanged'] = _entryGroup.stateChanged.listen((event) async {
       switch (event.state.toAvahiEntryGroupState()) {
         case AvahiEntryGroupState.AVAHI_ENTRY_GROUP_UNCOMMITED:
         case AvahiEntryGroupState.AVAHI_ENTRY_GROUP_REGISTERING:
           break;
         case AvahiEntryGroupState.AVAHI_ENTRY_GROUP_ESTABLISHED:
-          controller!.add(BonsoirBroadcastEvent(
-              type: BonsoirBroadcastEventType.broadcastStarted,
-              service: service));
+          controller!.add(BonsoirBroadcastEvent(type: BonsoirBroadcastEventType.broadcastStarted, service: service));
           break;
         case AvahiEntryGroupState.AVAHI_ENTRY_GROUP_COLLISION:
           dbgPrint("Service name collision!");
           controller!.add(BonsoirStaticClasses.unknownEvent);
-          server.callGetAlternativeServiceName(service.name).then(
-                (newName) => _entryGroup.callReset().then(
-                      (_) => sendServiceToAvahi(
-                        service.copyWith(name: newName),
-                      ),
-                    ),
-              );
+          String newName = await server.callGetAlternativeServiceName(service.name);
+          await _entryGroup.callReset();
+          sendServiceToAvahi(service.copyWith(name: newName));
           break;
         case AvahiEntryGroupState.AVAHI_ENTRY_GROUP_FAILURE:
           dbgPrint("Received failure: ${event.error}");
@@ -73,19 +67,21 @@ class AvahiBonsoirBroadcast extends AvahiBonsoirEvents<BonsoirBroadcastEvent> {
   }
 
   Future<void> sendServiceToAvahi(BonsoirService svc) {
+    String host = '';
+    if (svc is ResolvedBonsoirService) {
+      host = svc.host ?? '';
+    }
     return _entryGroup.callAddService(
-        interface: AvahiIfIndexUnspecified,
-        protocol: AvahiProtocolUnspecified,
-        flags: 0,
-        name: svc.name,
-        type: svc.type,
-        domain: '',
-        host: '',
-        port: svc.port,
-        txt: service.attributes != null
-            ? AvahiBonsoirEvents.convertAttributesToTxtRecord(
-                service.attributes!)
-            : []);
+      interface: AvahiIfIndexUnspecified,
+      protocol: AvahiProtocolUnspecified,
+      flags: 0,
+      name: svc.name,
+      type: svc.type,
+      domain: '',
+      host: host,
+      port: svc.port,
+      txt: AvahiBonsoirEvents.convertAttributesToTxtRecord(service.attributes),
+    );
   }
 
   @override
@@ -94,13 +90,7 @@ class AvahiBonsoirBroadcast extends AvahiBonsoirEvents<BonsoirBroadcastEvent> {
       entries.value.cancel();
     }
     await _entryGroup.callFree();
-    controller!.add(BonsoirBroadcastEvent(
-        type: BonsoirBroadcastEventType.broadcastStopped));
+    controller!.add(BonsoirBroadcastEvent(type: BonsoirBroadcastEventType.broadcastStopped));
     super.stop();
-  }
-
-  @override
-  Map<String, dynamic> toJson() {
-    return {'id': _entryGroup.path.toString(), 'printLogs': printLogs};
   }
 }
