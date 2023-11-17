@@ -2,17 +2,7 @@
 
 #include "bonsoir_windows_plugin.h"
 
-#include <flutter/method_codec.h>
-#include <flutter/plugin_registrar_windows.h>
 #include <flutter/standard_method_codec.h>
-#include <windows.h>
-
-#include <memory>
-#include <sstream>
-
-#include "bonsoir_broadcast.h"
-#include "bonsoir_discovery.h"
-#include "bonsoir_service.h"
 
 using namespace flutter;
 

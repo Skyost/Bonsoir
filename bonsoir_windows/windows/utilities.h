@@ -1,7 +1,3 @@
-#include <windows.h>
-
-#include <map>
-#include <stdexcept>
 #include <string>
 #include <vector>
 

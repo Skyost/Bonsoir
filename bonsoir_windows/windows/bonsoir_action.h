@@ -1,10 +1,7 @@
 #pragma once
 
-#include <flutter/binary_messenger.h>
 #include <flutter/event_channel.h>
-#include <flutter/event_sink.h>
-#include <flutter/event_stream_handler.h>
-#include <flutter/standard_method_codec.h>
+#include <windows.h>
 #include <windns.h>
 
 #include <mutex>

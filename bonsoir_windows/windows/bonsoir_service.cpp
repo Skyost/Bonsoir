@@ -2,9 +2,6 @@
 
 #include "bonsoir_service.h"
 
-#include <iostream>
-#include <optional>
-
 namespace bonsoir_windows {
   BonsoirService::BonsoirService(
     std::string _name,

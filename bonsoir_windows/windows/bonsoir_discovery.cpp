@@ -2,8 +2,6 @@
 
 #include "bonsoir_discovery.h"
 
-#include <windows.h>
-
 #include "utilities.h"
 
 using namespace flutter;

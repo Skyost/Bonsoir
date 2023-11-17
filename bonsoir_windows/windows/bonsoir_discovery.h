@@ -1,7 +1,6 @@
 #pragma once
 
 #include "bonsoir_action.h"
-#include "bonsoir_service.h"
 
 namespace bonsoir_windows {
   class BonsoirDiscovery : public BonsoirAction {

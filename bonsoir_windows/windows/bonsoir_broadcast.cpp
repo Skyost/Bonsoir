@@ -2,11 +2,6 @@
 
 #include "bonsoir_broadcast.h"
 
-#include <flutter/binary_messenger.h>
-#include <flutter/event_channel.h>
-#include <flutter/method_codec.h>
-#include <windows.h>
-
 #include "utilities.h"
 
 using namespace flutter;

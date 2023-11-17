@@ -7,8 +7,6 @@
 #include <flutter/method_channel.h>
 #include <flutter/plugin_registrar_windows.h>
 
-#include <memory>
-
 #include "bonsoir_broadcast.h"
 #include "bonsoir_discovery.h"
 
