@@ -78,6 +78,29 @@ class BonsoirService {
   /// Tries to resolve this service.
   Future<void> resolve(ServiceResolver resolver) => resolver.resolveService(this);
 
+  /// Copies this service instance with the given parameters.
+  BonsoirService copyWith({
+    required String name,
+    required String type,
+    required int port,
+    String? host,
+    Map<String, String> attributes = const {},
+  }) =>
+      host == null
+          ? BonsoirService(
+              name: name,
+              type: type,
+              port: port,
+              attributes: attributes,
+            )
+          : ResolvedBonsoirService(
+              name: name,
+              type: type,
+              port: port,
+              host: host,
+              attributes: attributes,
+            );
+
   @override
   bool operator ==(dynamic other) {
     if (other is! BonsoirService) {
