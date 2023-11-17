@@ -19,8 +19,8 @@ class BroadcastSwitch extends ConsumerWidget {
         children: [
           Text('Broadcast'.toUpperCase()),
           Switch(
-            value: model.isBroadcasting,
-            onChanged: (value) => _onTap(model),
+            value: model.state == BonsoirBroadcastModelState.broadcasting,
+            onChanged: model.state == BonsoirBroadcastModelState.notReady || model.state == BonsoirBroadcastModelState.broadcasting ? ((value) => _onTap(model)) : null,
             activeColor: Colors.white,
             activeTrackColor: Colors.white54,
           ),
@@ -31,7 +31,7 @@ class BroadcastSwitch extends ConsumerWidget {
 
   /// Triggered when the widget has been tapped on.
   void _onTap(BonsoirBroadcastModel model) {
-    if (model.isBroadcasting) {
+    if (model.state == BonsoirBroadcastModelState.broadcasting) {
       model.stop();
     } else {
       model.start();
