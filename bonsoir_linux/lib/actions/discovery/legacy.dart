@@ -34,17 +34,20 @@ class AvahiDiscoveryLegacy extends AvahiHandler {
       );
 
   @override
-  Future<String> getAvahiRecordBrowserPath(BonsoirService service) => _server.callRecordBrowserNew(
-        AvahiIfIndexUnspecified,
-        AvahiProtocolUnspecified,
-        service.fqdn,
-        0x01,
-        0x10,
-        0,
-      );
+  Future<AvahiRecordBrowser> createAvahiRecordBrowser(AvahiBonsoirDiscovery discovery, BonsoirService service) async {
+    String recordBrowserPath = await _server.callRecordBrowserNew(
+      AvahiIfIndexUnspecified,
+      AvahiProtocolUnspecified,
+      service.fqdn,
+      0x01,
+      0x10,
+      0,
+    );
+    return AvahiRecordBrowser(busClient, AvahiBonsoir.avahi, DBusObjectPath(recordBrowserPath));
+  }
 
   @override
-  List<StreamSubscription> getSubscriptions(AvahiBonsoirDiscovery discovery, AvahiServiceBrowser serviceBrowser, AvahiRecordBrowser recordBrowser) => [
+  List<StreamSubscription> getSubscriptions(AvahiBonsoirDiscovery discovery, AvahiServiceBrowser serviceBrowser) => [
         DBusSignalStream(
           busClient,
           sender: AvahiBonsoir.avahi,

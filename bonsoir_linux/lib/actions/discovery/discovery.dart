@@ -35,14 +35,14 @@ class AvahiBonsoirDiscovery extends AvahiBonsoirAction<BonsoirDiscoveryEvent> wi
   /// Creates a new Avahi Bonsoir discovery instance.
   AvahiBonsoirDiscovery({
     required this.type,
-    required super.printLogs,BonsoirService service
+    required super.printLogs,
   }) : super(
           action: 'discovery',
         );
 
   @override
   Future<void> get ready async {
-    if (_recordBrowser == null) {
+    if (_serviceBrowser == null) {
       _avahiHandler = ((await _isModernAvahi) ? AvahiDiscoveryV2.new : AvahiDiscoveryLegacy.new)(busClient: busClient);
       _avahiHandler!.initialize();
       _serviceBrowser = AvahiServiceBrowser(busClient, AvahiBonsoir.avahi, DBusObjectPath(await _avahiHandler!.getAvahiServiceBrowserPath(type)));
@@ -50,12 +50,12 @@ class AvahiBonsoirDiscovery extends AvahiBonsoirAction<BonsoirDiscoveryEvent> wi
   }
 
   @override
-  bool get isReady => super.isReady && _recordBrowser != null;
+  bool get isReady => super.isReady && _serviceBrowser != null;
 
   @override
   Future<void> start() async {
     await super.start();
-    List<StreamSubscription> subscriptions = await _avahiHandler!.getSubscriptions(this, _serviceBrowser!, _recordBrowser!);
+    List<StreamSubscription> subscriptions = await _avahiHandler!.getSubscriptions(this, _serviceBrowser!);
     for (StreamSubscription subscription in subscriptions) {
       registerSubscription(subscription);
     }
@@ -79,8 +79,8 @@ class AvahiBonsoirDiscovery extends AvahiBonsoirAction<BonsoirDiscoveryEvent> wi
   @override
   Future<void> stop() async {
     _serviceBrowser!.callFree();
-    for (AvahiRecordBrowser recordBrowser in recordBrowsers) {
-      _recordBrowser.callFree();
+    for (AvahiRecordBrowser recordBrowser in _recordBrowsers) {
+      recordBrowser.callFree();
     }
     cancelSubscriptions();
     onEvent(
@@ -101,7 +101,7 @@ class AvahiBonsoirDiscovery extends AvahiBonsoirAction<BonsoirDiscoveryEvent> wi
   }
 
   /// Triggered when a service has been found.
-  void onServiceFound(DBusSignal signal) {
+  Future<void> onServiceFound(DBusSignal signal) async {
     AvahiServiceBrowserItemNew event = AvahiServiceBrowserItemNew(signal);
     if (event.type != this.type) {
       return;
@@ -122,7 +122,7 @@ class AvahiBonsoirDiscovery extends AvahiBonsoirAction<BonsoirDiscoveryEvent> wi
         BonsoirDiscoveryEvent(type: BonsoirDiscoveryEventType.discoveryServiceFound, service: service),
         'Bonsoir has found a service : ${service.description}',
       );
-      AvahiRecordBrowser recordBrowser = AvahiRecordBrowser(busClient, AvahiBonsoir.avahi, DBusObjectPath(await _avahiHandler!.getAvahiRecordBrowserPath(type)));
+      AvahiRecordBrowser recordBrowser = await _avahiHandler!.createAvahiRecordBrowser(this, service);
       recordBrowser.callStart();
     }
   }
@@ -168,7 +168,7 @@ class AvahiBonsoirDiscovery extends AvahiBonsoirAction<BonsoirDiscoveryEvent> wi
   void onServiceResolveFailure(DBusSignal signal) {
     AvahiServiceResolverFailure event = AvahiServiceResolverFailure(signal);
     onEvent(
-      BonsoirDiscoveryEvent(type: BonsoirDiscoveryEventType.discoveryServiceResolveFailed),
+      const BonsoirDiscoveryEvent(type: BonsoirDiscoveryEventType.discoveryServiceResolveFailed),
       'Bonsoir has failed to resolve a service : ${event.error}',
     );
   }
@@ -176,6 +176,9 @@ class AvahiBonsoirDiscovery extends AvahiBonsoirAction<BonsoirDiscoveryEvent> wi
   /// Triggered when a Bonsoir service TXT record has been found.
   void onServiceTXTRecordFound(DBusSignal signal) {
     AvahiRecordBrowserItemNew event = AvahiRecordBrowserItemNew(signal);
+    print(event.values);
+    print(event.recordName);
+    print(event.rdata);
     // TODO: We need to handle this.
   }
 
@@ -205,11 +208,11 @@ abstract class AvahiHandler {
   /// Creates the Avahi service browser path.
   Future<String> getAvahiServiceBrowserPath(String serviceType);
 
-  /// Creates the Avahi record browser path.
-  Future<String> getAvahiRecordBrowserPath(BonsoirService service);
+  /// Creates a Avahi record browser for the given service.
+  Future<AvahiRecordBrowser> createAvahiRecordBrowser(AvahiBonsoirDiscovery discovery, BonsoirService service);
 
   /// Returns the subscriptions.
-  List<StreamSubscription> getSubscriptions(AvahiBonsoirDiscovery discovery, AvahiServiceBrowser serviceBrowser, AvahiRecordBrowser recordBrowser);
+  List<StreamSubscription> getSubscriptions(AvahiBonsoirDiscovery discovery, AvahiServiceBrowser serviceBrowser);
 
   /// Resolves a service using its event.
   Future<void> resolveService(AvahiBonsoirDiscovery discovery, BonsoirService service, AvahiServiceBrowserItemNew event);
