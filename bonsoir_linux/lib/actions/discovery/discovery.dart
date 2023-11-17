@@ -108,12 +108,12 @@ If you have previously called "AvahiBonsoirDiscovery.stop()" on this instance, y
       );
       isNew = true;
     }
-    _foundServices[service!] = event;
+    _foundServices[service] = event;
     // TODO: Handle attributes.
     if (isNew) {
       onEvent(
-        BonsoirDiscoveryEvent(type: BonsoirDiscoveryEventType.discoveryServiceFound, service: service!),
-        'Bonsoir has found a service : ${service!.description}',
+        BonsoirDiscoveryEvent(type: BonsoirDiscoveryEventType.discoveryServiceFound, service: service),
+        'Bonsoir has found a service : ${service.description}',
       );
     }
   }
