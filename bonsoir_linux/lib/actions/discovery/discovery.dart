@@ -138,7 +138,7 @@ If you have previously called "AvahiBonsoirDiscovery.stop()" on this instance, y
       attributes: Map.fromEntries(
         event.txt.map((entry) {
           int index = entry.indexOf('=');
-          return MapEntry<String, String>(entry.substring(0, index), entry.substring(index, entry.length));
+          return MapEntry<String, String>(entry.substring(0, index), entry.substring(index + 1, entry.length));
         }),
       ),
     );
