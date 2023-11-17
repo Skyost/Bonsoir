@@ -23,19 +23,19 @@ class AvahiBonsoirDiscovery extends AvahiBonsoirAction<BonsoirDiscoveryEvent> wi
   /// The service browser.
   AvahiServiceBrowser? _serviceBrowser;
 
-  /// The record browser.
-  AvahiRecordBrowser? _recordBrowser;
-
   /// The Avahi handler instance.
   AvahiHandler? _avahiHandler;
 
   /// Contains all found services.
   final Map<BonsoirService, AvahiServiceBrowserItemNew> _foundServices = {};
+  
+  /// Contains all record browsers.
+  final List<AvahiRecordBrowser> _recordBrowsers = [];
 
   /// Creates a new Avahi Bonsoir discovery instance.
   AvahiBonsoirDiscovery({
     required this.type,
-    required super.printLogs,
+    required super.printLogs,BonsoirService service
   }) : super(
           action: 'discovery',
         );
@@ -43,10 +43,9 @@ class AvahiBonsoirDiscovery extends AvahiBonsoirAction<BonsoirDiscoveryEvent> wi
   @override
   Future<void> get ready async {
     if (_recordBrowser == null) {
-      _avahiHandler = (await _isModernAvahi ? AvahiDiscoveryV2.new : AvahiDiscoveryLegacy.new)(busClient: busClient);
+      _avahiHandler = ((await _isModernAvahi) ? AvahiDiscoveryV2.new : AvahiDiscoveryLegacy.new)(busClient: busClient);
       _avahiHandler!.initialize();
       _serviceBrowser = AvahiServiceBrowser(busClient, AvahiBonsoir.avahi, DBusObjectPath(await _avahiHandler!.getAvahiServiceBrowserPath(type)));
-      _recordBrowser = AvahiRecordBrowser(busClient, AvahiBonsoir.avahi, DBusObjectPath(await _avahiHandler!.getAvahiRecordBrowserPath(type)));
     }
   }
 
@@ -80,6 +79,9 @@ class AvahiBonsoirDiscovery extends AvahiBonsoirAction<BonsoirDiscoveryEvent> wi
   @override
   Future<void> stop() async {
     _serviceBrowser!.callFree();
+    for (AvahiRecordBrowser recordBrowser in recordBrowsers) {
+      _recordBrowser.callFree();
+    }
     cancelSubscriptions();
     onEvent(
       const BonsoirDiscoveryEvent(type: BonsoirDiscoveryEventType.discoveryStopped),
@@ -120,6 +122,8 @@ class AvahiBonsoirDiscovery extends AvahiBonsoirAction<BonsoirDiscoveryEvent> wi
         BonsoirDiscoveryEvent(type: BonsoirDiscoveryEventType.discoveryServiceFound, service: service),
         'Bonsoir has found a service : ${service.description}',
       );
+      AvahiRecordBrowser recordBrowser = AvahiRecordBrowser(busClient, AvahiBonsoir.avahi, DBusObjectPath(await _avahiHandler!.getAvahiRecordBrowserPath(type)));
+      recordBrowser.callStart();
     }
   }
 
@@ -162,14 +166,9 @@ class AvahiBonsoirDiscovery extends AvahiBonsoirAction<BonsoirDiscoveryEvent> wi
 
   /// Triggered when Bonsoir has failed to resolve a service.
   void onServiceResolveFailure(DBusSignal signal) {
-    BonsoirService? service = _findService(signal.name);
-    if (service == null) {
-      return;
-    }
-
     AvahiServiceResolverFailure event = AvahiServiceResolverFailure(signal);
     onEvent(
-      BonsoirDiscoveryEvent(type: BonsoirDiscoveryEventType.discoveryServiceResolveFailed, service: service),
+      BonsoirDiscoveryEvent(type: BonsoirDiscoveryEventType.discoveryServiceResolveFailed),
       'Bonsoir has failed to resolve a service : ${event.error}',
     );
   }
@@ -180,13 +179,13 @@ class AvahiBonsoirDiscovery extends AvahiBonsoirAction<BonsoirDiscoveryEvent> wi
     // TODO: We need to handle this.
   }
 
-  /// Returns whether the installed version of Avahi is > 7.0.
+  /// Returns whether the installed version of Avahi is > 0.7.
   Future<bool> get _isModernAvahi async {
-    var server = AvahiServer(DBusClient.system(), AvahiBonsoir.avahi, DBusObjectPath('/'));
-    var version = (await server.callGetVersionString()).split(' ').last;
-    var mayor = int.parse(version.split('.').first);
-    var minor = int.parse(version.split('.').last);
-    return mayor > 7 && minor >= 0;
+    AvahiServer server = AvahiServer(DBusClient.system(), AvahiBonsoir.avahi, DBusObjectPath('/'));
+    String version = (await server.callGetVersionString()).split(' ').last;
+    int mayor = int.parse(version.split('.').first);
+    int minor = int.parse(version.split('.').last);
+    return minor > 7 && mayor >= 0;
   }
 }
 
@@ -207,7 +206,7 @@ abstract class AvahiHandler {
   Future<String> getAvahiServiceBrowserPath(String serviceType);
 
   /// Creates the Avahi record browser path.
-  Future<String> getAvahiRecordBrowserPath(String serviceType);
+  Future<String> getAvahiRecordBrowserPath(BonsoirService service);
 
   /// Returns the subscriptions.
   List<StreamSubscription> getSubscriptions(AvahiBonsoirDiscovery discovery, AvahiServiceBrowser serviceBrowser, AvahiRecordBrowser recordBrowser);

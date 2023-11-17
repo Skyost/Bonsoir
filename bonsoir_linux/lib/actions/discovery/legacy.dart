@@ -34,12 +34,12 @@ class AvahiDiscoveryLegacy extends AvahiHandler {
       );
 
   @override
-  Future<String> getAvahiRecordBrowserPath(String serviceType) => _server.callRecordBrowserNew(
+  Future<String> getAvahiRecordBrowserPath(BonsoirService service) => _server.callRecordBrowserNew(
         AvahiIfIndexUnspecified,
         AvahiProtocolUnspecified,
-        serviceType,
-        1,
-        16,
+        service.fqdn,
+        0x01,
+        0x10,
         0,
       );
 

@@ -36,12 +36,12 @@ class AvahiDiscoveryV2 extends AvahiHandler {
       );
 
   @override
-  Future<String> getAvahiRecordBrowserPath(String serviceType) => _server.callRecordBrowserPrepare(
+  Future<String> getAvahiRecordBrowserPath(BonsoirService service) => _server.callRecordBrowserPrepare(
         AvahiIfIndexUnspecified,
         AvahiProtocolUnspecified,
-        serviceType,
-        1,
-        16,
+        service.fqdn,
+        0x01,
+        0x10,
         0,
       );
 
@@ -57,7 +57,7 @@ class AvahiDiscoveryV2 extends AvahiHandler {
     String serviceResolverPath = await _server.callServiceResolverPrepare(
       event.interfaceValue,
       event.protocol,
-      event.name,
+      event.serviceName,
       event.type,
       event.domain,
       AvahiProtocolUnspecified,
@@ -70,7 +70,7 @@ class AvahiDiscoveryV2 extends AvahiHandler {
     if (oneOf is AvahiServiceResolverFound) {
       discovery.onServiceResolved(oneOf);
     } else if (oneOf is AvahiServiceResolverFailure) {
-      discovery.onServiceLost(oneOf);
+      discovery.onServiceResolveFailure(oneOf);
     } else {
       discovery.onError(AvahiBonsoirError('Unknown error while resolving the service ${service.description}', oneOf));
     }

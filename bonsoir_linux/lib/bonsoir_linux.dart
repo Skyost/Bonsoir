@@ -35,4 +35,8 @@ extension Description on BonsoirService {
 
   /// Returns the TXT record of the current service.
   List<Uint8List> get txtRecord => attributes.entries.map((attribute) => utf8.encode('${attribute.key}=${attribute.value}')).toList();
+  
+  /// Returns the fully qualified domain name of the current service.
+  String get fqdn => '$name.$type.local';
 }
+
