@@ -1,7 +1,5 @@
 import 'dart:async';
 
-import 'package:bonsoir_linux/avahi/constants.dart';
-import 'package:bonsoir_linux/avahi/service_browser.dart';
 import 'package:bonsoir_linux/error.dart';
 import 'package:bonsoir_platform_interface/bonsoir_platform_interface.dart';
 import 'package:dbus/dbus.dart';
@@ -44,8 +42,10 @@ abstract class AvahiBonsoirAction<T extends BonsoirEvent> extends BonsoirAction<
   bool get isStopped => _isStopped;
 
   /// Triggered when an event occurs.
-  void onEvent(T event, String message) {
-    log(message);
+  void onEvent(T event, [String? message]) {
+    if (message != null) {
+      log(message);
+    }
     _controller.add(event);
   }
 

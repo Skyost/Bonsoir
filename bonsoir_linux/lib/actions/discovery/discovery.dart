@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:bonsoir_linux/actions/action.dart';
 import 'package:bonsoir_linux/actions/discovery/legacy.dart';
@@ -176,10 +177,30 @@ class AvahiBonsoirDiscovery extends AvahiBonsoirAction<BonsoirDiscoveryEvent> wi
   /// Triggered when a Bonsoir service TXT record has been found.
   void onServiceTXTRecordFound(DBusSignal signal) {
     AvahiRecordBrowserItemNew event = AvahiRecordBrowserItemNew(signal);
-    print(event.values);
-    print(event.recordName);
-    print(event.rdata);
-    // TODO: We need to handle this.
+    List<String> parts = event.recordName.split('.');
+    if (parts.length != 3) {
+      return;
+    }
+    BonsoirService? service = _findService(parts[0], parts[1]);
+    if (service == null) {
+      return;
+    }
+
+    List<String> keyValuePairs = utf8.decode(event.rdata).split('\u0000');
+    Map<String, String> attributes = {};
+    for (String pair in keyValuePairs) {
+      List<String> parts = pair.split('=');
+      if (parts.length == 2) {
+        attributes[parts[0]] = parts[1];
+      }
+    }
+
+    service.attributes.clear();
+    service.attributes.addAll(attributes);
+
+    log('Bonsoir has found the attributes of a service : $service');
+    onEvent(BonsoirDiscoveryEvent(type: BonsoirDiscoveryEventType.discoveryServiceLost, service: service));
+    onEvent(BonsoirDiscoveryEvent(type: BonsoirDiscoveryEventType.discoveryServiceFound, service: service));
   }
 
   /// Returns whether the installed version of Avahi is > 0.7.
