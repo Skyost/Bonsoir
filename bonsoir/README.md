@@ -85,23 +85,27 @@ platform :ios, '13.0'
 Also, open your iOS project in Xcode and select Runner, Targets -> Runner and then the "General" tab.
 Under the "Minimum Deployments" section, update the iOS version to 13.0 or higher.
 
-You'll have to do the same steps if you want to use this plugin on macOS. Update your deployment target to _at least_ 10.15. At the top of `macOS/Podfile` :
+You'll have to do the same steps if you want to use this plugin on macOS. Update your deployment
+target to _at least_ 10.15. At the top of `macOS/Podfile` :
 
 ```
 platform :osx, '10.15'
 ```
 
-Open your macOS project in xCode and in the "Minimum Deployments" section, update the macOS version to 10.15 or higher.
+Open your macOS project in xCode and in the "Minimum Deployments" section, update the macOS version
+to 10.15 or higher.
+
+To use this plugin on Windows, you need at least _Windows 10 (19H1/1903) (Mai 2019 Update)_.
 
 ### Update `Info.plist`
 
-If you're building your app for iOS 14 or higher, you have to edit your `Info.plist` file. Just add the following lines :
+If you're building your app for iOS 14 or higher, you have to edit your `Info.plist` file. Just add
+the following lines :
 
 ```xml
-<key>NSLocalNetworkUsageDescription</key>
-<string>Describe here why you want to use Bonsoir.</string>
-<key>NSBonjourServices</key>
-<array>
+
+<key>NSLocalNetworkUsageDescription</key><string>Describe here why you want to use Bonsoir.
+</string><key>NSBonjourServices</key><array>
 	<string>_first-service._tcp</string>
 	<string>_second-service._tcp</string>
 	<string>_third-service._tcp</string>
