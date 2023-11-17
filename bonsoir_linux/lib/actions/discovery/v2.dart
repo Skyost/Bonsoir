@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:bonsoir_linux/actions/discovery/discovery.dart';
 import 'package:bonsoir_linux/avahi/constants.dart';
+import 'package:bonsoir_linux/avahi/record_browser.dart';
 import 'package:bonsoir_linux/avahi/server2.dart';
 import 'package:bonsoir_linux/avahi/service_browser.dart';
 import 'package:bonsoir_linux/avahi/service_resolver.dart';
@@ -22,26 +23,34 @@ class AvahiDiscoveryV2 extends AvahiHandler {
 
   @override
   void initialize() {
-    _server = AvahiServer2(busClient, 'org.freedesktop.Avahi', DBusObjectPath('/'));
+    _server = AvahiServer2(busClient, AvahiBonsoir.avahi, DBusObjectPath('/'));
   }
 
   @override
-  Future<AvahiServiceBrowser> createAvahiServiceBrowser(String serviceType) async {
-    String serviceBrowserPath = await _server.callServiceBrowserPrepare(
-      AvahiIfIndexUnspecified,
-      AvahiProtocolUnspecified,
-      serviceType,
-      '',
-      0,
-    );
-    return AvahiServiceBrowser(busClient, 'org.freedesktop.Avahi', DBusObjectPath(serviceBrowserPath));
-  }
+  Future<String> getAvahiServiceBrowserPath(String serviceType) => _server.callServiceBrowserPrepare(
+        AvahiIfIndexUnspecified,
+        AvahiProtocolUnspecified,
+        serviceType,
+        '',
+        0,
+      );
 
   @override
-  Future<void> registerSubscriptions(AvahiBonsoirDiscovery discovery, AvahiServiceBrowser browser) async {
-    discovery.registerSubscription('ItemNew', browser.itemNew.listen(discovery.onServiceFound));
-    discovery.registerSubscription('ItemRm', browser.itemRemove.listen(discovery.onServiceLost));
-  }
+  Future<String> getAvahiRecordBrowserPath(String serviceType) => _server.callRecordBrowserPrepare(
+        AvahiIfIndexUnspecified,
+        AvahiProtocolUnspecified,
+        serviceType,
+        1,
+        16,
+        0,
+      );
+
+  @override
+  List<StreamSubscription> getSubscriptions(AvahiBonsoirDiscovery discovery, AvahiServiceBrowser serviceBrowser, AvahiRecordBrowser recordBrowser) => [
+        serviceBrowser.itemNew.listen(discovery.onServiceFound),
+        serviceBrowser.itemRemove.listen(discovery.onServiceLost),
+        recordBrowser.itemNew.listen(discovery.onServiceTXTRecordFound),
+      ];
 
   @override
   Future<void> resolveService(AvahiBonsoirDiscovery discovery, BonsoirService service, AvahiServiceBrowserItemNew event) async {
@@ -54,7 +63,7 @@ class AvahiDiscoveryV2 extends AvahiHandler {
       AvahiProtocolUnspecified,
       0,
     );
-    AvahiServiceResolver resolver = AvahiServiceResolver(busClient, 'org.freedesktop.Avahi', DBusObjectPath(serviceResolverPath));
+    AvahiServiceResolver resolver = AvahiServiceResolver(busClient, AvahiBonsoir.avahi, DBusObjectPath(serviceResolverPath));
     Object? oneOf = await Future.any(
       [resolver.failure.first, resolver.found.first],
     );

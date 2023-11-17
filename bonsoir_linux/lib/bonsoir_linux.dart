@@ -9,6 +9,9 @@ import 'package:flutter/foundation.dart';
 
 /// Class for Linux implementation through Bonjour interface.
 class AvahiBonsoir extends BonsoirPlatformInterface {
+  /// The Avahi package name.
+  static const String avahi = 'org.freedesktop.Avahi';
+
   /// Attaches Bonsoir for Linux to the Bonsoir platform interface.
   static void registerWith() => BonsoirPlatformInterface.instance = AvahiBonsoir();
 

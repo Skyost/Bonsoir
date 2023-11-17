@@ -15,10 +15,10 @@ class AvahiBonsoirBroadcast extends AvahiBonsoirAction<BonsoirBroadcastEvent> {
   BonsoirService service;
 
   /// The Avahi server instance.
-  late final AvahiServer _server;
+  AvahiServer? _server;
 
   /// The Avahi entry group.
-  late final AvahiEntryGroup _entryGroup;
+  AvahiEntryGroup? _entryGroup;
 
   /// Creates a new Avahi Bonsoir broadcast instance.
   AvahiBonsoirBroadcast({
@@ -30,18 +30,18 @@ class AvahiBonsoirBroadcast extends AvahiBonsoirAction<BonsoirBroadcastEvent> {
 
   @override
   Future<void> get ready async {
-    _server = AvahiServer(busClient, 'org.freedesktop.Avahi', DBusObjectPath('/'));
-    _entryGroup = AvahiEntryGroup(busClient, 'org.freedesktop.Avahi', DBusObjectPath(await _server.callEntryGroupNew()));
-    await _sendServiceToAvahi();
+    if (_entryGroup == null) {
+      _server = AvahiServer(busClient, AvahiBonsoir.avahi, DBusObjectPath('/'));
+      _entryGroup = AvahiEntryGroup(busClient, AvahiBonsoir.avahi, DBusObjectPath(await _server!.callEntryGroupNew()));
+      await _sendServiceToAvahi();
+    }
   }
 
   @override
   Future<void> start() async {
-    registerSubscription(
-      'StateChanged',
-      _entryGroup.stateChanged.listen(_onEntryGroupEvent),
-    );
-    await _entryGroup.callCommit();
+    await super.start();
+    registerSubscription(_entryGroup!.stateChanged.listen(_onEntryGroupEvent));
+    await _entryGroup!.callCommit();
   }
 
   /// Triggered when an entry group event occurs.
@@ -57,8 +57,8 @@ class AvahiBonsoirBroadcast extends AvahiBonsoirAction<BonsoirBroadcastEvent> {
         );
         break;
       case AvahiEntryGroupState.AVAHI_ENTRY_GROUP_COLLISION:
-        String newName = await _server.callGetAlternativeServiceName(service.name);
-        await _entryGroup.callReset();
+        String newName = await _server!.callGetAlternativeServiceName(service.name);
+        await _entryGroup!.callReset();
         String name = service.name;
         service = service.copyWith(name: newName);
         onEvent(
@@ -84,7 +84,7 @@ class AvahiBonsoirBroadcast extends AvahiBonsoirAction<BonsoirBroadcastEvent> {
     if (service is ResolvedBonsoirService) {
       host = (service as ResolvedBonsoirService).host ?? '';
     }
-    await _entryGroup.callAddService(
+    await _entryGroup!.callAddService(
       interface: AvahiIfIndexUnspecified,
       protocol: AvahiProtocolUnspecified,
       flags: 0,
@@ -100,7 +100,7 @@ class AvahiBonsoirBroadcast extends AvahiBonsoirAction<BonsoirBroadcastEvent> {
   @override
   Future<void> stop() async {
     cancelSubscriptions();
-    await _entryGroup.callFree();
+    await _entryGroup!.callFree();
     onEvent(
       const BonsoirBroadcastEvent(type: BonsoirBroadcastEventType.broadcastStopped),
       'Bonsoir service broadcast stopped : ${service.description}',

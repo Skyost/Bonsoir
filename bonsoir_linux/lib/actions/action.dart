@@ -22,7 +22,7 @@ abstract class AvahiBonsoirAction<T extends BonsoirEvent> extends BonsoirAction<
   final StreamController<T> _controller = StreamController<T>();
 
   /// Contains the subscriptions instances.
-  final Map<String, StreamSubscription> _subscriptions = {};
+  final List<StreamSubscription> _subscriptions = [];
 
   /// Whether the action has been stopped.
   bool _isStopped = false;
@@ -57,6 +57,14 @@ abstract class AvahiBonsoirAction<T extends BonsoirEvent> extends BonsoirAction<
 
   @override
   @mustCallSuper
+  Future<void> start() async {
+    assert(isReady, '''AvahiBonsoirDiscovery should be ready to start in order to call this method.
+You must wait until this instance is ready by calling "await AvahiBonsoirDiscovery.ready".
+If you have previously called "AvahiBonsoirDiscovery.stop()" on this instance, you have to create a new instance of this class.''');
+  }
+
+  @override
+  @mustCallSuper
   Future<void> stop() async {
     cancelSubscriptions();
     _controller.close();
@@ -64,12 +72,12 @@ abstract class AvahiBonsoirAction<T extends BonsoirEvent> extends BonsoirAction<
   }
 
   /// Registers a subscription.
-  void registerSubscription(String name, StreamSubscription subscription) => _subscriptions[name] = subscription;
+  void registerSubscription(StreamSubscription subscription) => _subscriptions.add(subscription);
 
   /// Cancels all subscriptions.
   void cancelSubscriptions() {
-    for (MapEntry<String, StreamSubscription> entries in _subscriptions.entries) {
-      entries.value.cancel();
+    for (StreamSubscription subscription in _subscriptions) {
+      subscription.cancel();
     }
     _subscriptions.clear();
   }

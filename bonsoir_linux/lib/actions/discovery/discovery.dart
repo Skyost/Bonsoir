@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:bonsoir_linux/actions/action.dart';
 import 'package:bonsoir_linux/actions/discovery/legacy.dart';
 import 'package:bonsoir_linux/actions/discovery/v2.dart';
+import 'package:bonsoir_linux/avahi/record_browser.dart';
 import 'package:bonsoir_linux/avahi/server.dart';
 import 'package:bonsoir_linux/avahi/service_browser.dart';
 import 'package:bonsoir_linux/avahi/service_resolver.dart';
@@ -20,7 +21,10 @@ class AvahiBonsoirDiscovery extends AvahiBonsoirAction<BonsoirDiscoveryEvent> wi
   final String type;
 
   /// The service browser.
-  AvahiServiceBrowser? _browser;
+  AvahiServiceBrowser? _serviceBrowser;
+
+  /// The record browser.
+  AvahiRecordBrowser? _recordBrowser;
 
   /// The Avahi handler instance.
   AvahiHandler? _avahiHandler;
@@ -38,23 +42,25 @@ class AvahiBonsoirDiscovery extends AvahiBonsoirAction<BonsoirDiscoveryEvent> wi
 
   @override
   Future<void> get ready async {
-    if (_browser == null) {
+    if (_recordBrowser == null) {
       _avahiHandler = (await _isModernAvahi ? AvahiDiscoveryV2.new : AvahiDiscoveryLegacy.new)(busClient: busClient);
       _avahiHandler!.initialize();
-      _browser = await _avahiHandler!.createAvahiServiceBrowser(type);
+      _serviceBrowser = AvahiServiceBrowser(busClient, AvahiBonsoir.avahi, DBusObjectPath(await _avahiHandler!.getAvahiServiceBrowserPath(type)));
+      _recordBrowser = AvahiRecordBrowser(busClient, AvahiBonsoir.avahi, DBusObjectPath(await _avahiHandler!.getAvahiRecordBrowserPath(type)));
     }
   }
 
   @override
-  bool get isReady => super.isReady && _browser != null;
+  bool get isReady => super.isReady && _recordBrowser != null;
 
   @override
   Future<void> start() async {
-    assert(isReady, '''AvahiBonsoirDiscovery should be ready to start in order to call this method.
-You must wait until this instance is ready by calling "await AvahiBonsoirDiscovery.ready".
-If you have previously called "AvahiBonsoirDiscovery.stop()" on this instance, you have to create a new instance of this class.''');
-    await _avahiHandler!.registerSubscriptions(this, _browser!);
-    await _browser!.callStart();
+    await super.start();
+    List<StreamSubscription> subscriptions = await _avahiHandler!.getSubscriptions(this, _serviceBrowser!, _recordBrowser!);
+    for (StreamSubscription subscription in subscriptions) {
+      registerSubscription(subscription);
+    }
+    await _serviceBrowser!.callStart();
     onEvent(
       const BonsoirDiscoveryEvent(type: BonsoirDiscoveryEventType.discoveryStarted),
       'Bonsoir discovery started : $type',
@@ -73,7 +79,7 @@ If you have previously called "AvahiBonsoirDiscovery.stop()" on this instance, y
 
   @override
   Future<void> stop() async {
-    _browser!.callFree();
+    _serviceBrowser!.callFree();
     cancelSubscriptions();
     onEvent(
       const BonsoirDiscoveryEvent(type: BonsoirDiscoveryEventType.discoveryStopped),
@@ -109,7 +115,6 @@ If you have previously called "AvahiBonsoirDiscovery.stop()" on this instance, y
       isNew = true;
     }
     _foundServices[service] = event;
-    // TODO: Handle attributes.
     if (isNew) {
       onEvent(
         BonsoirDiscoveryEvent(type: BonsoirDiscoveryEventType.discoveryServiceFound, service: service),
@@ -169,9 +174,15 @@ If you have previously called "AvahiBonsoirDiscovery.stop()" on this instance, y
     );
   }
 
+  /// Triggered when a Bonsoir service TXT record has been found.
+  void onServiceTXTRecordFound(DBusSignal signal) {
+    AvahiRecordBrowserItemNew event = AvahiRecordBrowserItemNew(signal);
+    // TODO: We need to handle this.
+  }
+
   /// Returns whether the installed version of Avahi is > 7.0.
   Future<bool> get _isModernAvahi async {
-    var server = AvahiServer(DBusClient.system(), 'org.freedesktop.Avahi', DBusObjectPath('/'));
+    var server = AvahiServer(DBusClient.system(), AvahiBonsoir.avahi, DBusObjectPath('/'));
     var version = (await server.callGetVersionString()).split(' ').last;
     var mayor = int.parse(version.split('.').first);
     var minor = int.parse(version.split('.').last);
@@ -192,11 +203,14 @@ abstract class AvahiHandler {
   /// Initializes the handler.
   void initialize();
 
-  /// Creates the Avahi service browser.
-  Future<AvahiServiceBrowser> createAvahiServiceBrowser(String serviceType);
+  /// Creates the Avahi service browser path.
+  Future<String> getAvahiServiceBrowserPath(String serviceType);
 
-  /// Registers the subscriptions.
-  Future<void> registerSubscriptions(AvahiBonsoirDiscovery discovery, AvahiServiceBrowser browser);
+  /// Creates the Avahi record browser path.
+  Future<String> getAvahiRecordBrowserPath(String serviceType);
+
+  /// Returns the subscriptions.
+  List<StreamSubscription> getSubscriptions(AvahiBonsoirDiscovery discovery, AvahiServiceBrowser serviceBrowser, AvahiRecordBrowser recordBrowser);
 
   /// Resolves a service using its event.
   Future<void> resolveService(AvahiBonsoirDiscovery discovery, BonsoirService service, AvahiServiceBrowserItemNew event);
