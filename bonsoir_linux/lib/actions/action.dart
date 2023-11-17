@@ -44,14 +44,12 @@ abstract class AvahiBonsoirAction<T extends BonsoirEvent> extends BonsoirAction<
   bool get isStopped => _isStopped;
 
   /// Triggered when an event occurs.
-  @protected
   void onEvent(T event, String message) {
     log(message);
     _controller.add(event);
   }
 
   /// Triggered when an error occurs.
-  @protected
   void onError(AvahiBonsoirError error) {
     log(error.message);
     _controller.addError(error);
@@ -79,7 +77,7 @@ abstract class AvahiBonsoirAction<T extends BonsoirEvent> extends BonsoirAction<
   /// Prints a message to the console, if enabled.
   void log(String message) {
     if (printLogs) {
-      print("[$action] $message");
+      print('[$action] $message');
     }
   }
 }

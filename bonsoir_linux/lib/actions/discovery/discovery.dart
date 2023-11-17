@@ -3,56 +3,58 @@ import 'dart:async';
 import 'package:bonsoir_linux/actions/action.dart';
 import 'package:bonsoir_linux/actions/discovery/legacy.dart';
 import 'package:bonsoir_linux/actions/discovery/v2.dart';
+import 'package:bonsoir_linux/avahi/server.dart';
 import 'package:bonsoir_linux/avahi/service_browser.dart';
 import 'package:bonsoir_linux/avahi/service_resolver.dart';
 import 'package:bonsoir_linux/bonsoir_linux.dart';
 import 'package:bonsoir_linux/error.dart';
 import 'package:bonsoir_platform_interface/bonsoir_platform_interface.dart';
 import 'package:dbus/dbus.dart';
-import 'package:flutter/foundation.dart';
+
+/// Allows to register subscriptions.
+typedef SubscriptionRegisterer = Function(String name, StreamSubscription subscription);
 
 /// Discovers a given service [type] on the network.
-abstract class AvahiBonsoirDiscovery extends AvahiBonsoirAction<BonsoirDiscoveryEvent> with ServiceResolver {
+class AvahiBonsoirDiscovery extends AvahiBonsoirAction<BonsoirDiscoveryEvent> with ServiceResolver {
   /// The service type to discover.
   final String type;
 
   /// The service browser.
-  late final AvahiServiceBrowser browser;
+  AvahiServiceBrowser? _browser;
+
+  /// The Avahi handler instance.
+  AvahiHandler? _avahiHandler;
 
   /// Contains all found services.
   final Map<BonsoirService, AvahiServiceBrowserItemNew> _foundServices = {};
 
   /// Creates a new Avahi Bonsoir discovery instance.
-  @protected
-  AvahiBonsoirDiscovery.internal({
+  AvahiBonsoirDiscovery({
     required this.type,
     required super.printLogs,
   }) : super(
           action: 'discovery',
         );
 
-  /// Creates an Avahi Bonsoir discovery instance.
-  factory AvahiBonsoirDiscovery({
-    required String type,
-    required bool printLogs,
-    bool legacy = false,
-  }) =>
-      legacy
-          ? AvahiDiscoveryLegacy(
-              type: type,
-              printLogs: printLogs,
-            )
-          : AvahiDiscoveryV2(
-              type: type,
-              printLogs: printLogs,
-            );
+  @override
+  Future<void> get ready async {
+    if (_browser == null) {
+      _avahiHandler = (await _isModernAvahi ? AvahiDiscoveryV2.new : AvahiDiscoveryLegacy.new)(busClient: busClient);
+      _avahiHandler!.initialize();
+      _browser = await _avahiHandler!.createAvahiServiceBrowser(type);
+    }
+  }
 
   @override
-  Future<void> get ready async => browser = await createAvahiServiceBrowser();
+  bool get isReady => super.isReady && _browser != null;
 
   @override
   Future<void> start() async {
-    await browser.callStart();
+    assert(isReady, '''AvahiBonsoirDiscovery should be ready to start in order to call this method.
+You must wait until this instance is ready by calling "await AvahiBonsoirDiscovery.ready".
+If you have previously called "AvahiBonsoirDiscovery.stop()" on this instance, you have to create a new instance of this class.''');
+    await _avahiHandler!.registerSubscriptions(this, _browser!);
+    await _browser!.callStart();
     onEvent(
       const BonsoirDiscoveryEvent(type: BonsoirDiscoveryEventType.discoveryStarted),
       'Bonsoir discovery started : $type',
@@ -61,17 +63,17 @@ abstract class AvahiBonsoirDiscovery extends AvahiBonsoirAction<BonsoirDiscovery
 
   @override
   Future<void> resolveService(BonsoirService service) async {
-    BonsoirService? serviceInstance = findService(service.name, service.type);
+    BonsoirService? serviceInstance = _findService(service.name, service.type);
     if (serviceInstance == null) {
       onError(AvahiBonsoirError('Trying to resolve an undiscovered service : ${service.name}', service.name));
       return;
     }
-    resolveServiceByEvent(serviceInstance, _foundServices[serviceInstance]!);
+    _avahiHandler!.resolveService(this, serviceInstance, _foundServices[serviceInstance]!);
   }
 
   @override
   Future<void> stop() async {
-    browser.callFree();
+    _browser!.callFree();
     cancelSubscriptions();
     onEvent(
       const BonsoirDiscoveryEvent(type: BonsoirDiscoveryEventType.discoveryStopped),
@@ -80,12 +82,8 @@ abstract class AvahiBonsoirDiscovery extends AvahiBonsoirAction<BonsoirDiscovery
     await super.stop();
   }
 
-  /// Creates the Avahi service browser.
-  @protected
-  Future<AvahiServiceBrowser> createAvahiServiceBrowser();
-
   /// Finds a service amongst found services.
-  BonsoirService? findService(String name, [String? type]) {
+  BonsoirService? _findService(String name, [String? type]) {
     for (MapEntry<BonsoirService, AvahiServiceBrowserItemNew> entry in _foundServices.entries) {
       if (entry.key.name == name && (type == null || entry.key.type == type)) {
         return entry.key;
@@ -95,7 +93,6 @@ abstract class AvahiBonsoirDiscovery extends AvahiBonsoirAction<BonsoirDiscovery
   }
 
   /// Triggered when a service has been found.
-  @protected
   void onServiceFound(DBusSignal signal) {
     AvahiServiceBrowserItemNew event = AvahiServiceBrowserItemNew(signal);
     if (event.type != this.type) {
@@ -115,13 +112,12 @@ abstract class AvahiBonsoirDiscovery extends AvahiBonsoirAction<BonsoirDiscovery
   }
 
   /// Triggered when a service has been lost.
-  @protected
   void onServiceLost(DBusSignal signal) {
     AvahiServiceBrowserItemRemove event = AvahiServiceBrowserItemRemove(signal);
     if (event.type != this.type) {
       return;
     }
-    BonsoirService? service = findService(event.name, event.type);
+    BonsoirService? service = _findService(event.name, event.type);
     if (service != null) {
       _foundServices.remove(service);
       onEvent(
@@ -132,7 +128,6 @@ abstract class AvahiBonsoirDiscovery extends AvahiBonsoirAction<BonsoirDiscovery
   }
 
   /// Triggered when a service has been resolved.
-  @protected
   void onServiceResolved(DBusSignal signal) {
     AvahiServiceResolverFound event = AvahiServiceResolverFound(signal);
     BonsoirService service = ResolvedBonsoirService(
@@ -154,9 +149,8 @@ abstract class AvahiBonsoirDiscovery extends AvahiBonsoirAction<BonsoirDiscovery
   }
 
   /// Triggered when Bonsoir has failed to resolve a service.
-  @protected
   void onServiceResolveFailure(DBusSignal signal) {
-    BonsoirService? service = findService(signal.name);
+    BonsoirService? service = _findService(signal.name);
     if (service == null) {
       return;
     }
@@ -168,7 +162,35 @@ abstract class AvahiBonsoirDiscovery extends AvahiBonsoirAction<BonsoirDiscovery
     );
   }
 
+  /// Returns whether the installed version of Avahi is > 7.0.
+  Future<bool> get _isModernAvahi async {
+    var server = AvahiServer(DBusClient.system(), 'org.freedesktop.Avahi', DBusObjectPath('/'));
+    var version = (await server.callGetVersionString()).split(' ').last;
+    var mayor = int.parse(version.split('.').first);
+    var minor = int.parse(version.split('.').last);
+    return mayor > 7 && minor >= 0;
+  }
+}
+
+/// Handles communication with the Avahi daemon.
+abstract class AvahiHandler {
+  /// The DBus client.
+  final DBusClient busClient;
+
+  /// Creates a new Avahi handler instance.
+  const AvahiHandler({
+    required this.busClient,
+  });
+
+  /// Initializes the handler.
+  void initialize();
+
+  /// Creates the Avahi service browser.
+  Future<AvahiServiceBrowser> createAvahiServiceBrowser(String serviceType);
+
+  /// Registers the subscriptions.
+  Future<void> registerSubscriptions(AvahiBonsoirDiscovery discovery, AvahiServiceBrowser browser);
+
   /// Resolves a service using its event.
-  @protected
-  Future<void> resolveServiceByEvent(BonsoirService service, AvahiServiceBrowserItemNew event);
+  Future<void> resolveService(AvahiBonsoirDiscovery discovery, BonsoirService service, AvahiServiceBrowserItemNew event);
 }

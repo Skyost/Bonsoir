@@ -11,31 +11,26 @@ import 'package:bonsoir_platform_interface/bonsoir_platform_interface.dart';
 import 'package:dbus/dbus.dart';
 
 /// Uses newer Avahi versions to discover a given service [type].
-class AvahiDiscoveryV2 extends AvahiBonsoirDiscovery {
+class AvahiDiscoveryV2 extends AvahiHandler {
   /// The Avahi server instance.
   late final AvahiServer2 _server;
 
   /// Creates a new Avahi discovery v2 instance.
   AvahiDiscoveryV2({
-    required String type,
-    required bool printLogs,
-  }) : super.internal(
-          type: type,
-          printLogs: printLogs,
-        );
+    required super.busClient,
+  });
 
   @override
-  Future<void> get ready async {
+  void initialize() {
     _server = AvahiServer2(busClient, 'org.freedesktop.Avahi', DBusObjectPath('/'));
-    await super.ready;
   }
 
   @override
-  Future<AvahiServiceBrowser> createAvahiServiceBrowser() async {
+  Future<AvahiServiceBrowser> createAvahiServiceBrowser(String serviceType) async {
     String serviceBrowserPath = await _server.callServiceBrowserPrepare(
       AvahiIfIndexUnspecified,
       AvahiProtocolUnspecified,
-      type,
+      serviceType,
       '',
       0,
     );
@@ -43,14 +38,13 @@ class AvahiDiscoveryV2 extends AvahiBonsoirDiscovery {
   }
 
   @override
-  Future<void> start() async {
-    registerSubscription('ItemNew', browser.itemNew.listen(onServiceFound));
-    registerSubscription('ItemRm', browser.itemRemove.listen(onServiceLost));
-    await super.start();
+  Future<void> registerSubscriptions(AvahiBonsoirDiscovery discovery, AvahiServiceBrowser browser) async {
+    discovery.registerSubscription('ItemNew', browser.itemNew.listen(discovery.onServiceFound));
+    discovery.registerSubscription('ItemRm', browser.itemRemove.listen(discovery.onServiceLost));
   }
 
   @override
-  Future<void> resolveServiceByEvent(BonsoirService service, AvahiServiceBrowserItemNew event) async {
+  Future<void> resolveService(AvahiBonsoirDiscovery discovery, BonsoirService service, AvahiServiceBrowserItemNew event) async {
     String serviceResolverPath = await _server.callServiceResolverPrepare(
       event.interfaceValue,
       event.protocol,
@@ -65,11 +59,11 @@ class AvahiDiscoveryV2 extends AvahiBonsoirDiscovery {
       [resolver.failure.first, resolver.found.first],
     );
     if (oneOf is AvahiServiceResolverFound) {
-      onServiceResolved(oneOf);
+      discovery.onServiceResolved(oneOf);
     } else if (oneOf is AvahiServiceResolverFailure) {
-      onServiceLost(oneOf);
+      discovery.onServiceLost(oneOf);
     } else {
-      onError(AvahiBonsoirError('Unknown error while resolving the service ${service.description}', oneOf));
+      discovery.onError(AvahiBonsoirError('Unknown error while resolving the service ${service.description}', oneOf));
     }
   }
 }
