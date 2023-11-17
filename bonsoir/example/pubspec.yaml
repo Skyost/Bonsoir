@@ -27,6 +27,8 @@ dependency_overrides:
     path: ../../bonsoir_darwin/
   bonsoir_windows:
     path: ../../bonsoir_windows/
+  bonsoir_linux:
+    path: ../../bonsoir_linux/
 
 flutter:
   uses-material-design: true

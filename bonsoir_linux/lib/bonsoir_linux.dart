@@ -9,9 +9,6 @@ import 'package:bonsoir_platform_interface/bonsoir_platform_interface.dart';
 import 'package:dbus/dbus.dart';
 import 'package:flutter/foundation.dart';
 
-/// Allows to create a Bonsoir discovery instance.
-typedef DiscoveryFactory = AvahiBonsoirDiscovery Function({String type, bool printLogs});
-
 /// Class for Linux implementation through Bonjour interface.
 class AvahiBonsoir extends BonsoirPlatformInterface {
   /// Whether we should fallback to the legacy discovery.
