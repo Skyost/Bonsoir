@@ -3,7 +3,7 @@
 
 import 'dart:convert' show utf8;
 
-import 'package:bonsoir_linux/avahi_defs/constants.dart';
+import 'package:bonsoir_linux/avahi/constants.dart';
 import 'package:dbus/dbus.dart';
 
 /// Return value of org.freedesktop.Avahi.Server.ResolveService.
