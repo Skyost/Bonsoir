@@ -23,10 +23,11 @@ list(APPEND PLUGIN_SOURCES
 add_library(${PLUGIN_NAME} SHARED
   "include/bonsoir_windows/bonsoir_windows_plugin_c_api.h"
   "bonsoir_windows_plugin_c_api.cpp"
+  "bonsoir_action.cpp"
   "bonsoir_discovery.cpp"
   "bonsoir_broadcast.cpp"
   "bonsoir_service.cpp"
-  "success_object.cpp"
+  "utilities.cpp"
   ${PLUGIN_SOURCES}
 )
 
@@ -44,26 +45,9 @@ target_compile_definitions(${PLUGIN_NAME} PRIVATE FLUTTER_PLUGIN_IMPL)
 
 # Source include directories and library dependencies. Add any plugin-specific
 # dependencies here.
-target_include_directories(${PLUGIN_NAME} INTERFACE
-  "${CMAKE_CURRENT_SOURCE_DIR}/include")
+target_include_directories(${PLUGIN_NAME} INTERFACE "${CMAKE_CURRENT_SOURCE_DIR}/include")
 
-target_include_directories(
-  ${PLUGIN_NAME}
-  PRIVATE
-  "include/"
-)
-
-target_link_libraries(
-  ${PLUGIN_NAME} 
-  PRIVATE
-  "${CMAKE_CURRENT_SOURCE_DIR}/lib/x64/dnssd.lib"
-)
-
-target_link_libraries(
-  ${PLUGIN_NAME} 
-  PRIVATE
-  "WS2_32.Lib"
-)
+target_link_libraries(${PLUGIN_NAME} PRIVATE dnsapi)
 
 if(MSVC)
     add_compile_options(
@@ -78,7 +62,4 @@ target_link_libraries(${PLUGIN_NAME} PRIVATE flutter flutter_wrapper_plugin)
 # List of absolute paths to libraries that should be bundled with the plugin.
 # This list could contain prebuilt libraries, or libraries created by an
 # external build triggered from this build file.
-set(bonsoir_windows_bundled_libraries
-  ""
-  PARENT_SCOPE
-)
+set(bonsoir_windows_bundled_libraries "" PARENT_SCOPE)

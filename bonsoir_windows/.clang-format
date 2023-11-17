@@ -1,0 +1,15 @@
+---
+BasedOnStyle: Google
+IndentWidth: 2
+ConstructorInitializerIndentWidth: 2
+ContinuationIndentWidth: 2
+ColumnLimit: 0
+ConstructorInitializerAllOnOneLineOrOnePerLine: true
+NamespaceIndentation: All
+BinPackArguments: false
+BinPackParameters: false
+AllowAllArgumentsOnNextLine: true
+AllowShortBlocksOnASingleLine: Empty
+AllowShortFunctionsOnASingleLine: Empty
+Cpp11BracedListStyle: true
+AlignAfterOpenBracket: BlockIndent

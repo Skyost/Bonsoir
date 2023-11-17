@@ -20,7 +20,13 @@ class MethodChannelBonsoirDiscoveryAction extends MethodChannelBonsoirAction<Bon
   @protected
   BonsoirDiscoveryEvent transformPlatformEvent(dynamic event) {
     Map<String, dynamic> data = Map<String, dynamic>.from(event);
-    return BonsoirDiscoveryEvent.fromJson(data);
+    return BonsoirDiscoveryEvent(
+      type: BonsoirDiscoveryEventType.values.firstWhere(
+        (type) => type.id == data['id'],
+        orElse: () => BonsoirDiscoveryEventType.unknown,
+      ),
+      service: data.containsKey('service') ? BonsoirService.fromJson(Map<String, dynamic>.from(data['service'])) : null,
+    );
   }
 
   @override
