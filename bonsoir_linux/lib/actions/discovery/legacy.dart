@@ -78,6 +78,12 @@ class AvahiDiscoveryLegacy extends AvahiHandler {
           interface: '${AvahiBonsoir.avahi}.RecordBrowser',
           name: 'ItemNew',
         ).listen(discovery.onServiceTXTRecordFound),
+        DBusSignalStream(
+          busClient,
+          sender: AvahiBonsoir.avahi,
+          interface: '${AvahiBonsoir.avahi}.RecordBrowser',
+          name: 'Failure',
+        ).listen(discovery.onServiceTXTRecordNotFound),
       ];
 
   @override

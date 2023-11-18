@@ -200,6 +200,12 @@ class AvahiBonsoirDiscovery extends AvahiBonsoirAction<BonsoirDiscoveryEvent> wi
     }
   }
 
+  /// Triggered when a Bonsoir service TXT record has not been found.
+  void onServiceTXTRecordNotFound(DBusSignal signal) {
+    AvahiRecordBrowserFailure event = AvahiRecordBrowserFailure(signal);
+    log('Bonsoir has failed to get the TXT record of a service : ${event.error}');
+  }
+
   /// Allows to unescape services FQDN.
   String _unescapeAscii(String input) {
     String result = '';

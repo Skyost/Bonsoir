@@ -72,7 +72,10 @@ If you have previously called "AvahiBonsoirDiscovery.stop()" on this instance, y
   }
 
   /// Registers a subscription.
-  void registerSubscription(StreamSubscription subscription) => _subscriptions.add(subscription);
+  void registerSubscription(StreamSubscription subscription) {
+    _subscriptions.add(subscription);
+    subscription.onDone(() => _subscriptions.remove(subscription));
+  }
 
   /// Cancels all subscriptions.
   void cancelSubscriptions() {

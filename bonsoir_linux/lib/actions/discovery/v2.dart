@@ -7,7 +7,6 @@ import 'package:bonsoir_linux/avahi/server2.dart';
 import 'package:bonsoir_linux/avahi/service_browser.dart';
 import 'package:bonsoir_linux/avahi/service_resolver.dart';
 import 'package:bonsoir_linux/bonsoir_linux.dart';
-import 'package:bonsoir_linux/error.dart';
 import 'package:bonsoir_platform_interface/bonsoir_platform_interface.dart';
 import 'package:dbus/dbus.dart';
 
@@ -15,6 +14,15 @@ import 'package:dbus/dbus.dart';
 class AvahiDiscoveryV2 extends AvahiHandler {
   /// The Avahi server instance.
   late final AvahiServer2 _server;
+
+  /// Contains all org.freedesktop.Avahi.RecordBrowser.ItemNew subscriptions.
+  Map<BonsoirService, StreamSubscription> _recordBrowserItemNewSubscriptions = {};
+  /// Contains all org.freedesktop.Avahi.RecordBrowser.Failure subscriptions.
+  Map<BonsoirService, StreamSubscription> _recordBrowserFailureSubscriptions = {};
+  /// Contains all org.freedesktop.Avahi.ServiceResolver.Found subscriptions.
+  Map<BonsoirService, StreamSubscription> _serviceResolverFoundSubscriptions = {};
+  /// Contains all org.freedesktop.Avahi.ServiceResolver.Failure subscriptions.
+  Map<BonsoirService, StreamSubscription> _serviceResolverFailureSubscriptions = {};
 
   /// Creates a new Avahi discovery v2 instance.
   AvahiDiscoveryV2({
@@ -45,8 +53,23 @@ class AvahiDiscoveryV2 extends AvahiHandler {
       0x10,
       0,
     );
+
     AvahiRecordBrowser recordBrowser = AvahiRecordBrowser(busClient, AvahiBonsoir.avahi, DBusObjectPath(recordBrowserPath));
-    discovery.registerSubscription(recordBrowser.itemNew.listen(discovery.onServiceTXTRecordFound));
+
+    StreamSubscription itemNew = recordBrowser.itemNew.listen((event) {
+      discovery.onServiceTXTRecordFound(event);
+      _removeAndCancelSubscription(_recordBrowserItemNewSubscriptions, service);
+    });
+    _recordBrowserItemNewSubscriptions[service] = itemNew;
+    discovery.registerSubscription(itemNew);
+
+    StreamSubscription failure = recordBrowser.failure.listen((event) {
+      discovery.onServiceTXTRecordNotFound(event);
+      _removeAndCancelSubscription(_recordBrowserFailureSubscriptions, service);
+    });
+    _recordBrowserFailureSubscriptions[service] = failure;
+    discovery.registerSubscription(failure);
+
     return recordBrowser;
   }
 
@@ -68,15 +91,25 @@ class AvahiDiscoveryV2 extends AvahiHandler {
       0,
     );
     AvahiServiceResolver resolver = AvahiServiceResolver(busClient, AvahiBonsoir.avahi, DBusObjectPath(serviceResolverPath));
-    Object? oneOf = await Future.any(
-      [resolver.failure.first, resolver.found.first],
-    );
-    if (oneOf is AvahiServiceResolverFound) {
-      discovery.onServiceResolved(oneOf);
-    } else if (oneOf is AvahiServiceResolverFailure) {
-      discovery.onServiceResolveFailure(oneOf);
-    } else {
-      discovery.onError(AvahiBonsoirError('Unknown error while resolving the service ${service.description}', oneOf));
-    }
+
+    StreamSubscription found = resolver.found.listen((event) {
+      discovery.onServiceResolved(event);
+      _removeAndCancelSubscription(_serviceResolverFoundSubscriptions, service);
+    });
+    _serviceResolverFoundSubscriptions[service] = found;
+    discovery.registerSubscription(found);
+
+    StreamSubscription failure = resolver.failure.listen((event) {
+      discovery.onServiceResolveFailure(event);
+      _removeAndCancelSubscription(_serviceResolverFailureSubscriptions, service);
+    });
+    _serviceResolverFailureSubscriptions[service] = failure;
+    discovery.registerSubscription(failure);
+  }
+
+  /// Removes the service from the subscription map and cancel the subscription.
+  void _removeAndCancelSubscription(Map<BonsoirService, StreamSubscription> subscriptions, BonsoirService service) {
+    _serviceResolverFoundSubscriptions[service]?.cancel();
+    _serviceResolverFoundSubscriptions.remove(service);
   }
 }
