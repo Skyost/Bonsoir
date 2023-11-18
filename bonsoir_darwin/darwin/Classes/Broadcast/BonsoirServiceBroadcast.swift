@@ -53,15 +53,12 @@ class BonsoirServiceBroadcast: NSObject, FlutterStreamHandler {
     
     /// Starts the broadcast.
     public func start() {
-        var txtRecord: TXTRecordRef = TXTRecordRef()
-        var txtMac = [Int8](repeating: 0, count: 255)
-        if service.attributes != nil {
-            TXTRecordCreate(&txtRecord, 255, &txtMac);
-            for (key, value) in service.attributes! {
-                TXTRecordSetValue(&txtRecord, key, UInt8(value.count), value)
-            }
+        var txtRecord: TXTRecordRef = TXTRecordRef();
+        TXTRecordCreate(&txt_record, 0, null);
+        for (key, value) in service.attributes! {
+          TXTRecordSetValue(&txtRecord, key, UInt8(value.count), value)
         }
-        let error = DNSServiceRegister(&sdRef, 0, 0, service.name, service.type, "local.", service.host, CFSwapInt16HostToBig(UInt16(service.port)), UInt16(strlen(txtMac)), txtMac, { sdRef, flags, errorCode, name, regType, domain, context in
+        let error = DNSServiceRegister(&sdRef, 0, 0, service.name, service.type, "local.", service.host, CFSwapInt16HostToBig(UInt16(service.port)), TXTRecordGetLength(&txt_record), TXTRecordGetBytesPtr(&txt_record), { sdRef, flags, errorCode, name, regType, domain, context in
             let broadcast = Unmanaged<BonsoirServiceBroadcast>.fromOpaque(context!).takeUnretainedValue()
             if errorCode == kDNSServiceErr_NoError {
                 if broadcast.service.name != name {

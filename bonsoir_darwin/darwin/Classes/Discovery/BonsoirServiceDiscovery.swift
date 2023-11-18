@@ -81,7 +81,7 @@ class BonsoirServiceDiscovery: NSObject, FlutterStreamHandler {
             switch change {
             case .added(let result):
                 if case .service(let name, let type, _, _) = result.endpoint {
-                    let service = BonsoirService(name: name, type: type, port: 0, host: nil, attributes: nil)
+                    let service = BonsoirService(name: name, type: type, port: 0, host: nil, attributes: [:])
                     if case .bonjour(let records) = result.metadata {
                         service.attributes = records.dictionary
                     }
