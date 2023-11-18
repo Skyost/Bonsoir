@@ -47,46 +47,6 @@ class AvahiDiscoveryLegacy extends AvahiHandler {
   }
 
   @override
-  List<StreamSubscription> getSubscriptions(AvahiBonsoirDiscovery discovery, AvahiServiceBrowser serviceBrowser) => [
-        DBusSignalStream(
-          busClient,
-          sender: AvahiBonsoir.avahi,
-          interface: '${AvahiBonsoir.avahi}.ServiceBrowser',
-          name: 'ItemNew',
-        ).listen(discovery.onServiceFound),
-        DBusSignalStream(
-          busClient,
-          sender: AvahiBonsoir.avahi,
-          interface: '${AvahiBonsoir.avahi}.ServiceBrowser',
-          name: 'ItemRemove',
-        ).listen(discovery.onServiceLost),
-        DBusSignalStream(
-          busClient,
-          sender: AvahiBonsoir.avahi,
-          interface: '${AvahiBonsoir.avahi}.ServiceResolver',
-          name: 'Failure',
-        ).listen(discovery.onServiceResolveFailure),
-        DBusSignalStream(
-          busClient,
-          sender: AvahiBonsoir.avahi,
-          interface: '${AvahiBonsoir.avahi}.ServiceResolver',
-          name: 'Found',
-        ).listen(discovery.onServiceResolved),
-        DBusSignalStream(
-          busClient,
-          sender: AvahiBonsoir.avahi,
-          interface: '${AvahiBonsoir.avahi}.RecordBrowser',
-          name: 'ItemNew',
-        ).listen(discovery.onServiceTXTRecordFound),
-        DBusSignalStream(
-          busClient,
-          sender: AvahiBonsoir.avahi,
-          interface: '${AvahiBonsoir.avahi}.RecordBrowser',
-          name: 'Failure',
-        ).listen(discovery.onServiceTXTRecordNotFound),
-      ];
-
-  @override
   Future<void> resolveService(AvahiBonsoirDiscovery discovery, BonsoirService service, AvahiServiceBrowserItemNew event) async {
     await _server.callServiceResolverNew(
       interface: event.interfaceValue,

@@ -57,7 +57,44 @@ class AvahiBonsoirDiscovery extends AvahiBonsoirAction<BonsoirDiscoveryEvent> wi
   @override
   Future<void> start() async {
     await super.start();
-    List<StreamSubscription> subscriptions = await _avahiHandler!.getSubscriptions(this, _serviceBrowser!);
+    List<StreamSubscription> subscriptions = [
+      DBusSignalStream(
+        busClient,
+        sender: AvahiBonsoir.avahi,
+        interface: '${AvahiBonsoir.avahi}.ServiceBrowser',
+        name: 'ItemNew',
+      ).listen(onServiceFound),
+      DBusSignalStream(
+        busClient,
+        sender: AvahiBonsoir.avahi,
+        interface: '${AvahiBonsoir.avahi}.ServiceBrowser',
+        name: 'ItemRemove',
+      ).listen(onServiceLost),
+      DBusSignalStream(
+        busClient,
+        sender: AvahiBonsoir.avahi,
+        interface: '${AvahiBonsoir.avahi}.ServiceResolver',
+        name: 'Failure',
+      ).listen(onServiceResolveFailure),
+      DBusSignalStream(
+        busClient,
+        sender: AvahiBonsoir.avahi,
+        interface: '${AvahiBonsoir.avahi}.ServiceResolver',
+        name: 'Found',
+      ).listen(onServiceResolved),
+      DBusSignalStream(
+        busClient,
+        sender: AvahiBonsoir.avahi,
+        interface: '${AvahiBonsoir.avahi}.RecordBrowser',
+        name: 'ItemNew',
+      ).listen(onServiceTXTRecordFound),
+      DBusSignalStream(
+        busClient,
+        sender: AvahiBonsoir.avahi,
+        interface: '${AvahiBonsoir.avahi}.RecordBrowser',
+        name: 'Failure',
+      ).listen(onServiceTXTRecordNotFound),
+    ];
     for (StreamSubscription subscription in subscriptions) {
       registerSubscription(subscription);
     }
@@ -279,9 +316,6 @@ abstract class AvahiHandler {
 
   /// Creates a Avahi record browser for the given service.
   Future<AvahiRecordBrowser> createAvahiRecordBrowser(AvahiBonsoirDiscovery discovery, BonsoirService service);
-
-  /// Returns the subscriptions.
-  List<StreamSubscription> getSubscriptions(AvahiBonsoirDiscovery discovery, AvahiServiceBrowser serviceBrowser);
 
   /// Resolves a service using its event.
   Future<void> resolveService(AvahiBonsoirDiscovery discovery, BonsoirService service, AvahiServiceBrowserItemNew event);

@@ -15,15 +15,6 @@ class AvahiDiscoveryV2 extends AvahiHandler {
   /// The Avahi server instance.
   late final AvahiServer2 _server;
 
-  /// Contains all org.freedesktop.Avahi.RecordBrowser.ItemNew subscriptions.
-  Map<BonsoirService, StreamSubscription> _recordBrowserItemNewSubscriptions = {};
-  /// Contains all org.freedesktop.Avahi.RecordBrowser.Failure subscriptions.
-  Map<BonsoirService, StreamSubscription> _recordBrowserFailureSubscriptions = {};
-  /// Contains all org.freedesktop.Avahi.ServiceResolver.Found subscriptions.
-  Map<BonsoirService, StreamSubscription> _serviceResolverFoundSubscriptions = {};
-  /// Contains all org.freedesktop.Avahi.ServiceResolver.Failure subscriptions.
-  Map<BonsoirService, StreamSubscription> _serviceResolverFailureSubscriptions = {};
-
   /// Creates a new Avahi discovery v2 instance.
   AvahiDiscoveryV2({
     required super.busClient,
@@ -53,39 +44,8 @@ class AvahiDiscoveryV2 extends AvahiHandler {
       0x10,
       0,
     );
-
     return AvahiRecordBrowser(busClient, AvahiBonsoir.avahi, DBusObjectPath(recordBrowserPath));
   }
-
-  @override
-  List<StreamSubscription> getSubscriptions(AvahiBonsoirDiscovery discovery, AvahiServiceBrowser serviceBrowser) => [
-        serviceBrowser.itemNew.listen(discovery.onServiceFound),
-        serviceBrowser.itemRemove.listen(discovery.onServiceLost),
-        DBusSignalStream(
-          busClient,
-          sender: AvahiBonsoir.avahi,
-          interface: '${AvahiBonsoir.avahi}.ServiceResolver',
-          name: 'Failure',
-        ).listen(discovery.onServiceResolveFailure),
-        DBusSignalStream(
-          busClient,
-          sender: AvahiBonsoir.avahi,
-          interface: '${AvahiBonsoir.avahi}.ServiceResolver',
-          name: 'Found',
-        ).listen(discovery.onServiceResolved),
-        DBusSignalStream(
-          busClient,
-          sender: AvahiBonsoir.avahi,
-          interface: '${AvahiBonsoir.avahi}.RecordBrowser',
-          name: 'ItemNew',
-        ).listen(discovery.onServiceTXTRecordFound),
-        DBusSignalStream(
-          busClient,
-          sender: AvahiBonsoir.avahi,
-          interface: '${AvahiBonsoir.avahi}.RecordBrowser',
-          name: 'Failure',
-        ).listen(discovery.onServiceTXTRecordNotFound),
-      ];
 
   @override
   Future<void> resolveService(AvahiBonsoirDiscovery discovery, BonsoirService service, AvahiServiceBrowserItemNew event) async {
@@ -100,11 +60,5 @@ class AvahiDiscoveryV2 extends AvahiHandler {
     );
     AvahiServiceResolver resolver = AvahiServiceResolver(busClient, AvahiBonsoir.avahi, DBusObjectPath(serviceResolverPath));
     resolver.callStart();
-  }
-
-  /// Removes the service from the subscription map and cancel the subscription.
-  void _removeAndCancelSubscription(Map<BonsoirService, StreamSubscription> subscriptions, BonsoirService service) {
-    _serviceResolverFoundSubscriptions[service]?.cancel();
-    _serviceResolverFoundSubscriptions.remove(service);
   }
 }
