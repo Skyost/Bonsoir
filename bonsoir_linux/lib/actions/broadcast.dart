@@ -1,0 +1,110 @@
+import 'dart:async';
+
+import 'package:bonsoir_linux/actions/action.dart';
+import 'package:bonsoir_linux/avahi/constants.dart';
+import 'package:bonsoir_linux/avahi/entry_group.dart';
+import 'package:bonsoir_linux/avahi/server.dart';
+import 'package:bonsoir_linux/bonsoir_linux.dart';
+import 'package:bonsoir_linux/error.dart';
+import 'package:bonsoir_platform_interface/bonsoir_platform_interface.dart';
+import 'package:dbus/dbus.dart';
+
+/// Broadcasts a given [service] on the network.
+class AvahiBonsoirBroadcast extends AvahiBonsoirAction<BonsoirBroadcastEvent> {
+  /// The service to broadcast.
+  BonsoirService service;
+
+  /// The Avahi server instance.
+  AvahiServer? _server;
+
+  /// The Avahi entry group.
+  AvahiEntryGroup? _entryGroup;
+
+  /// Creates a new Avahi Bonsoir broadcast instance.
+  AvahiBonsoirBroadcast({
+    required this.service,
+    required super.printLogs,
+  }) : super(
+          action: 'broadcast',
+        );
+
+  @override
+  Future<void> get ready async {
+    if (_entryGroup == null) {
+      _server = AvahiServer(busClient, AvahiBonsoir.avahi, DBusObjectPath('/'));
+      _entryGroup = AvahiEntryGroup(busClient, AvahiBonsoir.avahi, DBusObjectPath(await _server!.callEntryGroupNew()));
+      await _sendServiceToAvahi();
+    }
+  }
+
+  @override
+  Future<void> start() async {
+    await super.start();
+    registerSubscription(_entryGroup!.stateChanged.listen(_onEntryGroupEvent));
+    await _entryGroup!.callCommit();
+  }
+
+  /// Triggered when an entry group event occurs.
+  Future<void> _onEntryGroupEvent(AvahiEntryGroupStateChanged event) async {
+    switch (event.state.toAvahiEntryGroupState()) {
+      case AvahiEntryGroupState.AVAHI_ENTRY_GROUP_UNCOMMITED:
+      case AvahiEntryGroupState.AVAHI_ENTRY_GROUP_REGISTERING:
+        break;
+      case AvahiEntryGroupState.AVAHI_ENTRY_GROUP_ESTABLISHED:
+        onEvent(
+          BonsoirBroadcastEvent(type: BonsoirBroadcastEventType.broadcastStarted, service: service),
+          'Bonsoir service broadcast started : ${service.description}',
+        );
+        break;
+      case AvahiEntryGroupState.AVAHI_ENTRY_GROUP_COLLISION:
+        String newName = await _server!.callGetAlternativeServiceName(service.name);
+        await _entryGroup!.callReset();
+        String name = service.name;
+        service = service.copyWith(name: newName);
+        onEvent(
+          BonsoirBroadcastEvent(type: BonsoirBroadcastEventType.broadcastNameAlreadyExists, service: service),
+          'Trying to broadcast a service with a name that already exists : ${service.description} (old name was ${name})',
+        );
+        _sendServiceToAvahi();
+        break;
+      case AvahiEntryGroupState.AVAHI_ENTRY_GROUP_FAILURE:
+        onError(AvahiBonsoirError('Bonsoir service failed to broadcast : ${service.description}', event.error));
+        break;
+      default:
+        onEvent(
+          const BonsoirBroadcastEvent(type: BonsoirBroadcastEventType.unknown),
+          'Bonsoir broadcast has received a unknown state with value ${event.state}',
+        );
+    }
+  }
+
+  /// Sends the current service to Avahi.
+  Future<void> _sendServiceToAvahi() async {
+    String host = '';
+    if (service is ResolvedBonsoirService) {
+      host = (service as ResolvedBonsoirService).host ?? '';
+    }
+    await _entryGroup!.callAddService(
+      interface: AvahiIfIndexUnspecified,
+      protocol: AvahiProtocolUnspecified,
+      flags: 0,
+      name: service.name,
+      type: service.type,
+      domain: '',
+      host: host,
+      port: service.port,
+      txt: service.txtRecord,
+    );
+  }
+
+  @override
+  Future<void> stop() async {
+    cancelSubscriptions();
+    await _entryGroup!.callFree();
+    onEvent(
+      const BonsoirBroadcastEvent(type: BonsoirBroadcastEventType.broadcastStopped),
+      'Bonsoir service broadcast stopped : ${service.description}',
+    );
+    super.stop();
+  }
+}

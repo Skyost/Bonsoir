@@ -9,45 +9,10 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.4.2"
-  bonsoir:
+  bonsoir_platform_interface:
     dependency: "direct main"
     description:
-      path: ".."
-      relative: true
-    source: path
-    version: "4.1.0"
-  bonsoir_android:
-    dependency: "direct overridden"
-    description:
-      path: "../../bonsoir_android"
-      relative: true
-    source: path
-    version: "4.1.0"
-  bonsoir_darwin:
-    dependency: "direct overridden"
-    description:
-      path: "../../bonsoir_darwin"
-      relative: true
-    source: path
-    version: "4.1.0"
-  bonsoir_linux:
-    dependency: "direct overridden"
-    description:
-      path: "../../bonsoir_linux"
-      relative: true
-    source: path
-    version: "4.1.0"
-  bonsoir_platform_interface:
-    dependency: "direct overridden"
-    description:
-      path: "../../bonsoir_platform_interface"
-      relative: true
-    source: path
-    version: "4.1.0"
-  bonsoir_windows:
-    dependency: "direct overridden"
-    description:
-      path: "../../bonsoir_windows"
+      path: "../bonsoir_platform_interface"
       relative: true
     source: path
     version: "4.1.0"
@@ -83,38 +48,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.2.4"
-  crypto:
-    dependency: transitive
-    description:
-      name: crypto
-      sha256: ff625774173754681d66daaf4a448684fb04b78f902da9cb3d308c19cc5e8bab
-      url: "https://pub.dev"
-    source: hosted
-    version: "3.0.3"
   dbus:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: dbus
       sha256: "365c771ac3b0e58845f39ec6deebc76e3276aa9922b0cc60840712094d9047ac"
       url: "https://pub.dev"
     source: hosted
     version: "0.7.10"
-  device_info_plus:
-    dependency: "direct main"
-    description:
-      name: device_info_plus
-      sha256: "7035152271ff67b072a211152846e9f1259cf1be41e34cd3e0b5463d2d6b8419"
-      url: "https://pub.dev"
-    source: hosted
-    version: "9.1.0"
-  device_info_plus_platform_interface:
-    dependency: transitive
-    description:
-      name: device_info_plus_platform_interface
-      sha256: d3b01d5868b50ae571cd1dc6e502fc94d956b665756180f7b16ead09e836fd64
-      url: "https://pub.dev"
-    source: hosted
-    version: "7.0.0"
   ffi:
     dependency: transitive
     description:
@@ -123,14 +64,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.0"
-  file:
-    dependency: transitive
-    description:
-      name: file
-      sha256: "5fc22d7c25582e38ad9a8515372cd9a93834027aacf1801cf01164dac0ffa08c"
-      url: "https://pub.dev"
-    source: hosted
-    version: "7.0.0"
   flutter:
     dependency: "direct main"
     description: flutter
@@ -144,14 +77,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.0.1"
-  flutter_riverpod:
-    dependency: "direct main"
-    description:
-      name: flutter_riverpod
-      sha256: "49b55e8a467229eedb801bd0864baa7f891c39cc00f790189ba8479e9ad0fa06"
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.4.6"
   flutter_web_plugins:
     dependency: transitive
     description: flutter
@@ -197,14 +122,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.5.0"
-  path:
-    dependency: transitive
-    description:
-      name: path
-      sha256: "8829d8a55c13fc0e37127c29fedf290c102f4e40ae94ada574091fe0ff96c917"
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.8.3"
   petitparser:
     dependency: transitive
     description:
@@ -221,59 +138,11 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.6"
-  riverpod:
-    dependency: transitive
-    description:
-      name: riverpod
-      sha256: "01fa385aa5d6db42fd602d8c400c28ae1c83d1fd6fbae1cbf0f4c78bac58d4b2"
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.4.6"
   sky_engine:
     dependency: transitive
     description: flutter
     source: sdk
     version: "0.0.99"
-  sprintf:
-    dependency: transitive
-    description:
-      name: sprintf
-      sha256: "1fc9ffe69d4df602376b52949af107d8f5703b77cda567c4d7d86a0693120f23"
-      url: "https://pub.dev"
-    source: hosted
-    version: "7.0.0"
-  stack_trace:
-    dependency: transitive
-    description:
-      name: stack_trace
-      sha256: "73713990125a6d93122541237550ee3352a2d84baad52d375a4cad2eb9b7ce0b"
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.11.1"
-  state_notifier:
-    dependency: transitive
-    description:
-      name: state_notifier
-      sha256: b8677376aa54f2d7c58280d5a007f9e8774f1968d1fb1c096adcb4792fba29bb
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.0.0"
-  typed_data:
-    dependency: transitive
-    description:
-      name: typed_data
-      sha256: facc8d6582f16042dd49f2463ff1bd6e2c9ef9f3d5da3d9b087e244a7b564b3c
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.3.2"
-  uuid:
-    dependency: "direct main"
-    description:
-      name: uuid
-      sha256: df5a4d8f22ee4ccd77f8839ac7cb274ebc11ef9adcce8b92be14b797fe889921
-      url: "https://pub.dev"
-    source: hosted
-    version: "4.2.1"
   vector_math:
     dependency: transitive
     description:
@@ -290,22 +159,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.3.0"
-  win32:
-    dependency: transitive
-    description:
-      name: win32
-      sha256: "7c99c0e1e2fa190b48d25c81ca5e42036d5cac81430ef249027d97b0935c553f"
-      url: "https://pub.dev"
-    source: hosted
-    version: "5.1.0"
-  win32_registry:
-    dependency: transitive
-    description:
-      name: win32_registry
-      sha256: "41fd8a189940d8696b1b810efb9abcf60827b6cbfab90b0c43e8439e3a39d85a"
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.1.2"
   xml:
     dependency: transitive
     description:
@@ -316,4 +169,4 @@ packages:
     version: "6.4.2"
 sdks:
   dart: ">=3.2.0-194.0.dev <4.0.0"
-  flutter: ">=3.3.0"
+  flutter: ">=3.7.0"

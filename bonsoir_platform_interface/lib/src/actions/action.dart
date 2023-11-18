@@ -65,8 +65,10 @@ abstract class MethodChannelBonsoirAction<T extends BonsoirEvent> extends Bonsoi
 
   @override
   Future<void> get ready async {
-    await _channel.invokeMethod('$_classType.initialize', toJson());
-    _eventStream = EventChannel('$_channelName.$_classType.$_id').receiveBroadcastStream().map(transformPlatformEvent);
+    if (eventStream == null) {
+      await _channel.invokeMethod('$_classType.initialize', toJson());
+      _eventStream = EventChannel('$_channelName.$_classType.$_id').receiveBroadcastStream().map(transformPlatformEvent);
+    }
   }
 
   @override

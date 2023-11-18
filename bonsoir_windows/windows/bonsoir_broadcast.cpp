@@ -81,6 +81,12 @@ namespace bonsoir_windows {
       return;
     }
     BonsoirService service = broadcast->service;
+    std::string name = toUtf8(instance->pszInstanceName);
+    if (service.name != name) {
+      std::string oldName = service.name;
+      service.name = name;
+      broadcast->onSuccess("broadcastNameAlreadyExists", "Trying to broadcast a service with a name that already exists : " + service.getDescription() + "(old name was " + oldName + ")", &service);
+    }
     if (status == ERROR_SUCCESS) {
       broadcast->onSuccess("broadcastStarted", "Bonsoir service broadcast started : " + service.getDescription(), &service);
     } else {

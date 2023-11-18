@@ -43,6 +43,9 @@ class AppService {
     } else if (Platform.isWindows) {
       name = (await deviceInfo.windowsInfo).computerName;
       os = 'Windows';
+    } else if (Platform.isLinux) {
+      name = (await deviceInfo.linuxInfo).name;
+      os = 'Linux';
     } else {
       name = 'Flutter';
       os = 'Unknown';
@@ -53,10 +56,7 @@ class AppService {
       name: name,
       type: type,
       port: port,
-      attributes: {
-        attributeOs: os,
-        attributeUuid: const Uuid().v6(config: V6Options(null, null, null, null, name.codeUnits))
-      },
+      attributes: {attributeOs: os, attributeUuid: const Uuid().v6(config: V6Options(null, null, null, null, name.codeUnits))},
     );
     return _service!;
   }

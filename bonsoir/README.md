@@ -74,6 +74,16 @@ If you want a <q>full</q> example, don't hesitate to check [this one](https://gi
 
 ## Installation
 
+### Minimum OS requirements
+
+Depending on your project targets, you need at least :
+
+* Android : API level 21 (Android 5.0).
+* iOS : 12.0.
+* macOS : 10.11 (El Capitan).
+* Windows 10 (19H1/1903) (Mai 2019 Update).
+* Linux with [Avahi](https://www.avahi.org/).
+
 ### Update deployment target
 
 If you want to use this plugin on iOS, you must update your deployment target to _at least_ 13.0. At the top of `ios/Podfile`, add the following :
@@ -94,8 +104,6 @@ platform :osx, '10.15'
 
 Open your macOS project in xCode and in the "Minimum Deployments" section, update the macOS version
 to 10.15 or higher.
-
-To use this plugin on Windows, you need at least _Windows 10 (19H1/1903) (Mai 2019 Update)_.
 
 ### Update `Info.plist`
 

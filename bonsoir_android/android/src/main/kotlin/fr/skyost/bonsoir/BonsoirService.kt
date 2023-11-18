@@ -14,7 +14,7 @@ import java.net.InetAddress
  * @param attributes The service attributes.
  */
 data class BonsoirService(
-    val name: String,
+    var name: String,
     val type: String,
     val port: Int,
     val host: String?,
