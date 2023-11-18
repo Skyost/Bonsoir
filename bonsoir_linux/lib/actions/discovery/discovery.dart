@@ -29,7 +29,7 @@ class AvahiBonsoirDiscovery extends AvahiBonsoirAction<BonsoirDiscoveryEvent> wi
 
   /// Contains all found services.
   final Map<BonsoirService, AvahiServiceBrowserItemNew> _foundServices = {};
-  
+
   /// Contains all record browsers.
   final List<AvahiRecordBrowser> _recordBrowsers = [];
 
@@ -177,24 +177,16 @@ class AvahiBonsoirDiscovery extends AvahiBonsoirAction<BonsoirDiscoveryEvent> wi
   /// Triggered when a Bonsoir service TXT record has been found.
   void onServiceTXTRecordFound(DBusSignal signal) {
     AvahiRecordBrowserItemNew event = AvahiRecordBrowserItemNew(signal);
-    List<String> parts = event.recordName.replaceAll('\\032', ' ').split('.');
+    List<String> parts = _unescapeAscii(event.recordName).split('.');
     if (parts.length != 4) {
       return;
     }
-    BonsoirService? service = _findService(parts[0], parts[1] + '.' + parts[2]);
+    BonsoirService? service = _findService(parts[0], '${parts[1]}.${parts[2]}');
     if (service == null) {
       return;
     }
 
-    List<String> keyValuePairs = utf8.decode(event.rdata).split('\u0000');
-    Map<String, String> attributes = {};
-    for (String pair in keyValuePairs) {
-      List<String> parts = pair.split('=');
-      if (parts.length == 2) {
-        attributes[parts[0]] = parts[1];
-      }
-    }
-
+    Map<String, String> attributes = _parseTXTRecordData(event.rdata);
     if (service.attributes != attributes) {
       AvahiServiceBrowserItemNew serviceEvent = _foundServices[service]!;
       _foundServices.remove(service);
@@ -205,6 +197,51 @@ class AvahiBonsoirDiscovery extends AvahiBonsoirAction<BonsoirDiscoveryEvent> wi
       onEvent(BonsoirDiscoveryEvent(type: BonsoirDiscoveryEventType.discoveryServiceLost, service: service));
       onEvent(BonsoirDiscoveryEvent(type: BonsoirDiscoveryEventType.discoveryServiceFound, service: service));
     }
+  }
+
+  /// Allows to unescape services FQDN.
+  String _unescapeAscii(String input) {
+    String result = '';
+    for (int i = 0; i < input.length; i++) {
+      if (input[i] == '\\' && i + 1 < input.length) {
+        String asciiCode = '';
+        int j = 1;
+        for (; j < 4; j++) {
+          if (i + j >= input.length || int.tryParse(input[i + j]) == null) {
+            break;
+          }
+          asciiCode += input[i + j];
+        }
+        result += ascii.decode([int.parse(asciiCode)]);
+        i += (j - 1);
+      } else {
+        result += input[i];
+      }
+    }
+    return result;
+  }
+
+  /// Parse a TXT record data.
+  Map<String, String> _parseTXTRecordData(List<int> txtRecordData) {
+    Map<String, String> result = {};
+    int currentIndex = 0;
+    while (currentIndex < txtRecordData.length) {
+      int lengthByte = txtRecordData[currentIndex];
+      currentIndex++;
+      if (currentIndex + lengthByte <= txtRecordData.length) {
+        List<int> relevantData = txtRecordData.sublist(currentIndex, currentIndex + lengthByte);
+        List<String> parts = utf8.decode(relevantData).split('=');
+        if (parts.length == 2) {
+          String key = (parts[0]);
+          String value = (parts[1]);
+          result[key] = value;
+        }
+        currentIndex += lengthByte;
+      } else {
+        break;
+      }
+    }
+    return result;
   }
 
   /// Returns whether the installed version of Avahi is > 0.7.
