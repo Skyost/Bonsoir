@@ -1,6 +1,9 @@
-## [4.1.0] - 2023-11-17
+## [4.1.0] - 2023-11-18
 
 * First implementation of Bonsoir for Windows.
+* First implementation of Bonsoir for Linux.
+* Added a `broadcastNameAlreadyExists` event.
+* Various other fixes and improvements.
 
 ## [4.0.0] - 2023-11-10
 
