@@ -54,7 +54,7 @@ class BonsoirServiceBroadcast: NSObject, FlutterStreamHandler {
     /// Starts the broadcast.
     public func start() {
         var txtRecord: TXTRecordRef = TXTRecordRef();
-        TXTRecordCreate(&txt_record, 0, null);
+        TXTRecordCreate(&txt_record, 0, nil);
         for (key, value) in service.attributes! {
           TXTRecordSetValue(&txtRecord, key, UInt8(value.count), value)
         }
