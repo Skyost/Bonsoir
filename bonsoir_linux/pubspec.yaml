@@ -20,6 +20,7 @@ dependencies:
     sdk: flutter
   bonsoir_platform_interface: ^4.1.0
   dbus: ^0.7.10
+  meta: ^1.8.0
 
 dev_dependencies:
   flutter_lints: ^3.0.1
