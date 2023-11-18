@@ -188,7 +188,7 @@ class AvahiBonsoirDiscovery extends AvahiBonsoirAction<BonsoirDiscoveryEvent> wi
     }
 
     Map<String, String> attributes = _parseTXTRecordData(event.rdata);
-    if (mapEquals(service.attributes, attributes)) {
+    if (!mapEquals(service.attributes, attributes)) {
       AvahiServiceBrowserItemNew serviceEvent = _foundServices[service]!;
       _foundServices.remove(service);
       service = service.copyWith(attributes: attributes);
