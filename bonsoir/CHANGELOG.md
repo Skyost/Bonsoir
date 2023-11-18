@@ -1,3 +1,7 @@
+## [4.1.1] - 2023-11-18
+
+* Fixed `bonsoir_linux` not being added to the plugin's _pubspec.yaml_.
+
 ## [4.1.0] - 2023-11-18
 
 * First implementation of Bonsoir for Windows.
