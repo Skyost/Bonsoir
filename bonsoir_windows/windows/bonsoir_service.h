@@ -27,8 +27,6 @@ namespace bonsoir_windows {
 
     std::string getDescription();
 
-    std::string getQueryName();
-
     bool operator==(const BonsoirService &other) const;
   };
 }  // namespace bonsoir_windows

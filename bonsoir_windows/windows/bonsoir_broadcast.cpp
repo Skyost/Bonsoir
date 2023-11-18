@@ -11,11 +11,14 @@ namespace bonsoir_windows {
     int _id,
     bool _printLogs,
     BinaryMessenger *_binaryMessenger,
-    std::function<void()> _onDispose,
     BonsoirService _service
   )
-    : BonsoirAction("broadcast", _id, _printLogs, _binaryMessenger, _onDispose),
+    : BonsoirAction("broadcast", _id, _printLogs, _binaryMessenger),
       service(_service) {}
+
+  BonsoirBroadcast::~BonsoirBroadcast() {
+    dispose();
+  }
 
   void BonsoirBroadcast::start() {
     std::vector<PCWSTR> propertyKeys;
@@ -68,20 +71,23 @@ namespace bonsoir_windows {
   }
 
   void BonsoirBroadcast::dispose() {
-    BonsoirAction::stop();
-    DnsServiceDeRegister(&registerRequest, nullptr);
-    DnsServiceRegisterCancel(&cancelHandle);
+    stop();
+    if (eventChannel != nullptr) {
+      onSuccess("broadcastStopped", "Bonsoir service broadcast stopped : " + service.getDescription(), &service);
+      DnsServiceDeRegister(&registerRequest, nullptr);
+      DnsServiceRegisterCancel(&cancelHandle);
+    }
+    BonsoirAction::dispose();
   }
 
   void registerCallback(DWORD status, PVOID context, PDNS_SERVICE_INSTANCE instance) {
     auto broadcast = (BonsoirBroadcast *)context;
     if (!(broadcast->isRunning())) {
-      broadcast->log("Bonsoir service broadcast stopped : " + broadcast->service.getDescription());
-      broadcast->BonsoirAction::dispose();
       return;
     }
+    auto parts = split(toUtf8(instance->pszInstanceName), '.');
+    std::string name = parts[0];
     BonsoirService service = broadcast->service;
-    std::string name = toUtf8(instance->pszInstanceName);
     if (service.name != name) {
       std::string oldName = service.name;
       service.name = name;

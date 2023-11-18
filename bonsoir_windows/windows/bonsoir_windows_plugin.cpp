@@ -13,27 +13,19 @@ namespace bonsoir_windows {
       messenger, "fr.skyost.bonsoir", &StandardMethodCodec::GetInstance()
     );
     auto plugin = std::make_unique<BonsoirWindowsPlugin>(messenger);
-    plugin.get()->messenger = messenger;
-
     channel->SetMethodCallHandler(
-      [plugin_pointer = plugin.get()](const auto &call, auto result) {
-        plugin_pointer->HandleMethodCall(call, std::move(result));
+      [pluginPtr = plugin.get()](const auto &call, auto result) {
+        pluginPtr->HandleMethodCall(call, std::move(result));
       }
     );
-
-    plugin->state.store(1, std::memory_order_release);
     registrar->AddPlugin(std::move(plugin));
   }
 
+  BonsoirWindowsPlugin::BonsoirWindowsPlugin(BinaryMessenger *messenger)
+    : messenger(messenger) {}
+
   BonsoirWindowsPlugin::~BonsoirWindowsPlugin() {
-    state.store(0, std::memory_order_release);
-    for (auto &[id, broadcast] : broadcasts) {
-      broadcast->dispose();
-    }
     broadcasts.clear();
-    for (auto &[id, discovery] : discoveries) {
-      discovery->dispose();
-    }
     discoveries.clear();
   }
 
@@ -60,11 +52,6 @@ namespace bonsoir_windows {
         id,
         std::get<bool>(arguments->find(EncodableValue("printLogs"))->second),
         messenger,
-        [this, id]() {
-          if (state.load(std::memory_order_acquire) != 0) {
-            broadcasts.erase(id);
-          }
-        },
         service
       ));
       result->Success(EncodableValue(true));
@@ -82,18 +69,14 @@ namespace bonsoir_windows {
         result->Success(EncodableValue(false));
         return;
       }
-      iterator->second->dispose();
+      broadcasts.erase(id);
+      // iterator->second->dispose();
       result->Success(EncodableValue(true));
     } else if (method.compare("discovery.initialize") == 0) {
       discoveries[id] = std::unique_ptr<BonsoirDiscovery>(new BonsoirDiscovery(
         id,
         std::get<bool>(arguments->find(EncodableValue("printLogs"))->second),
         messenger,
-        [this, id]() {
-          if (state.load(std::memory_order_acquire) != 0) {
-            discoveries.erase(id);
-          }
-        },
         std::get<std::string>(arguments->find(EncodableValue("type"))->second)
       ));
       result->Success(EncodableValue(true));
@@ -122,7 +105,8 @@ namespace bonsoir_windows {
         result->Success(EncodableValue(false));
         return;
       }
-      iterator->second->dispose();
+      discoveries.erase(id);
+      // iterator->second->dispose();
       result->Success(EncodableValue(true));
     } else {
       result->NotImplemented();

@@ -13,14 +13,12 @@ namespace bonsoir_windows {
     std::string _action,
     int _id,
     bool _printLogs,
-    BinaryMessenger *_binaryMessenger,
-    std::function<void()> _onDispose
+    BinaryMessenger *_binaryMessenger
   )
     : action(_action),
       id(_id),
-      eventChannel(std::make_shared<EventChannel<EncodableValue>>(_binaryMessenger, "fr.skyost.bonsoir." + _action + "." + std::to_string(id), &StandardMethodCodec::GetInstance())),
-      printLogs(_printLogs),
-      onDispose(_onDispose) {
+      eventChannel(std::make_unique<EventChannel<EncodableValue>>(_binaryMessenger, "fr.skyost.bonsoir." + _action + "." + std::to_string(id), &StandardMethodCodec::GetInstance())),
+      printLogs(_printLogs) {
     eventChannel->SetStreamHandler(
       std::make_unique<StreamHandlerFunctions<EncodableValue>>(
         [this](const EncodableValue *arguments, std::unique_ptr<EventSink<EncodableValue>> &&events)
@@ -46,7 +44,7 @@ namespace bonsoir_windows {
   }
 
   bool BonsoirAction::isRunning() {
-    return state.load(std::memory_order_acquire) != 0;
+    return state.load(std::memory_order_acquire) == 1;
   }
 
   void BonsoirAction::stop() {
@@ -55,8 +53,10 @@ namespace bonsoir_windows {
 
   void BonsoirAction::dispose() {
     stop();
-    eventChannel->SetStreamHandler(nullptr);
-    onDispose();
+    if (eventChannel) {
+      eventChannel->SetStreamHandler(nullptr);
+      eventChannel = nullptr;
+    }
   }
 
   void BonsoirAction::onEvent(EventObject *event) {

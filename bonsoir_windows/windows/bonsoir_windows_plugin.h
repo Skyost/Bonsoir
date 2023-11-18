@@ -18,8 +18,7 @@ namespace bonsoir_windows {
    public:
     static void RegisterWithRegistrar(PluginRegistrarWindows *registrar);
 
-    BonsoirWindowsPlugin(BinaryMessenger *messenger)
-      : messenger(messenger) {}
+    BonsoirWindowsPlugin(BinaryMessenger *messenger);
 
     virtual ~BonsoirWindowsPlugin();
 
@@ -30,12 +29,10 @@ namespace bonsoir_windows {
 
     // Called when a method is called on this plugin's channel from Dart.
     void HandleMethodCall(const MethodCall<EncodableValue> &methodCall, std::unique_ptr<MethodResult<EncodableValue>> result);
-
    private:
     BinaryMessenger *messenger;
     std::map<int, std::unique_ptr<BonsoirBroadcast>> broadcasts;
     std::map<int, std::unique_ptr<BonsoirDiscovery>> discoveries;
-    std::atomic<int> state = 0;
   };
 
 }  // namespace bonsoir_windows

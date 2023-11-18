@@ -59,8 +59,7 @@ namespace bonsoir_windows {
       std::string _action,
       int _id,
       bool _printLogs,
-      BinaryMessenger *_binaryMessenger,
-      std::function<void()> _onDispose
+      BinaryMessenger *_binaryMessenger
     );
 
     virtual void start();
@@ -92,9 +91,9 @@ namespace bonsoir_windows {
    protected:
     DNS_SERVICE_CANCEL cancelHandle{};
     std::shared_ptr<EventChannel<EncodableValue>> eventChannel;
+    std::atomic<int> state = 0;
 
    private:
-    std::atomic<int> state = 0;
     void onEvent(EventObject *event);
 
     std::mutex mutex;

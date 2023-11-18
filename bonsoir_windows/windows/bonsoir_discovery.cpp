@@ -11,11 +11,14 @@ namespace bonsoir_windows {
     int _id,
     bool _printLogs,
     BinaryMessenger *_binaryMessenger,
-    std::function<void()> _onDispose,
     std::string _type
   )
-    : BonsoirAction("discovery", _id, _printLogs, _binaryMessenger, _onDispose),
+    : BonsoirAction("discovery", _id, _printLogs, _binaryMessenger),
       type(_type) {}
+
+  BonsoirDiscovery::~BonsoirDiscovery() {
+    dispose();
+  }
 
   void BonsoirDiscovery::start() {
     auto queryName = toUtf16(type + ".local");
@@ -69,12 +72,14 @@ namespace bonsoir_windows {
 
   void BonsoirDiscovery::dispose() {
     BonsoirAction::stop();
+    onSuccess("discoveryStopped", "Bonsoir discovery stopped : " + type);
     for (auto const &[key, value] : resolvingServices) {
       DnsServiceResolveCancel(value);
     }
     resolvingServices.clear();
     services.clear();
     DnsServiceBrowseCancel(&cancelHandle);
+    BonsoirAction::dispose();
   }
 
   void browseCallback(DWORD status, PVOID context, PDNS_RECORD dnsRecord) {
@@ -117,7 +122,6 @@ namespace bonsoir_windows {
       }
       DnsRecordListFree(dnsRecord, DnsFreeRecordList);
     } else if (status == ERROR_CANCELLED) {
-      discovery->log("Bonsoir discovery stopped : " + discovery->type);
       discovery->BonsoirAction::dispose();
     } else {
       discovery->onError("Bonsoir has encountered an error during discovery : " + std::to_string(status), EncodableValue(std::to_string(status)));

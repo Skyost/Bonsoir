@@ -13,9 +13,14 @@ namespace bonsoir_windows {
       int _id,
       bool _printLogs,
       flutter::BinaryMessenger *_binaryMessenger,
-      std::function<void()> onDispose,
       BonsoirService _service
     );
+
+    BonsoirBroadcast(BonsoirBroadcast const &) = delete;
+
+    BonsoirBroadcast &operator=(const BonsoirBroadcast &) = delete;
+
+    ~BonsoirBroadcast();
 
     void start() override;
 

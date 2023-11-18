@@ -13,9 +13,10 @@ namespace bonsoir_windows {
       int _id,
       bool _printLogs,
       flutter::BinaryMessenger *_binaryMessenger,
-      std::function<void()> onDispose,
       std::string type
     );
+
+    ~BonsoirDiscovery();
 
     void start() override;
 
