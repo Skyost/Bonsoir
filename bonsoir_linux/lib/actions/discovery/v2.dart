@@ -105,6 +105,8 @@ class AvahiDiscoveryV2 extends AvahiHandler {
     });
     _serviceResolverFailureSubscriptions[service] = failure;
     discovery.registerSubscription(failure);
+
+    resolver.callStart();
   }
 
   /// Removes the service from the subscription map and cancel the subscription.
