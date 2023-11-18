@@ -54,16 +54,17 @@ class BonsoirServiceBroadcast: NSObject, FlutterStreamHandler {
     /// Starts the broadcast.
     public func start() {
         var txtRecord: TXTRecordRef = TXTRecordRef();
-        TXTRecordCreate(&txt_record, 0, nil);
-        for (key, value) in service.attributes! {
+        TXTRecordCreate(&txtRecord, 0, nil);
+        for (key, value) in service.attributes {
           TXTRecordSetValue(&txtRecord, key, UInt8(value.count), value)
         }
-        let error = DNSServiceRegister(&sdRef, 0, 0, service.name, service.type, "local.", service.host, CFSwapInt16HostToBig(UInt16(service.port)), TXTRecordGetLength(&txt_record), TXTRecordGetBytesPtr(&txt_record), { sdRef, flags, errorCode, name, regType, domain, context in
+        let error = DNSServiceRegister(&sdRef, 0, 0, service.name, service.type, "local.", service.host, CFSwapInt16HostToBig(UInt16(service.port)), TXTRecordGetLength(&txtRecord), TXTRecordGetBytesPtr(&txtRecord), { sdRef, flags, errorCode, name, regType, domain, context in
             let broadcast = Unmanaged<BonsoirServiceBroadcast>.fromOpaque(context!).takeUnretainedValue()
             if errorCode == kDNSServiceErr_NoError {
-                if broadcast.service.name != name {
+                let newName = name == nil ? nil : String(cString: name!)
+                if newName != nil && broadcast.service.name != newName {
                     let oldName = broadcast.service.name
-                    broadcast.service.name = name
+                    broadcast.service.name = newName!
                     if broadcast.printLogs {
                         SwiftBonsoirPlugin.log(category: "broadcast", id: broadcast.id, message: "Trying to broadcast a service with a name that already exists : \(broadcast.service.description) (old name was \(oldName))")
                     }
