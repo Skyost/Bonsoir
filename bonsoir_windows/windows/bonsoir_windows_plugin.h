@@ -35,6 +35,7 @@ namespace bonsoir_windows {
     BinaryMessenger *messenger;
     std::map<int, std::unique_ptr<BonsoirBroadcast>> broadcasts;
     std::map<int, std::unique_ptr<BonsoirDiscovery>> discoveries;
+    std::atomic<int> state = 0;
   };
 
 }  // namespace bonsoir_windows

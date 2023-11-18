@@ -21,10 +21,12 @@ namespace bonsoir_windows {
       }
     );
 
+    plugin->state.store(1, std::memory_order_release);
     registrar->AddPlugin(std::move(plugin));
   }
 
   BonsoirWindowsPlugin::~BonsoirWindowsPlugin() {
+    state.store(0, std::memory_order_release);
     for (auto &[id, broadcast] : broadcasts) {
       broadcast->dispose();
     }
@@ -59,7 +61,9 @@ namespace bonsoir_windows {
         std::get<bool>(arguments->find(EncodableValue("printLogs"))->second),
         messenger,
         [this, id]() {
-          broadcasts.erase(id);
+          if (state.load(std::memory_order_acquire) != 0) {
+            broadcasts.erase(id);
+          }
         },
         service
       ));
@@ -85,7 +89,11 @@ namespace bonsoir_windows {
         id,
         std::get<bool>(arguments->find(EncodableValue("printLogs"))->second),
         messenger,
-        [this, id]() { discoveries.erase(id); },
+        [this, id]() {
+          if (state.load(std::memory_order_acquire) != 0) {
+            discoveries.erase(id);
+          }
+        },
         std::get<std::string>(arguments->find(EncodableValue("type"))->second)
       ));
       result->Success(EncodableValue(true));

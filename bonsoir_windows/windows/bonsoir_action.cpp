@@ -42,7 +42,6 @@ namespace bonsoir_windows {
   }
 
   void BonsoirAction::start() {
-    std::cout << "start !" << std::endl;
     state.store(1, std::memory_order_release);
   }
 
