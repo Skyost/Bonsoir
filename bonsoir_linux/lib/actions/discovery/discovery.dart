@@ -63,37 +63,37 @@ class AvahiBonsoirDiscovery extends AvahiBonsoirAction<BonsoirDiscoveryEvent> wi
         sender: AvahiBonsoir.avahi,
         interface: '${AvahiBonsoir.avahi}.ServiceBrowser',
         name: 'ItemNew',
-      ).listen(onServiceFound),
+      ).listen(_onServiceFound),
       DBusSignalStream(
         busClient,
         sender: AvahiBonsoir.avahi,
         interface: '${AvahiBonsoir.avahi}.ServiceBrowser',
         name: 'ItemRemove',
-      ).listen(onServiceLost),
+      ).listen(_onServiceLost),
       DBusSignalStream(
         busClient,
         sender: AvahiBonsoir.avahi,
         interface: '${AvahiBonsoir.avahi}.ServiceResolver',
         name: 'Failure',
-      ).listen(onServiceResolveFailure),
+      ).listen(_onServiceResolveFailure),
       DBusSignalStream(
         busClient,
         sender: AvahiBonsoir.avahi,
         interface: '${AvahiBonsoir.avahi}.ServiceResolver',
         name: 'Found',
-      ).listen(onServiceResolved),
+      ).listen(_onServiceResolved),
       DBusSignalStream(
         busClient,
         sender: AvahiBonsoir.avahi,
         interface: '${AvahiBonsoir.avahi}.RecordBrowser',
         name: 'ItemNew',
-      ).listen(onServiceTXTRecordFound),
+      ).listen(_onServiceTXTRecordFound),
       DBusSignalStream(
         busClient,
         sender: AvahiBonsoir.avahi,
         interface: '${AvahiBonsoir.avahi}.RecordBrowser',
         name: 'Failure',
-      ).listen(onServiceTXTRecordNotFound),
+      ).listen(_onServiceTXTRecordNotFound),
     ];
     for (StreamSubscription subscription in subscriptions) {
       registerSubscription(subscription);
@@ -140,7 +140,7 @@ class AvahiBonsoirDiscovery extends AvahiBonsoirAction<BonsoirDiscoveryEvent> wi
   }
 
   /// Triggered when a service has been found.
-  Future<void> onServiceFound(DBusSignal signal) async {
+  Future<void> _onServiceFound(DBusSignal signal) async {
     AvahiServiceBrowserItemNew event = AvahiServiceBrowserItemNew(signal);
     if (event.type != this.type) {
       return;
@@ -167,7 +167,7 @@ class AvahiBonsoirDiscovery extends AvahiBonsoirAction<BonsoirDiscoveryEvent> wi
   }
 
   /// Triggered when a service has been lost.
-  void onServiceLost(DBusSignal signal) {
+  void _onServiceLost(DBusSignal signal) {
     AvahiServiceBrowserItemRemove event = AvahiServiceBrowserItemRemove(signal);
     if (event.type != this.type) {
       return;
@@ -183,7 +183,7 @@ class AvahiBonsoirDiscovery extends AvahiBonsoirAction<BonsoirDiscoveryEvent> wi
   }
 
   /// Triggered when a service has been resolved.
-  void onServiceResolved(DBusSignal signal) {
+  void _onServiceResolved(DBusSignal signal) {
     AvahiServiceResolverFound event = AvahiServiceResolverFound(signal);
     BonsoirService service = ResolvedBonsoirService(
       name: event.serviceName,
@@ -204,7 +204,7 @@ class AvahiBonsoirDiscovery extends AvahiBonsoirAction<BonsoirDiscoveryEvent> wi
   }
 
   /// Triggered when Bonsoir has failed to resolve a service.
-  void onServiceResolveFailure(DBusSignal signal) {
+  void _onServiceResolveFailure(DBusSignal signal) {
     AvahiServiceResolverFailure event = AvahiServiceResolverFailure(signal);
     onEvent(
       const BonsoirDiscoveryEvent(type: BonsoirDiscoveryEventType.discoveryServiceResolveFailed),
@@ -213,7 +213,7 @@ class AvahiBonsoirDiscovery extends AvahiBonsoirAction<BonsoirDiscoveryEvent> wi
   }
 
   /// Triggered when a Bonsoir service TXT record has been found.
-  void onServiceTXTRecordFound(DBusSignal signal) {
+  void _onServiceTXTRecordFound(DBusSignal signal) {
     AvahiRecordBrowserItemNew event = AvahiRecordBrowserItemNew(signal);
     List<String> parts = _unescapeAscii(event.recordName).split('.');
     if (parts.length != 4) {
@@ -238,7 +238,7 @@ class AvahiBonsoirDiscovery extends AvahiBonsoirAction<BonsoirDiscoveryEvent> wi
   }
 
   /// Triggered when a Bonsoir service TXT record has not been found.
-  void onServiceTXTRecordNotFound(DBusSignal signal) {
+  void _onServiceTXTRecordNotFound(DBusSignal signal) {
     AvahiRecordBrowserFailure event = AvahiRecordBrowserFailure(signal);
     log('Bonsoir has failed to get the TXT record of a service : ${event.error}');
   }
