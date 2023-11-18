@@ -177,11 +177,11 @@ class AvahiBonsoirDiscovery extends AvahiBonsoirAction<BonsoirDiscoveryEvent> wi
   /// Triggered when a Bonsoir service TXT record has been found.
   void onServiceTXTRecordFound(DBusSignal signal) {
     AvahiRecordBrowserItemNew event = AvahiRecordBrowserItemNew(signal);
-    List<String> parts = event.recordName.split('.');
-    if (parts.length != 3) {
+    List<String> parts = event.recordName.replaceAll('\\032', ' ').split('.');
+    if (parts.length != 4) {
       return;
     }
-    BonsoirService? service = _findService(parts[0], parts[1]);
+    BonsoirService? service = _findService(parts[0], parts[1] + '.' + parts[2]);
     if (service == null) {
       return;
     }
@@ -195,12 +195,16 @@ class AvahiBonsoirDiscovery extends AvahiBonsoirAction<BonsoirDiscoveryEvent> wi
       }
     }
 
-    service.attributes.clear();
-    service.attributes.addAll(attributes);
+    if (service.attributes != attributes) {
+      AvahiServiceBrowserItemNew serviceEvent = _foundServices[service]!;
+      _foundServices.remove(service);
+      service = service.copyWith(attributes: attributes);
+      _foundServices[service] = serviceEvent;
 
-    log('Bonsoir has found the attributes of a service : $service');
-    onEvent(BonsoirDiscoveryEvent(type: BonsoirDiscoveryEventType.discoveryServiceLost, service: service));
-    onEvent(BonsoirDiscoveryEvent(type: BonsoirDiscoveryEventType.discoveryServiceFound, service: service));
+      log('Bonsoir has found the attributes of a service : $service');
+      onEvent(BonsoirDiscoveryEvent(type: BonsoirDiscoveryEventType.discoveryServiceLost, service: service));
+      onEvent(BonsoirDiscoveryEvent(type: BonsoirDiscoveryEventType.discoveryServiceFound, service: service));
+    }
   }
 
   /// Returns whether the installed version of Avahi is > 0.7.
