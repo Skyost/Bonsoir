@@ -12,6 +12,7 @@ import 'package:bonsoir_linux/bonsoir_linux.dart';
 import 'package:bonsoir_linux/error.dart';
 import 'package:bonsoir_platform_interface/bonsoir_platform_interface.dart';
 import 'package:dbus/dbus.dart';
+import 'package:flutter/foundation.dart';
 
 /// Allows to register subscriptions.
 typedef SubscriptionRegisterer = Function(String name, StreamSubscription subscription);
@@ -187,7 +188,7 @@ class AvahiBonsoirDiscovery extends AvahiBonsoirAction<BonsoirDiscoveryEvent> wi
     }
 
     Map<String, String> attributes = _parseTXTRecordData(event.rdata);
-    if (service.attributes != attributes) {
+    if (mapEquals(service.attributes, attributes)) {
       AvahiServiceBrowserItemNew serviceEvent = _foundServices[service]!;
       _foundServices.remove(service);
       service = service.copyWith(attributes: attributes);
