@@ -77,6 +77,18 @@ class AvahiDiscoveryV2 extends AvahiHandler {
   List<StreamSubscription> getSubscriptions(AvahiBonsoirDiscovery discovery, AvahiServiceBrowser serviceBrowser) => [
         serviceBrowser.itemNew.listen(discovery.onServiceFound),
         serviceBrowser.itemRemove.listen(discovery.onServiceLost),
+        DBusSignalStream(
+          busClient,
+          sender: AvahiBonsoir.avahi,
+          interface: '${AvahiBonsoir.avahi}.ServiceResolver',
+          name: 'Failure',
+        ).listen(discovery.onServiceResolveFailure),
+        DBusSignalStream(
+          busClient,
+          sender: AvahiBonsoir.avahi,
+          interface: '${AvahiBonsoir.avahi}.ServiceResolver',
+          name: 'Found',
+        ).listen(discovery.onServiceResolved),
       ];
 
   @override
@@ -91,21 +103,6 @@ class AvahiDiscoveryV2 extends AvahiHandler {
       0,
     );
     AvahiServiceResolver resolver = AvahiServiceResolver(busClient, AvahiBonsoir.avahi, DBusObjectPath(serviceResolverPath));
-
-    StreamSubscription found = resolver.found.listen((event) {
-      discovery.onServiceResolved(event);
-      _removeAndCancelSubscription(_serviceResolverFoundSubscriptions, service);
-    });
-    _serviceResolverFoundSubscriptions[service] = found;
-    discovery.registerSubscription(found);
-
-    StreamSubscription failure = resolver.failure.listen((event) {
-      discovery.onServiceResolveFailure(event);
-      _removeAndCancelSubscription(_serviceResolverFailureSubscriptions, service);
-    });
-    _serviceResolverFailureSubscriptions[service] = failure;
-    discovery.registerSubscription(failure);
-
     resolver.callStart();
   }
 
