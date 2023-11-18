@@ -54,23 +54,7 @@ class AvahiDiscoveryV2 extends AvahiHandler {
       0,
     );
 
-    AvahiRecordBrowser recordBrowser = AvahiRecordBrowser(busClient, AvahiBonsoir.avahi, DBusObjectPath(recordBrowserPath));
-
-    StreamSubscription itemNew = recordBrowser.itemNew.listen((event) {
-      discovery.onServiceTXTRecordFound(event);
-      _removeAndCancelSubscription(_recordBrowserItemNewSubscriptions, service);
-    });
-    _recordBrowserItemNewSubscriptions[service] = itemNew;
-    discovery.registerSubscription(itemNew);
-
-    StreamSubscription failure = recordBrowser.failure.listen((event) {
-      discovery.onServiceTXTRecordNotFound(event);
-      _removeAndCancelSubscription(_recordBrowserFailureSubscriptions, service);
-    });
-    _recordBrowserFailureSubscriptions[service] = failure;
-    discovery.registerSubscription(failure);
-
-    return recordBrowser;
+    return AvahiRecordBrowser(busClient, AvahiBonsoir.avahi, DBusObjectPath(recordBrowserPath));
   }
 
   @override
@@ -89,6 +73,18 @@ class AvahiDiscoveryV2 extends AvahiHandler {
           interface: '${AvahiBonsoir.avahi}.ServiceResolver',
           name: 'Found',
         ).listen(discovery.onServiceResolved),
+        DBusSignalStream(
+          busClient,
+          sender: AvahiBonsoir.avahi,
+          interface: '${AvahiBonsoir.avahi}.RecordBrowser',
+          name: 'ItemNew',
+        ).listen(discovery.onServiceTXTRecordFound),
+        DBusSignalStream(
+          busClient,
+          sender: AvahiBonsoir.avahi,
+          interface: '${AvahiBonsoir.avahi}.RecordBrowser',
+          name: 'Failure',
+        ).listen(discovery.onServiceTXTRecordNotFound),
       ];
 
   @override
