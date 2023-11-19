@@ -13,11 +13,6 @@ import io.flutter.plugin.common.PluginRegistry.Registrar
 public class BonsoirPlugin : FlutterPlugin {
     companion object {
         /**
-         * The log tag.
-         */
-        const val tag: String = "bonsoir"
-
-        /**
          * The plugin channel.
          */
         const val channel: String = "fr.skyost.bonsoir"

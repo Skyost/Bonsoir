@@ -2,15 +2,9 @@ package fr.skyost.bonsoir.broadcast
 
 import android.net.nsd.NsdManager
 import android.net.nsd.NsdServiceInfo
-import android.os.Handler
-import android.os.Looper
-import android.util.Log
-import fr.skyost.bonsoir.BonsoirPlugin
+import fr.skyost.bonsoir.BonsoirAction
 import fr.skyost.bonsoir.BonsoirService
-import fr.skyost.bonsoir.SuccessObject
 import io.flutter.plugin.common.BinaryMessenger
-import io.flutter.plugin.common.EventChannel
-import io.flutter.plugin.common.EventChannel.EventSink
 
 /**
  * Allows to broadcast a NSD service on local network.
@@ -23,44 +17,20 @@ import io.flutter.plugin.common.EventChannel.EventSink
  * @param service The Bonsoir service to broadcast.
  */
 class BonsoirServiceBroadcast(
-    private val id: Int,
-    private val printLogs: Boolean,
-    private val onDispose: Runnable,
-    private val nsdManager: NsdManager,
+    id: Int,
+    printLogs: Boolean,
+    onDispose: Runnable,
+    nsdManager: NsdManager,
     messenger: BinaryMessenger,
     private val service: BonsoirService
-) : NsdManager.RegistrationListener {
-
-    /**
-     * The current event channel.
-     */
-    private val eventChannel: EventChannel =
-        EventChannel(messenger, "${BonsoirPlugin.channel}.broadcast.$id")
-
-    /**
-     * The current event sink.
-     */
-    private var eventSink: EventSink? = null
-
-    /**
-     * Whether the broadcast is active.
-     */
-    private var isActive = false
-
-    /**
-     * Initializes this instance.
-     */
-    init {
-        eventChannel.setStreamHandler(object : EventChannel.StreamHandler {
-            override fun onListen(arguments: Any?, eventSink: EventSink) {
-                this@BonsoirServiceBroadcast.eventSink = eventSink
-            }
-
-            override fun onCancel(arguments: Any?) {
-                eventSink = null
-            }
-        })
-    }
+) : BonsoirAction(
+    id,
+    "broadcast",
+    printLogs,
+    onDispose,
+    nsdManager,
+    messenger
+), NsdManager.RegistrationListener {
 
     /**
      * Starts the service registration.
@@ -72,72 +42,32 @@ class BonsoirServiceBroadcast(
     }
 
     override fun onServiceRegistered(service: NsdServiceInfo) {
-        isActive = true
+        makeActive()
         if (this.service.name != service.serviceName) {
             val oldName = this.service.name
             this.service.name = service.serviceName
-            if (printLogs) {
-                Log.d(BonsoirPlugin.tag, "[$id] Trying to broadcast a service with a name that already exists : ${this.service} (old name was ${oldName}).")
-            }
-            Handler(Looper.getMainLooper()).post {
-                eventSink?.success(SuccessObject("broadcastNameAlreadyExists", this.service).toJson())
-            }
+            onSuccess("broadcastNameAlreadyExists", "Trying to broadcast a service with a name that already exists : ${this.service} (old name was ${oldName})", this.service)
         }
-        if (printLogs) {
-            Log.d(BonsoirPlugin.tag, "[$id] Bonsoir service registered : ${this.service}")
-        }
-        Handler(Looper.getMainLooper()).post {
-            eventSink?.success(SuccessObject("broadcastStarted", this.service).toJson())
-        }
+        onSuccess("broadcastStarted", "Bonsoir service registered : ${this.service}", this.service)
     }
 
     override fun onRegistrationFailed(service: NsdServiceInfo, errorCode: Int) {
-        if (printLogs) {
-            Log.d(
-                BonsoirPlugin.tag,
-                "[$id] Bonsoir service registration failed : ${this.service}, error code : $errorCode"
-            )
-        }
-        Handler(Looper.getMainLooper()).post {
-            eventSink?.error("broadcastError", "Bonsoir service registration failed.", errorCode)
-        }
+        onError("Bonsoir service registration failed : ${this.service}, error code : $errorCode", errorCode)
         dispose()
     }
 
     override fun onServiceUnregistered(service: NsdServiceInfo) {
         val wasActive = isActive
-        isActive = false
-        if (printLogs) {
-            Log.d(BonsoirPlugin.tag, "[$id] Bonsoir service broadcast stopped : ${this.service}")
-        }
-        Handler(Looper.getMainLooper()).post {
-            eventSink?.success(SuccessObject("broadcastStopped", this.service).toJson())
-        }
+        makeUnactive()
+        onSuccess("broadcastStopped", "Bonsoir service broadcast stopped : ${this.service}", this.service)
         dispose(wasActive)
     }
 
     override fun onUnregistrationFailed(service: NsdServiceInfo, errorCode: Int) {
-        if (printLogs) {
-            Log.d(
-                BonsoirPlugin.tag,
-                "[$id] Bonsoir service unregistration failed : ${this.service}, error code : $errorCode"
-            )
-        }
-        Handler(Looper.getMainLooper()).post {
-            eventSink?.error("broadcastError", "Bonsoir service unregistration failed.", errorCode)
-        }
+        onError("Bonsoir service unregistration failed : ${this.service}, error code : $errorCode", errorCode)
     }
 
-    /**
-     * Disposes the current class instance.
-     */
-    fun dispose(notify: Boolean = isActive) {
-        if (isActive) {
-            isActive = false
-            nsdManager.unregisterService(this)
-        }
-        if (notify) {
-            onDispose.run()
-        }
+    override fun stop() {
+        nsdManager.unregisterService(this)
     }
 }
