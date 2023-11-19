@@ -10,7 +10,11 @@ command:
     linkToCommits: true
     branch: master
     workspaceChangelog: false
-    updateGitTagRefs: true
+    updateGitTagRefs: false
+    message: |
+      chore(release): Publish packages.
+
+      {new_package_versions}
 
 scripts:
   analyze:
