@@ -18,17 +18,5 @@ dependencies:
 dev_dependencies:
   flutter_lints: ^3.0.1
 
-dependency_overrides:
-  bonsoir_platform_interface:
-    path: ../../bonsoir_platform_interface/
-  bonsoir_android:
-    path: ../../bonsoir_android/
-  bonsoir_darwin:
-    path: ../../bonsoir_darwin/
-  bonsoir_windows:
-    path: ../../bonsoir_windows/
-  bonsoir_linux:
-    path: ../../bonsoir_linux/
-
 flutter:
   uses-material-design: true

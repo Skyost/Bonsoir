@@ -1,0 +1,17 @@
+name: Bonsoir
+repository: https://github.com/Skyost/Bonsoir
+
+packages:
+  - packages/*
+  - packages/bonsoir/example
+
+command:
+  version:
+    linkToCommits: true
+    branch: master
+    workspaceChangelog: false
+    updateGitTagRefs: true
+
+scripts:
+  analyze:
+    exec: dart analyze .

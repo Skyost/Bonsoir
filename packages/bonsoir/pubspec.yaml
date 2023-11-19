@@ -23,18 +23,6 @@ dependencies:
   bonsoir_windows: ">=4.1.0 <4.2.0"
   bonsoir_linux: ">=4.1.0 <4.2.0"
 
-dependency_overrides:
-  bonsoir_platform_interface:
-    path: ../bonsoir_platform_interface/
-  bonsoir_android:
-    path: ../bonsoir_android/
-  bonsoir_darwin:
-    path: ../bonsoir_darwin/
-  bonsoir_windows:
-    path: ../bonsoir_windows/
-  bonsoir_linux:
-    path: ../bonsoir_linux/
-
 dev_dependencies:
   flutter_lints: ^3.0.1
 
