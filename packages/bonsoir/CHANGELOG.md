@@ -1,3 +1,7 @@
+## 4.1.3
+
+ - **FIX**(bonsoir): Updated `pubspec.yaml`. ([c35c9f7b](https://github.com/Skyost/Bonsoir/commit/c35c9f7bf3ec6b4b91f6c040b90a9d97157ae62e))
+
 ## 4.1.2
 
  - **REFACTOR**: Now using `melos` to handle the `bonsoir` packages. ([9c10a0c5](https://github.com/Skyost/Bonsoir/commit/9c10a0c588e407d80f7551ebb992e9b70b05da92))
