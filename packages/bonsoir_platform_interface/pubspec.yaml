@@ -1,6 +1,6 @@
 name: bonsoir_platform_interface
 description: Common platform interface for the Bonsoir plugin.
-homepage: https://github.com/Skyost/Bonsoir
+repository: https://github.com/Skyost/Bonsoir/tree/master/packages/bonsoir_platform_interface
 version: 4.1.1
 
 environment:

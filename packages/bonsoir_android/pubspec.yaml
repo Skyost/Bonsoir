@@ -1,6 +1,6 @@
 name: bonsoir_android
 description: Android implementation of the Bonsoir plugin.
-repository: https://github.com/Skyost/Bonsoir/tree/master/bonsoir_android
+repository: https://github.com/Skyost/Bonsoir/tree/master/packages/bonsoir_android
 issue_tracker: https://github.com/Skyost/Bonsoir/issues
 version: 4.1.1
 
