@@ -255,7 +255,12 @@ class AvahiBonsoirDiscovery extends AvahiBonsoirAction<BonsoirDiscoveryEvent> wi
           }
           asciiCode += input[i + j];
         }
-        result += ascii.decode([int.parse(asciiCode)]);
+        int asciiCodeInteger = int.parse(asciiCode);
+        if (0 <= asciiCodeInteger && asciiCodeInteger <= 127) {
+          result += ascii.decode([asciiCodeInteger]);
+        } else {
+          result += '\\${asciiCode}';
+        }
         i += (j - 1);
       } else {
         result += input[i];
