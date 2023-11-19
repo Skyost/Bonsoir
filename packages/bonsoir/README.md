@@ -1,5 +1,5 @@
 <div align="center">
-    <img src="https://github.com/Skyost/Bonsoir/raw/master/bonsoir/images/logo.svg" height="200">
+    <img src="https://github.com/Skyost/Bonsoir/raw/master/packages/bonsoir/images/logo.svg" height="200">
 </div>
 
 &nbsp;
@@ -17,7 +17,7 @@ or <q>Good afternoon</q> depending on the current moment of the day).
 
 ## Preview
 
-![Bonsoir preview](https://github.com/Skyost/Bonsoir/raw/master/bonsoir/images/preview.gif)
+![Bonsoir preview](https://github.com/Skyost/Bonsoir/raw/master/packages/bonsoir/images/preview.gif)
 
 ## Code snippet
 
