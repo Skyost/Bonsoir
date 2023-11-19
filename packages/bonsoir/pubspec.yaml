@@ -17,11 +17,11 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  bonsoir_platform_interface: ^4.1.1 <4.2.0"
-  bonsoir_android: ^4.1.1 <4.2.0"
-  bonsoir_darwin: ^4.1.1 <4.2.0"
-  bonsoir_windows: ^4.1.1 <4.2.0"
-  bonsoir_linux: ^4.1.1 <4.2.0"
+  bonsoir_platform_interface: ^4.1.1
+  bonsoir_android: ^4.1.1
+  bonsoir_darwin: ^4.1.1
+  bonsoir_windows: ^4.1.1
+  bonsoir_linux: ^4.1.1
 
 dev_dependencies:
   flutter_lints: ^3.0.1
