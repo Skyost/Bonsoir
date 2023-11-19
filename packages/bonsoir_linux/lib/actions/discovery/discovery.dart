@@ -226,13 +226,12 @@ class AvahiBonsoirDiscovery extends AvahiBonsoirAction<BonsoirDiscoveryEvent> wi
 
     Map<String, String> attributes = _parseTXTRecordData(event.rdata);
     if (!mapEquals(service.attributes, attributes)) {
+      log('Bonsoir has found the attributes of a service : $service');
+      onEvent(BonsoirDiscoveryEvent(type: BonsoirDiscoveryEventType.discoveryServiceLost, service: service));
       AvahiServiceBrowserItemNew serviceEvent = _foundServices[service]!;
       _foundServices.remove(service);
       service = service.copyWith(attributes: attributes);
       _foundServices[service] = serviceEvent;
-
-      log('Bonsoir has found the attributes of a service : $service');
-      onEvent(BonsoirDiscoveryEvent(type: BonsoirDiscoveryEventType.discoveryServiceLost, service: service));
       onEvent(BonsoirDiscoveryEvent(type: BonsoirDiscoveryEventType.discoveryServiceFound, service: service));
     }
   }
