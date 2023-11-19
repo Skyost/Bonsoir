@@ -1,5 +1,6 @@
 package fr.skyost.bonsoir.discovery
 
+import fr.skyost.bonsoir.BonsoirService
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.DataInputStream
@@ -13,10 +14,10 @@ import java.net.MulticastSocket
 
 
 /**
- * Contains various useful methods for discovering services.
+ * Allows to resolve a service TXT record.
  * Chery pick of https://github.com/youviewtv/tinydnssd/blob/master/lib/src/main/java/com/youview/tinydnssd/MDNSDiscover.java.
  */
-class DiscoveryUtils {
+class TXTRecord {
     companion object {
         /**
          * The multicast group address.
@@ -45,23 +46,23 @@ class DiscoveryUtils {
 
         /**
          * Ask for the TXT record of a particular service.
-         * @param serviceName The FQDN name of service to query in mDNS, e.g. `"device-1234._example._tcp.local"`
+         *
          * @param timeout Duration in milliseconds to wait for an answer packet. If `0`, this method will listen forever.
-         * @return The reply packet's decoded answer data.
-         * @throws IOException
+         *
+         * @return Whether record has been resolved successfully.
          */
         @Throws(IOException::class)
-        fun resolveTXTRecord(serviceName: String, timeout: Int = 5000): TXTRecord? {
+        suspend fun resolveTXTRecord(service: BonsoirService, timeout: Int = 10000): TXTRecordData? {
             require(timeout >= 0)
             val group = InetAddress.getByName(MULTICAST_GROUP_ADDRESS)
             val sock = MulticastSocket() // binds to a random free source port
-            val data = queryPacket(serviceName, QCLASS_INTERNET or CLASS_FLAG_UNICAST, QTYPE_TXT)
+            val data = queryPacket(service.name + "." + service.type + "local", QCLASS_INTERNET or CLASS_FLAG_UNICAST, QTYPE_TXT)
             var packet = DatagramPacket(data, data.size, group, PORT)
             sock.timeToLive = 255
             sock.send(packet)
             val buf = ByteArray(1024)
             packet = DatagramPacket(buf, buf.size)
-            var txtRecord: TXTRecord? = null
+            var txtRecord: TXTRecordData? = null
             var endTime: Long = 0
             if (timeout != 0) {
                 endTime = System.currentTimeMillis() + timeout
@@ -118,7 +119,7 @@ class DiscoveryUtils {
         }
 
         @Throws(IOException::class)
-        private fun decodeTXTRecordIfPossible(packet: ByteArray, packetLength: Int): TXTRecord? {
+        private fun decodeTXTRecordIfPossible(packet: ByteArray, packetLength: Int): TXTRecordData? {
             val dis = DataInputStream(ByteArrayInputStream(packet, 0, packetLength))
             val transactionID = dis.readShort()
             val flags = dis.readShort()
@@ -152,8 +153,8 @@ class DiscoveryUtils {
         }
 
         @Throws(IOException::class)
-        private fun decodeTXT(data: ByteArray): TXTRecord {
-            val txtRecord = TXTRecord()
+        private fun decodeTXT(data: ByteArray): TXTRecordData {
+            val txtRecord = TXTRecordData()
             val dis = DataInputStream(ByteArrayInputStream(data))
             while (true) {
                 val length: Int = try {
@@ -173,11 +174,11 @@ class DiscoveryUtils {
                 } else {
                     key = segment
                 }
-                if (!txtRecord.dict.containsKey(key)) {
+                if (!txtRecord.dictionary.containsKey(key)) {
                     // from RFC6763
                     // If a client receives a TXT record containing the same key more than once, then
                     // the client MUST silently ignore all but the first occurrence of that attribute."
-                    txtRecord.dict[key] = value ?: "null"
+                    txtRecord.dictionary[key] = value ?: "null"
                 }
             }
         }
@@ -232,11 +233,17 @@ class DiscoveryUtils {
  * populated data structures. When no such answer is present in the packet, fields will be
  * `null`.
  */
-data class TXTRecord (
-    /** The service FQDN  */
+data class TXTRecordData (
+    /**
+     * The service FQDN.
+     */
     var fqdn: String? = null,
-    /** The record TTL  */
+    /**
+     * The record TTL.
+     */
     var ttl: Int? = null,
-    /** The content of the TXT record's key-value store decoded as a [Map]  */
-    val dict: HashMap<String, String> = HashMap()
+    /**
+     * The content of the TXT record's key-value store decoded as a [Map]
+     */
+    val dictionary: HashMap<String, String> = HashMap()
 )

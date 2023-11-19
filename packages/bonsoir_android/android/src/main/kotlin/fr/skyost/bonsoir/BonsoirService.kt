@@ -16,9 +16,9 @@ import java.net.InetAddress
 data class BonsoirService(
     var name: String,
     val type: String,
-    val port: Int,
-    val host: String?,
-    val attributes: MutableMap<String, String>
+    var port: Int,
+    var host: String?,
+    var attributes: MutableMap<String, String>
 ) {
     /**
      * Creates a Bonsoir service from a NSD service.
