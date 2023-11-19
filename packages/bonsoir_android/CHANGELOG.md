@@ -1,3 +1,9 @@
+## 4.1.1
+
+ - **REFACTOR**(android): Added an internal list that tracks already discovered services. ([7e8faac1](https://github.com/Skyost/Bonsoir/commit/7e8faac155540aa29020ebcefc3905009ce5477e))
+ - **REFACTOR**: Now using `melos` to handle the `bonsoir` packages. ([9c10a0c5](https://github.com/Skyost/Bonsoir/commit/9c10a0c588e407d80f7551ebb992e9b70b05da92))
+ - **FEAT**(android): Added the ability to get services attributes before resolving them. ([a1f75f91](https://github.com/Skyost/Bonsoir/commit/a1f75f91865bc374e41f50f4eebf7ce8af38dbdb))
+
 ## [4.1.0]
 
 * Added a `broadcastNameAlreadyExists` event.
