@@ -1,3 +1,7 @@
+## 4.1.2
+
+ - **FIX**: Fixed all links to the Github repository. ([9449e318](https://github.com/Skyost/Bonsoir/commit/9449e3185016d9531c4dfd8e46cc7bdbdbe563d0))
+
 ## 4.1.1
 
  - **REFACTOR**(android): Added an internal list that tracks already discovered services. ([7e8faac1](https://github.com/Skyost/Bonsoir/commit/7e8faac155540aa29020ebcefc3905009ce5477e))
