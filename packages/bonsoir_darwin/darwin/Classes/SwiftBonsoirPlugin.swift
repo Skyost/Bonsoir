@@ -3,9 +3,6 @@
 #elseif canImport(FlutterMacOS)
     import FlutterMacOS
 #endif
-#if canImport(os)
-    import os
-#endif
 import Network
 
 /// The main plugin Swift class.
@@ -84,14 +81,5 @@ public class SwiftBonsoirPlugin: NSObject, FlutterPlugin {
         for discovery in discoveries.values {
             discovery.dispose()
         }
-    }
-    
-    /// Logs a given message.
-    public static func log(category: String, id: Int, message: String) {
-        #if canImport(os)
-            os_log("[%d] %s", log: OSLog(subsystem: "fr.skyost.bonsoir", category: category), type: OSLogType.info, id, message)
-        #else
-            NSLog("\n[\(id)] \(message)")
-        #endif
     }
 }

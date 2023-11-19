@@ -2,7 +2,7 @@ import Network
 
 /// Represents a Bonsoir service.
 @available(iOS 13.0, macOS 10.15, *)
-class BonsoirService {
+class BonsoirService: NSObject {
     /// The response service name.
     var name: String
     
@@ -37,9 +37,8 @@ class BonsoirService {
             "\(prefix)attributes": attributes
         ]
     }
-	
-	/// Returns the description of this object.
-	public var description: String {
+
+    public override var description: String {
         let json = toJson(prefix: "")
         do {
             let data = try JSONSerialization.data(withJSONObject: json)

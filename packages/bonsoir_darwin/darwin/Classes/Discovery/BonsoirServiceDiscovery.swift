@@ -8,99 +8,72 @@ import Network
 
 /// Allows to find net services on local network.
 @available(iOS 13.0, macOS 10.15, *)
-class BonsoirServiceDiscovery: NSObject, FlutterStreamHandler {
-    /// The delegate identifier.
-    let id: Int
-
-    /// Whether to print debug logs.
-    let printLogs: Bool
-
-    /// Triggered when this instance is being disposed.
-    let onDispose: () -> Void
-
+class BonsoirServiceDiscovery: BonsoirAction {
     /// The type we're listening to.
-    let type: String
+    private let type: String
     
     /// The current browser instance.
-    let browser: NWBrowser
-
-    /// The current event channel.
-    var eventChannel: FlutterEventChannel?
-
-    /// The current event sink.
-    var eventSink: FlutterEventSink?
+    private let browser: NWBrowser
     
     /// Contains all found services.
-    var services: [BonsoirService] = []
+    private var services: [BonsoirService] = []
     
-    /// Contains all services wh're currently resolving.
-    var resolvingServices: [DNSServiceRef?: BonsoirService] = [:]
-
+    /// Contains all services we're currently resolving.
+    private var pendingResolution: [DNSServiceRef] = []
+    
     /// Initializes this class.
     public init(id: Int, printLogs: Bool, onDispose: @escaping () -> Void, messenger: FlutterBinaryMessenger, type: String) {
-        self.id = id
-        self.printLogs = printLogs
-        self.onDispose = onDispose
         self.type = type
         browser = NWBrowser(for: .bonjourWithTXTRecord(type: type, domain: "local."), using: .tcp)
-        super.init()
+        super.init(id: id, action: "discovery", printLogs: printLogs, onDispose: onDispose, messenger: messenger)
         browser.stateUpdateHandler = stateHandler
         browser.browseResultsChangedHandler = browseHandler
-        eventChannel = FlutterEventChannel(name: "\(SwiftBonsoirPlugin.package).discovery.\(id)", binaryMessenger: messenger)
-        eventChannel?.setStreamHandler(self)
+    }
+    
+    /// Finds a service amongst discovered services.
+    private func findService(_ name: String, _ type: String? = nil) -> BonsoirService? {
+        return services.first(where: {$0.name == name && (type == nil || $0.type == type)})
     }
     
     /// Handles state changes.
     func stateHandler(_ newState: NWBrowser.State) {
         switch newState {
         case .ready:
-            if printLogs {
-                SwiftBonsoirPlugin.log(category: "discovery", id: id, message: "Bonsoir discovery started : \(type)")
-            }
-            eventSink?(SuccessObject(id: "discoveryStarted").toJson())
+            onSuccess("discoveryStarted", "Bonsoir discovery started : \(type)")
         case .failed(let error):
-            if printLogs {
-                SwiftBonsoirPlugin.log(category: "discovery", id: id, message: "Bonsoir has encountered an error during discovery : \(error)")
-            }
-            eventSink?(FlutterError.init(code: "discoveryError", message: "Bonsoir has encountered an error during discovery.", details: error))
+            onError("Bonsoir has encountered an error during discovery : \(error)", error)
             dispose()
         case .cancelled:
-            if printLogs {
-                SwiftBonsoirPlugin.log(category: "discovery", id: id, message: "Bonsoir discovery stopped : \(type)")
-            }
-            eventSink?(SuccessObject(id: "discoveryStopped").toJson())
+            onSuccess("discoveryStopped", "Bonsoir discovery stopped : \(type)")
             dispose()
         default:
             break
         }
     }
-
+    
     /// Handles the browsing of services.
     func browseHandler(_ newResults: Set<NWBrowser.Result>, _ changes: Set<NWBrowser.Result.Change>) {
         for change in changes {
             switch change {
             case .added(let result):
                 if case .service(let name, let type, _, _) = result.endpoint {
-                    let service = BonsoirService(name: name, type: type, port: 0, host: nil, attributes: [:])
+                    var service = findService(name, type)
+                    if service != nil {
+                        break
+                    }
+                    service = BonsoirService(name: name, type: type, port: 0, host: nil, attributes: [:])
                     if case .bonjour(let records) = result.metadata {
-                        service.attributes = records.dictionary
+                        service!.attributes = records.dictionary
                     }
-                    if printLogs {
-                        SwiftBonsoirPlugin.log(category: "discovery", id: id, message: "Bonsoir has found a service : \(service.description)")
-                    }
-                    eventSink?(SuccessObject(id: "discoveryServiceFound", service: service).toJson())
-                    services.append(service)
+                    onSuccess("discoveryServiceFound", "Bonsoir has found a service : \(service!)", service)
+                    services.append(service!)
                 }
             case .removed(let result):
                 if case .service(let name, let type, _, _) = result.endpoint {
-                    let service = services.first(where: {$0.name == name && $0.type == type})
-                    if service == nil {
+                    guard let service = findService(name, type) else {
                         break
                     }
-                    if printLogs {
-                        SwiftBonsoirPlugin.log(category: "discovery", id: id, message: "A Bonsoir service has been lost : \(service!.description)")
-                    }
-                    eventSink?(SuccessObject(id: "discoveryServiceLost", service: service).toJson())
+                    onSuccess("discoveryServiceLost", "A Bonsoir service has been lost : \(service)", service)
                     if let index = self.services.firstIndex(where: { $0 === service }) {
                         self.services.remove(at: index)
                     }
@@ -108,20 +81,23 @@ class BonsoirServiceDiscovery: NSObject, FlutterStreamHandler {
             case .changed(let old, let new, _):
                 if case .service(let newName, let newType, _, _) = new.endpoint {
                     if case .service(let oldName, let oldType, _, _) = old.endpoint {
-                        let service = services.first(where: {$0.name == oldName && $0.type == oldType})
-                        if service == nil {
+                        guard let service = findService(oldName) else {
                             break
                         }
-                        if printLogs {
-                            SwiftBonsoirPlugin.log(category: "discovery", id: id, message: "A Bonsoir service has changed : \(service!.description)")
-                        }
-                        eventSink?(SuccessObject(id: "discoveryServiceLost", service: service).toJson())
-                        service!.name = newName
-                        service!.type = newType
+                        var newAttributes: [String: String]
                         if case .bonjour(let newRecords) = new.metadata {
-                            service!.attributes = newRecords.dictionary
+                            newAttributes = newRecords.dictionary
+                        } else {
+                            newAttributes = service.attributes
                         }
-                        eventSink?(SuccessObject(id: "discoveryServiceFound", service: service).toJson())
+                        if oldName == newName && oldType == newType && newAttributes == service.attributes {
+                            break
+                        }
+                        onSuccess("discoveryServiceLost", "A Bonsoir service has changed \(service)", service)
+                        service.name = newName
+                        service.type = newType
+                        service.attributes = newAttributes
+                        onSuccess("discoveryServiceFound", "New service is \(service)", service)
                     }
                 }
             default:
@@ -129,69 +105,29 @@ class BonsoirServiceDiscovery: NSObject, FlutterStreamHandler {
             }
         }
     }
-
-    func onListen(withArguments arguments: Any?, eventSink: @escaping FlutterEventSink) -> FlutterError? {
-        self.eventSink = eventSink
-        return nil
-    }
-
-    func onCancel(withArguments arguments: Any?) -> FlutterError? {
-        eventSink = nil
-        return nil
-    }
     
     /// Resolves a service.
     public func resolveService(name: String, type: String) -> Bool {
-        for result in browser.browseResults {
-            if case .service(let serviceName, let serviceType, _, _) = result.endpoint {
-                if name != serviceName || type != serviceType {
-                    continue
-                }
-                let service = services.first(where: {$0.name == name && $0.type == type})
-                if service == nil {
-                    continue
-                }
-                var sdRef: DNSServiceRef? = nil
-                let error = DNSServiceResolve(&sdRef, 0, 0, name, type, "local.", { (sdRef, flags, interfaceIndex, errorCode, fullName, hosttarget, port, txtLen, txtRecord, context) in
-                    let discovery = Unmanaged<BonsoirServiceDiscovery>.fromOpaque(context!).takeUnretainedValue()
-                    let service = discovery.resolvingServices[sdRef]
-                    if errorCode == kDNSServiceErr_NoError {
-                        if hosttarget != nil {
-                            service!.host = String(cString: hosttarget!)
-                        }
-                        service!.port = Int(CFSwapInt16BigToHost(port))
-                        if discovery.printLogs == true {
-                            SwiftBonsoirPlugin.log(category: "discovery", id: discovery.id, message: "Bonsoir has resolved a service : \(service!.description)")
-                        }
-                        discovery.eventSink?(SuccessObject(id: "discoveryServiceResolved", service: service).toJson())
-                    } else {
-                        if discovery.printLogs {
-                            SwiftBonsoirPlugin.log(category: "discovery", id: discovery.id, message: "Bonsoir has failed to resolve a service : \(errorCode)")
-                        }
-                        discovery.eventSink?(SuccessObject(id: "discoveryServiceResolveFailed", service: service).toJson())
-                    }
-                    discovery.stopResolution(sdRef: sdRef, remove: sdRef != nil)
-                }, Unmanaged.passUnretained(self).toOpaque())
-                if error == kDNSServiceErr_NoError {
-                    resolvingServices[sdRef] = service
-                    DNSServiceProcessResult(sdRef)
-                } else {
-                    if printLogs {
-                        SwiftBonsoirPlugin.log(category: "discovery", id: id, message: "Bonsoir has failed to resolve a service : \(error)")
-                    }
-                    stopResolution(sdRef: sdRef, remove: false)
-                    eventSink?(SuccessObject(id: "discoveryServiceResolveFailed", service: service).toJson())
-                }
-                return true
-            }
+        guard let service = findService(name, type) else {
+            onError("Trying to resolve an undiscovered service : \(name)")
+            return false
         }
-        return false
+        var sdRef: DNSServiceRef? = nil
+        let error = DNSServiceResolve(&sdRef, 0, 0, name, type, "local.", BonsoirServiceDiscovery.resolveCallback, Unmanaged.passUnretained(self).toOpaque())
+        if error != kDNSServiceErr_NoError {
+            onSuccess("discoveryServiceResolveFailed", "Bonsoir has failed to resolve a service : \(error)", service)
+            stopResolution(sdRef: sdRef, remove: false)
+            return false
+        }
+        pendingResolution.append(sdRef!)
+        DNSServiceProcessResult(sdRef)
+        return true
     }
     
     /// Stops the resolution of the given service.
     private func stopResolution(sdRef: DNSServiceRef?, remove: Bool = true) {
-        if remove {
-            resolvingServices.removeValue(forKey: sdRef)
+        if remove, let index = self.pendingResolution.firstIndex(where: { $0 == sdRef }) {
+            self.pendingResolution.remove(at: index)
         }
         DNSServiceRefDeallocate(sdRef)
     }
@@ -200,17 +136,96 @@ class BonsoirServiceDiscovery: NSObject, FlutterStreamHandler {
     public func start() {
         browser.start(queue: .main)
     }
-
-    /// Disposes the current class instance.
-    public func dispose() {
-        for sdRef in resolvingServices.keys {
+    
+    override public func dispose() {
+        for sdRef in pendingResolution {
             stopResolution(sdRef: sdRef, remove: false)
         }
-        resolvingServices.removeAll()
+        pendingResolution.removeAll()
         services.removeAll()
         if [.setup, .ready].contains(browser.state) {
             browser.cancel()
         }
-        onDispose()
+        super.dispose()
+    }
+    
+    /// Callback triggered by`DNSServiceResolve`.
+    private static let resolveCallback: DNSServiceResolveReply = ({ sdRef, flags, interfaceIndex, errorCode, fullName, hosttarget, port, txtLen, txtRecord, context in
+        let discovery = Unmanaged<BonsoirServiceDiscovery>.fromOpaque(context!).takeUnretainedValue()
+        var service: BonsoirService?
+        if fullName != nil {
+            let parts = String(cString: fullName!).components(separatedBy: ".")
+            if parts.count == 4 || parts.count == 5 {
+                service = discovery.findService(unescapeAscii(parts[0]), parts[1] + "." + parts[2])
+            }
+        }
+        if service != nil && errorCode == kDNSServiceErr_NoError {
+            if hosttarget != nil {
+                service!.host = String(cString: hosttarget!)
+            }
+            service!.port = Int(CFSwapInt16BigToHost(port))
+            discovery.onSuccess("discoveryServiceResolved", "Bonsoir has resolved a service : \(service!)", service)
+        } else {
+            if (service == nil) {
+                discovery.onError("Bonsoir has failed to resolve a service : \(errorCode)", errorCode)
+             } else {
+                discovery.onSuccess("discoveryServiceResolveFailed", "Bonsoir has failed to resolve a service : \(errorCode)", service)
+            }
+        }
+        discovery.stopResolution(sdRef: sdRef, remove: sdRef != nil)
+    })
+    
+    /// Allows to unescape services FQDN.
+    private static func unescapeAscii(_ input: String) -> String {
+        var result = ""
+        var i = 0
+        while i < input.count {
+            if input[i] == "\\" && i + 1 < input.count {
+                var asciiCode = ""
+                var j = 1
+                while j < 4 {
+                    if i + j >= input.count || Int(String(input[i + j])) == nil {
+                        break
+                    }
+                    asciiCode += String(input[i + j])
+                    j += 1
+                }
+                if let code = Int(asciiCode), let unicodeScalar = UnicodeScalar(code) {
+                    result += String(unicodeScalar)
+                }
+                i += (j - 1)
+            } else {
+                result += String(input[i])
+            }
+            
+            i += 1
+        }
+        return result
+    }
+}
+
+extension String {
+    var isNumeric: Bool {
+        return !isEmpty && rangeOfCharacter(from: CharacterSet.decimalDigits.inverted) == nil
+    }
+    
+    subscript (i: Int) -> String {
+        return self[i ..< i + 1]
+    }
+    
+    func substring(fromIndex: Int) -> String {
+        return self[min(fromIndex, count) ..< count]
+    }
+    
+    func substring(toIndex: Int) -> String {
+        return self[0 ..< max(0, toIndex)]
+    }
+    
+    subscript (r: Range<Int>) -> String {
+        let range = Range(uncheckedBounds: (lower: max(0, min(count, r.lowerBound)),
+                                            upper: min(count, max(0, r.upperBound))))
+        let start = index(startIndex, offsetBy: range.lowerBound)
+        let end = index(start, offsetBy: range.upperBound - range.lowerBound)
+        return String(self[start ..< end])
     }
 }
