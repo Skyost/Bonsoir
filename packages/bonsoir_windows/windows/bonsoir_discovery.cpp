@@ -84,49 +84,54 @@ namespace bonsoir_windows {
 
   void browseCallback(DWORD status, PVOID context, PDNS_RECORD dnsRecord) {
     auto discovery = (BonsoirDiscovery *)context;
-    if (status == ERROR_SUCCESS) {
-      std::string nameHost = toUtf8(dnsRecord->Data.PTR.pNameHost);
-      auto parts = split(nameHost, '.');
-      std::string name = parts[0];
-      std::string type = parts[1] + "." + parts[2];
+    if (status == ERROR_CANCELLED) {
+      if (discovery->isRunning()) {
+        discovery->BonsoirAction::dispose();
+      }
+      return;
+    }
 
-      BonsoirService *service = discovery->findService(name, type);
-      if (dnsRecord->dwTtl <= 0) {
-        if (service) {
-          discovery->onSuccess("discoveryServiceLost", "A Bonsoir service has been lost : " + service->getDescription(), service);
-          discovery->services.remove(*service);
-        }
-        return;
-      }
-      if (!service) {
-        BonsoirService newService =
-          BonsoirService(name, type, 0, std::optional<std::string>(), std::map<std::string, std::string>());
-        PDNS_RECORD txtRecord = dnsRecord;
-        while (txtRecord != nullptr) {
-          if (txtRecord->wType == DNS_TYPE_TEXT) {
-            DNS_TXT_DATAW *pData = &txtRecord->Data.TXT;
-            for (DWORD s = 0; s < pData->dwStringCount; s++) {
-              std::string record = toUtf8(std::wstring(pData->pStringArray[s]));
-              int splitIndex = static_cast<int>(record.find("="));
-              if (splitIndex != std::string::npos) {
-                newService.attributes.insert(
-                  {record.substr(0, splitIndex), record.substr(splitIndex + 1, record.length())}
-                );
-              }
-            }
-          }
-          txtRecord = txtRecord->pNext;
-        }
-        discovery->services.push_back(newService);
-        discovery->onSuccess("discoveryServiceFound", "Bonsoir has found a service : " + newService.getDescription(), &newService);
-      }
-      DnsRecordListFree(dnsRecord, DnsFreeRecordList);
-    } else if (status == ERROR_CANCELLED) {
-      discovery->BonsoirAction::dispose();
-    } else {
+    if (status != ERROR_SUCCESS) {
       discovery->onError("Bonsoir has encountered an error during discovery : " + std::to_string(status), EncodableValue(std::to_string(status)));
       discovery->dispose();
+      return;
     }
+
+    std::string nameHost = toUtf8(dnsRecord->Data.PTR.pNameHost);
+    auto parts = split(nameHost, '.');
+    std::string name = parts[0];
+    std::string type = parts[1] + "." + parts[2];
+
+    BonsoirService *service = discovery->findService(name, type);
+    if (dnsRecord->dwTtl <= 0) {
+      if (service) {
+        discovery->onSuccess("discoveryServiceLost", "A Bonsoir service has been lost : " + service->getDescription(), service);
+        discovery->services.remove(*service);
+      }
+      return;
+    }
+    if (!service) {
+      BonsoirService newService = BonsoirService(name, type, 0, std::optional<std::string>(), std::map<std::string, std::string>());
+      PDNS_RECORD txtRecord = dnsRecord;
+      while (txtRecord != nullptr) {
+        if (txtRecord->wType == DNS_TYPE_TEXT) {
+          DNS_TXT_DATAW *pData = &txtRecord->Data.TXT;
+          for (DWORD s = 0; s < pData->dwStringCount; s++) {
+            std::string record = toUtf8(std::wstring(pData->pStringArray[s]));
+            int splitIndex = static_cast<int>(record.find("="));
+            if (splitIndex != std::string::npos) {
+              newService.attributes.insert(
+                {record.substr(0, splitIndex), record.substr(splitIndex + 1, record.length())}
+              );
+            }
+          }
+        }
+        txtRecord = txtRecord->pNext;
+      }
+      discovery->services.push_back(newService);
+      discovery->onSuccess("discoveryServiceFound", "Bonsoir has found a service : " + newService.getDescription(), &newService);
+    }
+    DnsRecordListFree(dnsRecord, DnsFreeRecordList);
   }
 
   void resolveCallback(DWORD status, PVOID context, PDNS_SERVICE_INSTANCE serviceInstance) {

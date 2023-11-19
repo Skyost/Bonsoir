@@ -29,6 +29,7 @@ namespace bonsoir_windows {
 
     // Called when a method is called on this plugin's channel from Dart.
     void HandleMethodCall(const MethodCall<EncodableValue> &methodCall, std::unique_ptr<MethodResult<EncodableValue>> result);
+
    private:
     BinaryMessenger *messenger;
     std::map<int, std::unique_ptr<BonsoirBroadcast>> broadcasts;
