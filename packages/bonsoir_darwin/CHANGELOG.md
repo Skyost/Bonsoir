@@ -1,3 +1,8 @@
+## 4.1.1
+
+ - **REFACTOR**(darwin): Improved Darwin code quality. ([531e4bab](https://github.com/Skyost/Bonsoir/commit/531e4babd940823d998cccd57a61c4532f0ad395))
+ - **REFACTOR**: Now using `melos` to handle the `bonsoir` packages. ([9c10a0c5](https://github.com/Skyost/Bonsoir/commit/9c10a0c588e407d80f7551ebb992e9b70b05da92))
+
 ## [4.1.0]
 
 * Added a `broadcastNameAlreadyExists` event.
