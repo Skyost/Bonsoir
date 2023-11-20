@@ -1,9 +1,5 @@
 ## 5.0.0
 
- - Bump "bonsoir_android" to `5.0.0`.
-
-## 5.0.0
-
  - **FIX**(android): Fixed a crash occurring when a service TXT record could not be resolved. ([a9387d9d](https://github.com/Skyost/Bonsoir/commit/a9387d9d9514d2e8936ff7afd7c848615cbb8233))
  - **FIX**(android): Fixed some problems occurring with types ending with a dot. ([556aed80](https://github.com/Skyost/Bonsoir/commit/556aed80ca1e9899c49ea2c91c9fb91f1ec6aba1))
 

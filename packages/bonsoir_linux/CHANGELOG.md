@@ -1,9 +1,5 @@
 ## 5.0.0
 
- - Bump "bonsoir_linux" to `5.0.0`.
-
-## 5.0.0
-
 > Note: This release has breaking changes.
 
  - **FIX**(linux): Parsing TXT record now closely follow RFC 6763. ([f2e7d5b5](https://github.com/Skyost/Bonsoir/commit/f2e7d5b56ed0b418d3102bc3fbdf09162988f51c))
