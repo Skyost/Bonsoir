@@ -51,36 +51,40 @@ class TXTRecord {
          *
          * @return Whether record has been resolved successfully.
          */
-        @Throws(IOException::class)
         suspend fun resolveTXTRecord(service: BonsoirService, timeout: Int = 10000): TXTRecordData? {
-            require(timeout >= 0)
-            val group = InetAddress.getByName(MULTICAST_GROUP_ADDRESS)
-            val sock = MulticastSocket() // binds to a random free source port
-            val data = queryPacket(service.name + "." + service.type + "local", QCLASS_INTERNET or CLASS_FLAG_UNICAST, QTYPE_TXT)
-            var packet = DatagramPacket(data, data.size, group, PORT)
-            sock.timeToLive = 255
-            sock.send(packet)
-            val buf = ByteArray(1024)
-            packet = DatagramPacket(buf, buf.size)
-            var txtRecord: TXTRecordData? = null
-            var endTime: Long = 0
-            if (timeout != 0) {
-                endTime = System.currentTimeMillis() + timeout
-            }
-            // records could be returned in different packets, so we have to loop
-            // timeout applies to the acquisition of ALL packets
-            while (txtRecord == null) {
+            try {
+                require(timeout >= 0)
+                val group = InetAddress.getByName(MULTICAST_GROUP_ADDRESS)
+                val sock = MulticastSocket() // binds to a random free source port
+                val data = queryPacket("${service.name}.${service.type}.local", QCLASS_INTERNET or CLASS_FLAG_UNICAST, QTYPE_TXT)
+                var packet = DatagramPacket(data, data.size, group, PORT)
+                sock.timeToLive = 255
+                sock.send(packet)
+                val buf = ByteArray(1024)
+                packet = DatagramPacket(buf, buf.size)
+                var txtRecord: TXTRecordData? = null
+                var endTime: Long = 0
                 if (timeout != 0) {
-                    val remaining = (endTime - System.currentTimeMillis()).toInt()
-                    if (remaining <= 0) {
-                        break
-                    }
-                    sock.soTimeout = remaining
+                    endTime = System.currentTimeMillis() + timeout
                 }
-                sock.receive(packet)
-                txtRecord = decodeTXTRecordIfPossible(packet.data, packet.length)
+                // records could be returned in different packets, so we have to loop
+                // timeout applies to the acquisition of ALL packets
+                while (txtRecord == null) {
+                    if (timeout != 0) {
+                        val remaining = (endTime - System.currentTimeMillis()).toInt()
+                        if (remaining <= 0) {
+                            break
+                        }
+                        sock.soTimeout = remaining
+                    }
+                    sock.receive(packet)
+                    txtRecord = decodeTXTRecordIfPossible(packet.data, packet.length)
+                }
+                return txtRecord
+            } catch (ex: Exception) {
+                ex.printStackTrace()
             }
-            return txtRecord
+            return null
         }
 
         @Throws(IOException::class)
