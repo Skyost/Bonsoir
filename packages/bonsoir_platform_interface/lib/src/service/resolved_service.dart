@@ -6,7 +6,19 @@ class ResolvedBonsoirService extends BonsoirService {
   final String? host;
 
   /// Creates a new resolved Bonsoir service.
-  const ResolvedBonsoirService({
+  ResolvedBonsoirService({
+    required super.name,
+    required super.type,
+    required super.port,
+    super.attributes,
+    required this.host,
+  });
+
+  /// Creates a new resolved Bonsoir service.
+  /// [name], [type] and [attributes] will not be filtered.
+  ///
+  /// Be aware that some network environments might not support non-conformant service names.
+  ResolvedBonsoirService.ignoreNorms({
     required super.name,
     required super.type,
     required super.port,
@@ -18,7 +30,7 @@ class ResolvedBonsoirService extends BonsoirService {
   ResolvedBonsoirService.fromJson(
     Map<String, dynamic> json, {
     String prefix = 'service.',
-  }) : this(
+  }) : this.ignoreNorms(
           name: json['${prefix}name'],
           type: json['${prefix}type'],
           port: json['${prefix}port'],
