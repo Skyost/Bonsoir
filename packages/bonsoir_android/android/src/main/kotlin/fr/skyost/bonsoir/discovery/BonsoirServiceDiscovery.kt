@@ -71,6 +71,16 @@ class BonsoirServiceDiscovery(
     /**
      * Finds a service instance in the discovered services.
      *
+     * @param service The NSD service info instance.
+     */
+    private fun findService(service: NsdServiceInfo): BonsoirService? {
+        val type = if (service.serviceType.endsWith(".")) service.serviceType.substring(0, service.serviceType.length - 1) else service.serviceType
+        return findService(service.serviceName, type)
+    }
+
+    /**
+     * Finds a service instance in the discovered services.
+     *
      * @param name The service name.
      * @param type The service type.
      */
@@ -94,7 +104,7 @@ class BonsoirServiceDiscovery(
     }
 
     override fun onServiceFound(service: NsdServiceInfo) {
-        var bonsoirService =  findService(service.serviceName, service.serviceType)
+        var bonsoirService =  findService(service)
         if (bonsoirService != null) {
             return
         }
@@ -105,7 +115,7 @@ class BonsoirServiceDiscovery(
     }
 
     override fun onServiceLost(service: NsdServiceInfo) {
-        val bonsoirService =  findService(service.serviceName, service.serviceType)
+        val bonsoirService =  findService(service)
         if (bonsoirService != null) {
             services.remove(bonsoirService)
             onSuccess("discoveryServiceLost", "A Bonsoir service has been lost : $bonsoirService", bonsoirService)

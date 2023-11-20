@@ -27,7 +27,7 @@ data class BonsoirService(
      */
     constructor(service: NsdServiceInfo) : this(
         service.serviceName,
-        service.serviceType,
+        if (service.serviceType.endsWith(".")) service.serviceType.substring(0, service.serviceType.length - 1) else service.serviceType,
         service.port,
         service.host?.hostAddress,
         hashMapOf(),
