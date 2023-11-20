@@ -1,5 +1,9 @@
 ## 5.0.0
 
+ - **REFACTOR**(darwin): Formatted Swift files. ([2a7f093a](https://github.com/Skyost/Bonsoir/commit/2a7f093a3be5e6aee26d395785d3973d967d9ffc))
+
+## 5.0.0
+
  - **FIX**(darwin): Fixed how we handle FQDN on Darwin. ([158f0138](https://github.com/Skyost/Bonsoir/commit/158f0138e344f016875c3ee0aa2bbc7009ed46c8))
 
 ## 4.1.2

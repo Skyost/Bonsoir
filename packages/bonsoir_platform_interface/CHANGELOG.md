@@ -1,5 +1,9 @@
 ## 5.0.0
 
+ - Bump "bonsoir_platform_interface" to `5.0.0`.
+
+## 5.0.0
+
 > Note: This release has breaking changes.
 
  - **BREAKING** **FEAT**: Added a normalizer to conform to RFC 6335 and RFC 6763. ([f8c0487f](https://github.com/Skyost/Bonsoir/commit/f8c0487fee440eab02013e33ba5ba5e0daccc918))
