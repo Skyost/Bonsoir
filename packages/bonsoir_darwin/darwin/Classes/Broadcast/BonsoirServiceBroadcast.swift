@@ -11,7 +11,7 @@ import Network
 class BonsoirServiceBroadcast: BonsoirAction {
     /// The advertised service.
     private let service: BonsoirService
-    
+
     /// The reference to the registering..
     private var sdRef: DNSServiceRef?
 
@@ -21,13 +21,12 @@ class BonsoirServiceBroadcast: BonsoirAction {
         super.init(id: id, action: "broadcast", printLogs: printLogs, onDispose: onDispose, messenger: messenger)
     }
 
-    
     /// Starts the broadcast.
     public func start() {
-        var txtRecord: TXTRecordRef = TXTRecordRef();
-        TXTRecordCreate(&txtRecord, 0, nil);
+        var txtRecord = TXTRecordRef()
+        TXTRecordCreate(&txtRecord, 0, nil)
         for (key, value) in service.attributes {
-          TXTRecordSetValue(&txtRecord, key, UInt8(value.count), value)
+            TXTRecordSetValue(&txtRecord, key, UInt8(value.count), value)
         }
         let error = DNSServiceRegister(&sdRef, 0, 0, service.name, service.type, "local.", service.host, CFSwapInt16HostToBig(UInt16(service.port)), TXTRecordGetLength(&txtRecord), TXTRecordGetBytesPtr(&txtRecord), BonsoirServiceBroadcast.registerCallback as DNSServiceRegisterReply, Unmanaged.passUnretained(self).toOpaque())
         if error == kDNSServiceErr_NoError {
@@ -44,9 +43,9 @@ class BonsoirServiceBroadcast: BonsoirAction {
         onSuccess("broadcastStopped", "Bonsoir service broadcast stopped : \(service)", service)
         super.dispose()
     }
-    
+
     /// Callback triggered by`DNSServiceRegister`.
-    private static let registerCallback: DNSServiceRegisterReply = ({ sdRef, flags, errorCode, name, regType, domain, context in
+    private static let registerCallback: DNSServiceRegisterReply = { _, _, errorCode, name, _, _, context in
         let broadcast = Unmanaged<BonsoirServiceBroadcast>.fromOpaque(context!).takeUnretainedValue()
         if errorCode == kDNSServiceErr_NoError {
             let newName = name == nil ? nil : String(cString: name!)
@@ -56,10 +55,9 @@ class BonsoirServiceBroadcast: BonsoirAction {
                 broadcast.onSuccess("broadcastNameAlreadyExists", "Trying to broadcast a service with a name that already exists : \(broadcast.service) (old name was \(oldName))", broadcast.service)
             }
             broadcast.onSuccess("broadcastStarted", "Bonsoir service broadcasted : \(broadcast.service)", broadcast.service)
-        }
-        else {
+        } else {
             broadcast.onError("Bonsoir service failed to broadcast : \(broadcast.service)", errorCode)
             broadcast.dispose()
         }
-    })
+    }
 }
