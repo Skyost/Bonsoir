@@ -153,11 +153,8 @@ class BonsoirServiceDiscovery: BonsoirAction {
     private static let resolveCallback: DNSServiceResolveReply = ({ sdRef, flags, interfaceIndex, errorCode, fullName, hosttarget, port, txtLen, txtRecord, context in
         let discovery = Unmanaged<BonsoirServiceDiscovery>.fromOpaque(context!).takeUnretainedValue()
         var service: BonsoirService?
-        if fullName != nil {
-            let parts = String(cString: fullName!).components(separatedBy: ".")
-            if parts.count == 4 || parts.count == 5 {
-                service = discovery.findService(unescapeAscii(parts[0]), parts[1] + "." + parts[2])
-            }
+        if fullName != nil, let serviceData = parseBonjourFqdn(String(cString: unescapeAscii(fullName!))) {
+          service = discovery.findService(serviceData.0, serviceData.1)
         }
         if service != nil && errorCode == kDNSServiceErr_NoError {
             if hosttarget != nil {
@@ -184,7 +181,7 @@ class BonsoirServiceDiscovery: BonsoirAction {
                 var asciiCode = ""
                 var j = 1
                 while j < 4 {
-                    if i + j >= input.count || Int(String(input[i + j])) == nil {
+                    if i + j >= input.count || !String(input[i + j]).isNumeric {
                         break
                     }
                     asciiCode += String(input[i + j])
@@ -192,6 +189,8 @@ class BonsoirServiceDiscovery: BonsoirAction {
                 }
                 if let code = Int(asciiCode), let unicodeScalar = UnicodeScalar(code) {
                     result += String(unicodeScalar)
+                } else {
+                    result += "\\\(asciiCode)"
                 }
                 i += (j - 1)
             } else {
@@ -202,6 +201,21 @@ class BonsoirServiceDiscovery: BonsoirAction {
         }
         return result
     }
+
+    /// Parses a Bonjour FQDN.
+    private static func parseBonjourFqdn(_ fqdn: String) -> (String, String)? {
+      let regexPattern = "^(.*?)\\._(.*?)\\.?(?:local)?\\.?$"
+      let regex = try! NSRegularExpression(pattern: regexPattern, options: [])
+
+      if let match = regex.firstMatch(in: fqdn, options: [], range: NSRange(location: 0, length: fqdn.utf16.count)) {
+          let serviceName = (fqdn as NSString).substring(with: match.range(at: 1)).trimmingCharacters(in: .whitespacesAndNewlines)
+          let serviceType = "_\((fqdn as NSString).substring(with: match.range(at: 2)))"
+
+          return (serviceName, serviceType)
+      }
+
+      return nil
+  }
 }
 
 extension String {
