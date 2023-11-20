@@ -32,7 +32,7 @@ class BonsoirServiceDiscovery: BonsoirAction {
     
     /// Finds a service amongst discovered services.
     private func findService(_ name: String, _ type: String? = nil) -> BonsoirService? {
-        return services.first(where: {$0.name == name && (type == nil || $0.type == type)})
+        return services.first(where: { $0.name == name && (type == nil || $0.type == type) })
     }
     
     /// Handles state changes.
@@ -74,8 +74,8 @@ class BonsoirServiceDiscovery: BonsoirAction {
                         break
                     }
                     onSuccess("discoveryServiceLost", "A Bonsoir service has been lost : \(service)", service)
-                    if let index = self.services.firstIndex(where: { $0 === service }) {
-                        self.services.remove(at: index)
+                    if let index = services.firstIndex(where: { $0 === service }) {
+                        services.remove(at: index)
                     }
                 }
             case .changed(let old, let new, _):
@@ -126,8 +126,8 @@ class BonsoirServiceDiscovery: BonsoirAction {
     
     /// Stops the resolution of the given service.
     private func stopResolution(sdRef: DNSServiceRef?, remove: Bool = true) {
-        if remove, let index = self.pendingResolution.firstIndex(where: { $0 == sdRef }) {
-            self.pendingResolution.remove(at: index)
+        if remove, let index = pendingResolution.firstIndex(where: { $0 == sdRef }) {
+            pendingResolution.remove(at: index)
         }
         DNSServiceRefDeallocate(sdRef)
     }
@@ -150,11 +150,11 @@ class BonsoirServiceDiscovery: BonsoirAction {
     }
     
     /// Callback triggered by`DNSServiceResolve`.
-    private static let resolveCallback: DNSServiceResolveReply = ({ sdRef, flags, interfaceIndex, errorCode, fullName, hosttarget, port, txtLen, txtRecord, context in
+    private static let resolveCallback: DNSServiceResolveReply = { sdRef, _, _, errorCode, fullName, hosttarget, port, _, _, context in
         let discovery = Unmanaged<BonsoirServiceDiscovery>.fromOpaque(context!).takeUnretainedValue()
         var service: BonsoirService?
-        if fullName != nil, let serviceData = parseBonjourFqdn(String(cString: unescapeAscii(fullName!))) {
-          service = discovery.findService(serviceData.0, serviceData.1)
+        if fullName != nil, let serviceData = parseBonjourFqdn(unescapeAscii(String(cString: fullName!))) {
+            service = discovery.findService(serviceData.0, serviceData.1)
         }
         if service != nil && errorCode == kDNSServiceErr_NoError {
             if hosttarget != nil {
@@ -163,14 +163,14 @@ class BonsoirServiceDiscovery: BonsoirAction {
             service!.port = Int(CFSwapInt16BigToHost(port))
             discovery.onSuccess("discoveryServiceResolved", "Bonsoir has resolved a service : \(service!)", service)
         } else {
-            if (service == nil) {
+            if service == nil {
                 discovery.onError("Bonsoir has failed to resolve a service : \(errorCode)", errorCode)
-             } else {
+            } else {
                 discovery.onSuccess("discoveryServiceResolveFailed", "Bonsoir has failed to resolve a service : \(errorCode)", service)
             }
         }
         discovery.stopResolution(sdRef: sdRef, remove: sdRef != nil)
-    })
+    }
     
     /// Allows to unescape services FQDN.
     private static func unescapeAscii(_ input: String) -> String {
@@ -204,18 +204,15 @@ class BonsoirServiceDiscovery: BonsoirAction {
 
     /// Parses a Bonjour FQDN.
     private static func parseBonjourFqdn(_ fqdn: String) -> (String, String)? {
-      let regexPattern = "^(.*?)\\._(.*?)\\.?(?:local)?\\.?$"
-      let regex = try! NSRegularExpression(pattern: regexPattern, options: [])
-
-      if let match = regex.firstMatch(in: fqdn, options: [], range: NSRange(location: 0, length: fqdn.utf16.count)) {
-          let serviceName = (fqdn as NSString).substring(with: match.range(at: 1)).trimmingCharacters(in: .whitespacesAndNewlines)
-          let serviceType = "_\((fqdn as NSString).substring(with: match.range(at: 2)))"
-
-          return (serviceName, serviceType)
-      }
-
-      return nil
-  }
+        let regexPattern = "^(.*?)\\._(.*?)\\.?(?:local)?\\.?$"
+        let regex = try! NSRegularExpression(pattern: regexPattern, options: [])
+        if let match = regex.firstMatch(in: fqdn, options: [], range: NSRange(location: 0, length: fqdn.utf16.count)) {
+            let serviceName = (fqdn as NSString).substring(with: match.range(at: 1)).trimmingCharacters(in: .whitespacesAndNewlines)
+            let serviceType = "_\((fqdn as NSString).substring(with: match.range(at: 2)))"
+            return (serviceName, serviceType)
+        }
+        return nil
+    }
 }
 
 extension String {
@@ -223,7 +220,7 @@ extension String {
         return !isEmpty && rangeOfCharacter(from: CharacterSet.decimalDigits.inverted) == nil
     }
     
-    subscript (i: Int) -> String {
+    subscript(i: Int) -> String {
         return self[i ..< i + 1]
     }
     
@@ -235,7 +232,7 @@ extension String {
         return self[0 ..< max(0, toIndex)]
     }
     
-    subscript (r: Range<Int>) -> String {
+    subscript(r: Range<Int>) -> String {
         let range = Range(uncheckedBounds: (lower: max(0, min(count, r.lowerBound)),
                                             upper: min(count, max(0, r.upperBound))))
         let start = index(startIndex, offsetBy: range.lowerBound)

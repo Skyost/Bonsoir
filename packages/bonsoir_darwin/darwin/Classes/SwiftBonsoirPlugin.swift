@@ -41,7 +41,7 @@ public class SwiftBonsoirPlugin: NSObject, FlutterPlugin {
         let id = arguments["id"] as! Int
         switch call.method {
         case "broadcast.initialize":
-            let service = BonsoirService(name: arguments["service.name"] as! String, type: arguments["service.type"] as! String, port: arguments["service.port"] as! Int, host: nil, attributes: arguments["service.attributes"] as! [String : String])
+            let service = BonsoirService(name: arguments["service.name"] as! String, type: arguments["service.type"] as! String, port: arguments["service.port"] as! Int, host: nil, attributes: arguments["service.attributes"] as! [String: String])
             if let host = arguments["service.host"] as? String? {
                 service.host = host
             }
@@ -73,7 +73,7 @@ public class SwiftBonsoirPlugin: NSObject, FlutterPlugin {
             result(FlutterMethodNotImplemented)
         }
     }
-    
+
     public func detachFromEngineForRegistrar(registrar: FlutterPluginRegistrar) {
         for broadcast in broadcasts.values {
             broadcast.dispose()

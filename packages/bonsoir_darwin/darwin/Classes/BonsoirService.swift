@@ -16,10 +16,10 @@ class BonsoirService: NSObject {
     var host: String?
     
     /// The response service name.
-    var attributes: [String : String]
+    var attributes: [String: String]
     
     /// Creates a new service instance.
-    public init(name: String, type: String, port: Int, host: String?, attributes: [String : String]) {
+    public init(name: String, type: String, port: Int, host: String?, attributes: [String: String]) {
         self.name = name
         self.type = type
         self.port = port
@@ -38,12 +38,12 @@ class BonsoirService: NSObject {
         ]
     }
 
-    public override var description: String {
+    override public var description: String {
         let json = toJson(prefix: "")
         do {
             let data = try JSONSerialization.data(withJSONObject: json)
             return String(data: data, encoding: .utf8)!
         } catch {}
-		return "\(json)"
-	}
+        return "\(json)"
+    }
 }

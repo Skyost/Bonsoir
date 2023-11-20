@@ -53,15 +53,15 @@ class BonsoirAction: NSObject, FlutterStreamHandler {
     }
     
     /// Triggered when a success occurs.
-    internal func onSuccess(_ eventId: String, _ message: String, _ service: BonsoirService? = nil) {
+    func onSuccess(_ eventId: String, _ message: String, _ service: BonsoirService? = nil) {
         log(message)
         eventSink?(SuccessObject(id: eventId, service: service).toJson())
     }
     
     /// Triggered when an error occurs.
-    internal func onError(_ message: String, _ details: Any? = nil) {
+    func onError(_ message: String, _ details: Any? = nil) {
         log(message)
-        eventSink?(FlutterError.init(code: "\(action)Error", message: message, details: details))
+        eventSink?(FlutterError(code: "\(action)Error", message: message, details: details))
     }
 
     /// Disposes the current class instance.
@@ -70,8 +70,8 @@ class BonsoirAction: NSObject, FlutterStreamHandler {
     }
     
     /// Logs a given message.
-    internal func log(_ message: String) {
-        if (printLogs) {
+    func log(_ message: String) {
+        if printLogs {
             #if canImport(os)
                 os_log("[%d] %s", log: OSLog(subsystem: SwiftBonsoirPlugin.package, category: action), type: OSLogType.info, id, message)
             #else
