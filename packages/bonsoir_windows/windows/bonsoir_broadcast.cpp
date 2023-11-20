@@ -85,8 +85,10 @@ namespace bonsoir_windows {
     if (!(broadcast->isRunning())) {
       return;
     }
-    auto parts = split(toUtf8(instance->pszInstanceName), '.');
-    std::string name = parts[0];
+    std::string name = std::get<0>(parseBonjourFqdn(toUtf8(instance->pszInstanceName)));
+    if (name == "") {
+      return;
+    }
     BonsoirService service = broadcast->service;
     if (service.name != name) {
       std::string oldName = service.name;

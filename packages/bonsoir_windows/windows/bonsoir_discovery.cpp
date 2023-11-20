@@ -97,10 +97,9 @@ namespace bonsoir_windows {
       return;
     }
 
-    std::string nameHost = toUtf8(dnsRecord->Data.PTR.pNameHost);
-    auto parts = split(nameHost, '.');
-    std::string name = parts[0];
-    std::string type = parts[1] + "." + parts[2];
+    auto serviceData = parseBonjourFqdn(toUtf8(dnsRecord->Data.PTR.pNameHost));
+    std::string name = std::get<0>(serviceData);
+    std::string type = std::get<1>(serviceData);
 
     BonsoirService *service = discovery->findService(name, type);
     if (dnsRecord->dwTtl <= 0) {
@@ -118,11 +117,15 @@ namespace bonsoir_windows {
           DNS_TXT_DATAW *pData = &txtRecord->Data.TXT;
           for (DWORD s = 0; s < pData->dwStringCount; s++) {
             std::string record = toUtf8(std::wstring(pData->pStringArray[s]));
+            std::string key = record;
+            std::string value = "";
             int splitIndex = static_cast<int>(record.find("="));
             if (splitIndex != std::string::npos) {
-              newService.attributes.insert(
-                {record.substr(0, splitIndex), record.substr(splitIndex + 1, record.length())}
-              );
+              key = record.substr(0, splitIndex);
+              value = record.substr(splitIndex + 1, record.length());
+            }
+            if (key.rfind("=", 0) == std::string::npos && newService.attributes.find(key) == newService.attributes.end()) {
+              newService.attributes.insert({key, value});
             }
           }
         }
@@ -140,10 +143,8 @@ namespace bonsoir_windows {
     std::string name = "";
     if (serviceInstance && serviceInstance->pszInstanceName) {
       std::string nameHost = toUtf8(serviceInstance->pszInstanceName);
-      auto parts = split(nameHost, '.');
-      name = parts[0];
-      std::string type = parts[1] + "." + parts[2];
-      service = discovery->findService(name, type);
+      auto serviceData = parseBonjourFqdn(nameHost);
+      service = discovery->findService(std::get<0>(serviceData), std::get<1>(serviceData));
     }
     if (status != ERROR_SUCCESS) {
       if (service) {

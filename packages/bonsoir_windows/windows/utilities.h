@@ -6,7 +6,7 @@ namespace bonsoir_windows {
 
   std::string toUtf8(const std::wstring wide_string);
 
-  std::vector<std::string> split(const std::string text, const char delimiter);
+  std::tuple<std::string, std::string> parseBonjourFqdn(const std::string fqdn);
 
   std::wstring getComputerName();
 

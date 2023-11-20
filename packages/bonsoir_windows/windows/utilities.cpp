@@ -45,22 +45,23 @@ namespace bonsoir_windows {
     return result;
   }
 
-  std::vector<std::string> split(const std::string text, const char splitter) {
-    std::vector<std::string> result;
-    std::string current = "";
-    for (int i = 0; i < text.size(); i++) {
-      if (text[i] == splitter) {
-        if (current != "") {
-          result.push_back(current);
-          current = "";
-        }
-        continue;
+  std::tuple<std::string, std::string> parseBonjourFqdn(const std::string fqdn) {
+    std::regex regexPattern("^(.*?)\\._(.*?)\\.?(?:local)?\\.?$");
+    std::smatch match;
+
+    if (std::regex_search(fqdn, match, regexPattern)) {
+      std::string serviceName = match[1].str();
+      size_t pos = serviceName.find_last_not_of(" \t\r\n");
+      if (pos != std::string::npos) {
+        serviceName.erase(pos + 1);
       }
-      current += text[i];
+
+      std::string serviceType = "_" + match[2].str();
+
+      return {serviceName, serviceType};
     }
-    if (current.size() != 0)
-      result.push_back(current);
-    return result;
+
+    return {"", ""};
   }
 
   std::wstring getComputerName() {
