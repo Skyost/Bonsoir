@@ -2,7 +2,7 @@ name: bonsoir
 description: A Zeroconf library that allows you to discover network services and to broadcast your own. Based on Apple Bonjour and Android NSD.
 repository: https://github.com/Skyost/Bonsoir/tree/master/packages/bonsoir
 issue_tracker: https://github.com/Skyost/Bonsoir/issues
-version: 4.1.4
+version: 5.0.0
 funding:
  - https://ko-fi.com/Skyost
  - https://paypal.me/Skyost
@@ -17,11 +17,11 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  bonsoir_platform_interface: ^4.1.2
-  bonsoir_android: ^4.1.2
-  bonsoir_darwin: ^4.1.2
-  bonsoir_windows: ^4.1.2
-  bonsoir_linux: ^4.1.2
+  bonsoir_platform_interface: ^5.0.0
+  bonsoir_android: ^5.0.0
+  bonsoir_darwin: ^5.0.0
+  bonsoir_windows: ^5.0.0
+  bonsoir_linux: ^5.0.0
 
 dev_dependencies:
   flutter_lints: ^3.0.1

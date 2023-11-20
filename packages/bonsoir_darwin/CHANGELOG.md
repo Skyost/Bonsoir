@@ -1,3 +1,7 @@
+## 5.0.0
+
+ - **FIX**(darwin): Fixed how we handle FQDN on Darwin. ([158f0138](https://github.com/Skyost/Bonsoir/commit/158f0138e344f016875c3ee0aa2bbc7009ed46c8))
+
 ## 4.1.2
 
  - **FIX**: Fixed all links to the Github repository. ([9449e318](https://github.com/Skyost/Bonsoir/commit/9449e3185016d9531c4dfd8e46cc7bdbdbe563d0))

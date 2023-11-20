@@ -1,3 +1,8 @@
+## 5.0.0
+
+ - **FIX**(android): Fixed a crash occurring when a service TXT record could not be resolved. ([a9387d9d](https://github.com/Skyost/Bonsoir/commit/a9387d9d9514d2e8936ff7afd7c848615cbb8233))
+ - **FIX**(android): Fixed some problems occurring with types ending with a dot. ([556aed80](https://github.com/Skyost/Bonsoir/commit/556aed80ca1e9899c49ea2c91c9fb91f1ec6aba1))
+
 ## 4.1.2
 
  - **FIX**: Fixed all links to the Github repository. ([9449e318](https://github.com/Skyost/Bonsoir/commit/9449e3185016d9531c4dfd8e46cc7bdbdbe563d0))

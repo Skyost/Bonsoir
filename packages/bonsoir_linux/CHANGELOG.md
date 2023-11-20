@@ -1,3 +1,11 @@
+## 5.0.0
+
+> Note: This release has breaking changes.
+
+ - **FIX**(linux): Parsing TXT record now closely follow RFC 6763. ([f2e7d5b5](https://github.com/Skyost/Bonsoir/commit/f2e7d5b56ed0b418d3102bc3fbdf09162988f51c))
+ - **FIX**(linux): Fixed how we handle FQDN and TXT records on Linux. ([f1e4fde5](https://github.com/Skyost/Bonsoir/commit/f1e4fde5ad6a5c9428dae488d77ed6c278cb5246))
+ - **BREAKING** **REFACTOR**(linux): Now following Dart's convention regarding the `src` folder. ([80216578](https://github.com/Skyost/Bonsoir/commit/80216578502650e6a24535d257d42dc3aa04a864))
+
 ## 4.1.2
 
  - **FIX**: Fixed all links to the Github repository. ([9449e318](https://github.com/Skyost/Bonsoir/commit/9449e3185016d9531c4dfd8e46cc7bdbdbe563d0))

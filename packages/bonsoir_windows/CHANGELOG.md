@@ -1,3 +1,7 @@
+## 5.0.0
+
+ - **FIX**(windows): Fixed how we handle FQDN and TXT records on Windows. ([1e7d5451](https://github.com/Skyost/Bonsoir/commit/1e7d545197f2806d46d1923e5987aef64437fc19))
+
 ## 4.1.2
 
  - **FIX**: Fixed all links to the Github repository. ([9449e318](https://github.com/Skyost/Bonsoir/commit/9449e3185016d9531c4dfd8e46cc7bdbdbe563d0))
