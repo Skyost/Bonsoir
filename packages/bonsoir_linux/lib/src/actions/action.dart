@@ -50,7 +50,7 @@ abstract class AvahiBonsoirAction<T extends BonsoirEvent> extends BonsoirAction<
   }
 
   /// Triggered when an error occurs.
-  void onError(AvahiBonsoirError error) {
+  void onError(BonsoirLinuxError error) {
     log(error.message);
     _controller.addError(error);
   }

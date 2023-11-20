@@ -110,7 +110,7 @@ class AvahiBonsoirDiscovery extends AvahiBonsoirAction<BonsoirDiscoveryEvent> wi
   Future<void> resolveService(BonsoirService service) async {
     BonsoirService? serviceInstance = _findService(service.name, service.type);
     if (serviceInstance == null) {
-      onError(AvahiBonsoirError('Trying to resolve an undiscovered service : ${service.name}', service.name));
+      onError(BonsoirLinuxError('Trying to resolve an undiscovered service : ${service.name}', service.name));
       return;
     }
     _avahiHandler!.resolveService(this, serviceInstance, _foundServices[serviceInstance]!);
@@ -295,14 +295,14 @@ class AvahiBonsoirDiscovery extends AvahiBonsoirAction<BonsoirDiscoveryEvent> wi
       currentIndex++;
       if (currentIndex + lengthByte <= txtRecordData.length) {
         String string = utf8.decode(txtRecordData.sublist(currentIndex, currentIndex + lengthByte));
-        List<String> parts = string.split('=');
+        int equalIndex = string.indexOf('=');
         String key = string;
         String value = '';
-        if (parts.length == 2) {
-          key = parts.first;
-          value = parts.last;
+        if (equalIndex != -1) {
+          key = string.substring(0, equalIndex);
+          value = string.substring(equalIndex + 1);
         }
-        if (!result.containsKey(key)) {
+        if (!key.startsWith('=') && !result.containsKey(key)) {
           result[key] = value;
         }
         currentIndex += lengthByte;

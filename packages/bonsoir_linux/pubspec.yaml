@@ -13,7 +13,7 @@ flutter:
     implements: bonsoir
     platforms:
       linux:
-        dartPluginClass: AvahiBonsoir
+        dartPluginClass: BonsoirLinux
 
 dependencies:
   flutter:

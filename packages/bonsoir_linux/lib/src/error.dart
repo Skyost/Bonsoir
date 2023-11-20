@@ -1,5 +1,5 @@
 /// Represents a Bonsoir error triggered on the Linux platform.
-class AvahiBonsoirError implements Exception {
+class BonsoirLinuxError implements Exception {
   /// The message.
   final String message;
 
@@ -7,11 +7,11 @@ class AvahiBonsoirError implements Exception {
   final Object? error;
 
   /// Creates a new Avahi Bonsoir error instance.
-  AvahiBonsoirError(this.message, [this.error]);
+  BonsoirLinuxError(this.message, [this.error]);
 
   @override
   String toString() {
-    String string = 'AvahiBonsoirError';
+    String string = 'BonsoirLinuxError';
     if (error != null) {
       string += '(${error})';
     }

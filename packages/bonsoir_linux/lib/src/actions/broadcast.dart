@@ -69,7 +69,7 @@ class AvahiBonsoirBroadcast extends AvahiBonsoirAction<BonsoirBroadcastEvent> {
         _sendServiceToAvahi();
         break;
       case AvahiEntryGroupState.AVAHI_ENTRY_GROUP_FAILURE:
-        onError(AvahiBonsoirError('Bonsoir service failed to broadcast : ${service.description}', event.error));
+        onError(BonsoirLinuxError('Bonsoir service failed to broadcast : ${service.description}', event.error));
         break;
       default:
         onEvent(
