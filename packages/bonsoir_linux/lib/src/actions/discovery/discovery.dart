@@ -1,15 +1,16 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:bonsoir_linux/actions/action.dart';
-import 'package:bonsoir_linux/actions/discovery/legacy.dart';
-import 'package:bonsoir_linux/actions/discovery/v2.dart';
-import 'package:bonsoir_linux/avahi/record_browser.dart';
-import 'package:bonsoir_linux/avahi/server.dart';
-import 'package:bonsoir_linux/avahi/service_browser.dart';
-import 'package:bonsoir_linux/avahi/service_resolver.dart';
 import 'package:bonsoir_linux/bonsoir_linux.dart';
-import 'package:bonsoir_linux/error.dart';
+import 'package:bonsoir_linux/src/actions/action.dart';
+import 'package:bonsoir_linux/src/actions/discovery/legacy.dart';
+import 'package:bonsoir_linux/src/actions/discovery/v2.dart';
+import 'package:bonsoir_linux/src/avahi/record_browser.dart';
+import 'package:bonsoir_linux/src/avahi/server.dart';
+import 'package:bonsoir_linux/src/avahi/service_browser.dart';
+import 'package:bonsoir_linux/src/avahi/service_resolver.dart';
+import 'package:bonsoir_linux/src/error.dart';
+import 'package:bonsoir_linux/src/service.dart';
 import 'package:bonsoir_platform_interface/bonsoir_platform_interface.dart';
 import 'package:dbus/dbus.dart';
 import 'package:flutter/foundation.dart';
@@ -47,7 +48,7 @@ class AvahiBonsoirDiscovery extends AvahiBonsoirAction<BonsoirDiscoveryEvent> wi
     if (_serviceBrowser == null) {
       _avahiHandler = ((await _isModernAvahi) ? AvahiDiscoveryV2.new : AvahiDiscoveryLegacy.new)(busClient: busClient);
       _avahiHandler!.initialize();
-      _serviceBrowser = AvahiServiceBrowser(busClient, AvahiBonsoir.avahi, DBusObjectPath(await _avahiHandler!.getAvahiServiceBrowserPath(type)));
+      _serviceBrowser = AvahiServiceBrowser(busClient, BonsoirLinux.avahi, DBusObjectPath(await _avahiHandler!.getAvahiServiceBrowserPath(type)));
     }
   }
 
@@ -60,38 +61,38 @@ class AvahiBonsoirDiscovery extends AvahiBonsoirAction<BonsoirDiscoveryEvent> wi
     List<StreamSubscription> subscriptions = [
       DBusSignalStream(
         busClient,
-        sender: AvahiBonsoir.avahi,
-        interface: '${AvahiBonsoir.avahi}.ServiceBrowser',
+        sender: BonsoirLinux.avahi,
+        interface: '${BonsoirLinux.avahi}.ServiceBrowser',
         name: 'ItemNew',
       ).listen(_onServiceFound),
       DBusSignalStream(
         busClient,
-        sender: AvahiBonsoir.avahi,
-        interface: '${AvahiBonsoir.avahi}.ServiceBrowser',
+        sender: BonsoirLinux.avahi,
+        interface: '${BonsoirLinux.avahi}.ServiceBrowser',
         name: 'ItemRemove',
       ).listen(_onServiceLost),
       DBusSignalStream(
         busClient,
-        sender: AvahiBonsoir.avahi,
-        interface: '${AvahiBonsoir.avahi}.ServiceResolver',
+        sender: BonsoirLinux.avahi,
+        interface: '${BonsoirLinux.avahi}.ServiceResolver',
         name: 'Failure',
       ).listen(_onServiceResolveFailure),
       DBusSignalStream(
         busClient,
-        sender: AvahiBonsoir.avahi,
-        interface: '${AvahiBonsoir.avahi}.ServiceResolver',
+        sender: BonsoirLinux.avahi,
+        interface: '${BonsoirLinux.avahi}.ServiceResolver',
         name: 'Found',
       ).listen(_onServiceResolved),
       DBusSignalStream(
         busClient,
-        sender: AvahiBonsoir.avahi,
-        interface: '${AvahiBonsoir.avahi}.RecordBrowser',
+        sender: BonsoirLinux.avahi,
+        interface: '${BonsoirLinux.avahi}.RecordBrowser',
         name: 'ItemNew',
       ).listen(_onServiceTXTRecordFound),
       DBusSignalStream(
         busClient,
-        sender: AvahiBonsoir.avahi,
-        interface: '${AvahiBonsoir.avahi}.RecordBrowser',
+        sender: BonsoirLinux.avahi,
+        interface: '${BonsoirLinux.avahi}.RecordBrowser',
         name: 'Failure',
       ).listen(_onServiceTXTRecordNotFound),
     ];
@@ -314,7 +315,7 @@ class AvahiBonsoirDiscovery extends AvahiBonsoirAction<BonsoirDiscoveryEvent> wi
 
   /// Returns whether the installed version of Avahi is > 0.7.
   Future<bool> get _isModernAvahi async {
-    AvahiServer server = AvahiServer(DBusClient.system(), AvahiBonsoir.avahi, DBusObjectPath('/'));
+    AvahiServer server = AvahiServer(DBusClient.system(), BonsoirLinux.avahi, DBusObjectPath('/'));
     String version = (await server.callGetVersionString()).split(' ').last;
     int mayor = int.parse(version.split('.').first);
     int minor = int.parse(version.split('.').last);

@@ -1,11 +1,12 @@
 import 'dart:async';
 
-import 'package:bonsoir_linux/actions/action.dart';
-import 'package:bonsoir_linux/avahi/constants.dart';
-import 'package:bonsoir_linux/avahi/entry_group.dart';
-import 'package:bonsoir_linux/avahi/server.dart';
 import 'package:bonsoir_linux/bonsoir_linux.dart';
-import 'package:bonsoir_linux/error.dart';
+import 'package:bonsoir_linux/src/actions/action.dart';
+import 'package:bonsoir_linux/src/avahi/constants.dart';
+import 'package:bonsoir_linux/src/avahi/entry_group.dart';
+import 'package:bonsoir_linux/src/avahi/server.dart';
+import 'package:bonsoir_linux/src/error.dart';
+import 'package:bonsoir_linux/src/service.dart';
 import 'package:bonsoir_platform_interface/bonsoir_platform_interface.dart';
 import 'package:dbus/dbus.dart';
 
@@ -31,8 +32,8 @@ class AvahiBonsoirBroadcast extends AvahiBonsoirAction<BonsoirBroadcastEvent> {
   @override
   Future<void> get ready async {
     if (_entryGroup == null) {
-      _server = AvahiServer(busClient, AvahiBonsoir.avahi, DBusObjectPath('/'));
-      _entryGroup = AvahiEntryGroup(busClient, AvahiBonsoir.avahi, DBusObjectPath(await _server!.callEntryGroupNew()));
+      _server = AvahiServer(busClient, BonsoirLinux.avahi, DBusObjectPath('/'));
+      _entryGroup = AvahiEntryGroup(busClient, BonsoirLinux.avahi, DBusObjectPath(await _server!.callEntryGroupNew()));
       await _sendServiceToAvahi();
     }
   }

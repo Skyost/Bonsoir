@@ -1,12 +1,13 @@
 import 'dart:async';
 
-import 'package:bonsoir_linux/actions/discovery/discovery.dart';
-import 'package:bonsoir_linux/avahi/constants.dart';
-import 'package:bonsoir_linux/avahi/record_browser.dart';
-import 'package:bonsoir_linux/avahi/server2.dart';
-import 'package:bonsoir_linux/avahi/service_browser.dart';
-import 'package:bonsoir_linux/avahi/service_resolver.dart';
 import 'package:bonsoir_linux/bonsoir_linux.dart';
+import 'package:bonsoir_linux/src/actions/discovery/discovery.dart';
+import 'package:bonsoir_linux/src/avahi/constants.dart';
+import 'package:bonsoir_linux/src/avahi/record_browser.dart';
+import 'package:bonsoir_linux/src/avahi/server2.dart';
+import 'package:bonsoir_linux/src/avahi/service_browser.dart';
+import 'package:bonsoir_linux/src/avahi/service_resolver.dart';
+import 'package:bonsoir_linux/src/service.dart';
 import 'package:bonsoir_platform_interface/bonsoir_platform_interface.dart';
 import 'package:dbus/dbus.dart';
 
@@ -22,7 +23,7 @@ class AvahiDiscoveryV2 extends AvahiHandler {
 
   @override
   void initialize() {
-    _server = AvahiServer2(busClient, AvahiBonsoir.avahi, DBusObjectPath('/'));
+    _server = AvahiServer2(busClient, BonsoirLinux.avahi, DBusObjectPath('/'));
   }
 
   @override
@@ -44,7 +45,7 @@ class AvahiDiscoveryV2 extends AvahiHandler {
       0x10,
       0,
     );
-    return AvahiRecordBrowser(busClient, AvahiBonsoir.avahi, DBusObjectPath(recordBrowserPath));
+    return AvahiRecordBrowser(busClient, BonsoirLinux.avahi, DBusObjectPath(recordBrowserPath));
   }
 
   @override
@@ -58,7 +59,7 @@ class AvahiDiscoveryV2 extends AvahiHandler {
       AvahiProtocolUnspecified,
       0,
     );
-    AvahiServiceResolver resolver = AvahiServiceResolver(busClient, AvahiBonsoir.avahi, DBusObjectPath(serviceResolverPath));
+    AvahiServiceResolver resolver = AvahiServiceResolver(busClient, BonsoirLinux.avahi, DBusObjectPath(serviceResolverPath));
     resolver.callStart();
   }
 }

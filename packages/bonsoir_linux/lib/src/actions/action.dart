@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:bonsoir_linux/error.dart';
+import 'package:bonsoir_linux/src/error.dart';
 import 'package:bonsoir_platform_interface/bonsoir_platform_interface.dart';
 import 'package:dbus/dbus.dart';
 import 'package:meta/meta.dart';
