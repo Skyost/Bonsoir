@@ -29,7 +29,7 @@ class AvahiBonsoir extends BonsoirPlatformInterface {
 }
 
 /// Various useful functions for services.
-extension Description on BonsoirService {
+extension BonsoirServiceUtils on BonsoirService {
   /// Returns a string describing the current service.
   String get description => jsonEncode(toJson(prefix: ''));
 

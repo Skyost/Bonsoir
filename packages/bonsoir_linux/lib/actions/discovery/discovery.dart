@@ -215,11 +215,8 @@ class AvahiBonsoirDiscovery extends AvahiBonsoirAction<BonsoirDiscoveryEvent> wi
   /// Triggered when a Bonsoir service TXT record has been found.
   void _onServiceTXTRecordFound(DBusSignal signal) {
     AvahiRecordBrowserItemNew event = AvahiRecordBrowserItemNew(signal);
-    List<String> parts = _unescapeAscii(event.recordName).split('.');
-    if (parts.length != 4) {
-      return;
-    }
-    BonsoirService? service = _findService(parts[0], '${parts[1]}.${parts[2]}');
+    (String, String)? serviceData = _parseBonjourFqdn(_unescapeAscii(event.recordName));
+    BonsoirService? service = serviceData == null ? null : _findService(serviceData.$1, serviceData.$2);
     if (service == null) {
       return;
     }
@@ -269,19 +266,42 @@ class AvahiBonsoirDiscovery extends AvahiBonsoirAction<BonsoirDiscoveryEvent> wi
     return result;
   }
 
+  /// Parses a Bonjour FQDN.
+  (String, String)? _parseBonjourFqdn(String fqdn) {
+    final RegExp regex = RegExp(r'^(.*?)\._(.*?)\.?(?:local)?\.?$');
+    final Match? match = regex.firstMatch(fqdn);
+
+    if (match != null && match.groupCount >= 2) {
+      final serviceName = match.group(1)?.trim() ?? '';
+      final serviceType = '_${match.group(2)}';
+
+      return (serviceName, serviceType);
+    }
+
+    return null;
+  }
+
   /// Parse a TXT record data.
   Map<String, String> _parseTXTRecordData(List<int> txtRecordData) {
     Map<String, String> result = {};
+    if (txtRecordData.isEmpty || listEquals(txtRecordData, [0])) {
+      return result;
+    }
+
     int currentIndex = 0;
     while (currentIndex < txtRecordData.length) {
       int lengthByte = txtRecordData[currentIndex];
       currentIndex++;
       if (currentIndex + lengthByte <= txtRecordData.length) {
-        List<int> relevantData = txtRecordData.sublist(currentIndex, currentIndex + lengthByte);
-        List<String> parts = utf8.decode(relevantData).split('=');
+        String string = utf8.decode(txtRecordData.sublist(currentIndex, currentIndex + lengthByte));
+        List<String> parts = string.split('=');
+        String key = string;
+        String value = '';
         if (parts.length == 2) {
-          String key = (parts[0]);
-          String value = (parts[1]);
+          key = parts.first;
+          value = parts.last;
+        }
+        if (!result.containsKey(key)) {
           result[key] = value;
         }
         currentIndex += lengthByte;
