@@ -1,11 +1,15 @@
-import 'package:bonsoir_example/widgets/broadcast_checkbox.dart';
-import 'package:bonsoir_example/widgets/service_list.dart';
-import 'package:bonsoir_example/widgets/title_widget.dart';
+import 'package:bonsoir_example/models/app_service.dart';
+import 'package:bonsoir_example/pages/current_page.dart';
+import 'package:bonsoir_example/widgets/add_icon.dart';
+import 'package:bonsoir_example/widgets/bottom_bar.dart';
+import 'package:bonsoir_example/widgets/eager_initialization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// Plugin's main method.
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await DefaultAppService.initialize();
   runApp(const ProviderScope(child: BonsoirExampleMainWidget()));
 }
 
@@ -17,14 +21,17 @@ class BonsoirExampleMainWidget extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) => MaterialApp(
-        home: Scaffold(
-          appBar: AppBar(
-            title: const TitleWidget(),
-            actions: const [BroadcastSwitch()],
-            centerTitle: false,
+  Widget build(BuildContext context) => EagerInitialization(
+        child: MaterialApp(
+          home: Scaffold(
+            appBar: AppBar(
+              title: const Text('Bonsoir demo'),
+              actions: const [AddIcon()],
+              centerTitle: false,
+            ),
+            body: const CurrentPageWidget(),
+            bottomNavigationBar: const BottomBar(),
           ),
-          body: const ServiceList(),
         ),
       );
 }

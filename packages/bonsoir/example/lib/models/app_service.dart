@@ -6,9 +6,12 @@ import 'package:uuid/data.dart';
 import 'package:uuid/uuid.dart';
 
 /// Allows to get the Bonsoir service corresponding to the current device.
-class AppService {
+class DefaultAppService {
+  /// The service type name.
+  static const String type = 'bonsoirdemo';
+
   /// The service type.
-  static const String type = '_bonsoirdemo._tcp';
+  static const String protocol = 'tcp';
 
   /// The service port (in this example we're not doing anything on that port, but you should).
   static const int port = 4000;
@@ -19,15 +22,14 @@ class AppService {
   /// The "UUID" attribute.
   static const String attributeUuid = 'uuid';
 
-  /// The cached service.
-  static BonsoirService? _service;
+  /// The default app service.
+  static late BonsoirService _service;
 
-  /// Returns (and create if needed) the app Bonsoir service.
-  static Future<BonsoirService> getService() async {
-    if (_service != null) {
-      return _service!;
-    }
+  /// Returns the default app service instance.
+  static BonsoirService get service => _service;
 
+  /// Initializes the Bonsoir service instance.
+  static Future initialize() async {
     DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
     String name;
     String os;
@@ -54,10 +56,9 @@ class AppService {
 
     _service = BonsoirService(
       name: name,
-      type: type,
+      type: '_$type._$protocol',
       port: port,
       attributes: {attributeOs: os, attributeUuid: const Uuid().v6(config: V6Options(null, null, null, null, name.codeUnits))},
     );
-    return _service!;
   }
 }

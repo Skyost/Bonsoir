@@ -2,85 +2,68 @@ import 'dart:async';
 
 import 'package:bonsoir/bonsoir.dart';
 import 'package:bonsoir_example/models/app_service.dart';
-import 'package:flutter/material.dart';
+import 'package:bonsoir_example/models/model.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// The model provider.
 final discoveryModelProvider = ChangeNotifierProvider<BonsoirDiscoveryModel>((ref) {
   BonsoirDiscoveryModel model = BonsoirDiscoveryModel();
-  model.start();
+  model.start(DefaultAppService.service.type);
   return model;
 });
 
 /// Provider model that allows to handle Bonsoir discoveries.
-class BonsoirDiscoveryModel extends ChangeNotifier {
-  /// The current Bonsoir discovery object instance.
-  BonsoirDiscovery? _bonsoirDiscovery;
+class BonsoirDiscoveryModel extends BonsoirActionModel<String, BonsoirDiscovery, BonsoirDiscoveryEvent> {
+  /// A map containing all discovered services.
+  final Map<String, List<BonsoirService>> _services = {};
 
-  /// Contains all discovered services.
-  final Map<String, BonsoirService> _services = {};
+  @override
+  BonsoirDiscovery createAction(String argument) => BonsoirDiscovery(type: argument);
 
-  /// Contains all functions that allows to resolve services.
-  final Map<String, VoidCallback> _servicesResolver = {};
+  /// Returns the services map.
+  Map<String, List<BonsoirService>> get services => Map.from(_services);
 
-  /// The subscription object.
-  StreamSubscription<BonsoirDiscoveryEvent>? _subscription;
-
-  /// Returns all discovered (and resolved) services.
-  Iterable<BonsoirService> get services => _services.values;
-
-  /// Starts the Bonsoir discovery.
-  Future<void> start() async {
-    if (_bonsoirDiscovery == null || _bonsoirDiscovery!.isStopped) {
-      _bonsoirDiscovery = BonsoirDiscovery(type: (await AppService.getService()).type);
-      await _bonsoirDiscovery!.ready;
-    }
-
-    _subscription = _bonsoirDiscovery!.eventStream!.listen(_onEventOccurred);
-    await _bonsoirDiscovery!.start();
-  }
-
-  /// Stops the Bonsoir discovery.
-  void stop() {
-    _subscription?.cancel();
-    _subscription = null;
-    _bonsoirDiscovery?.stop();
-  }
-
-  /// Returns the service resolver function of the given service.
-  VoidCallback? getServiceResolverFunction(BonsoirService service) => _servicesResolver[service.name];
-
-  /// Triggered when a Bonsoir discovery event occurred.
-  void _onEventOccurred(BonsoirDiscoveryEvent event) {
+  @override
+  void onEventOccurred(BonsoirDiscoveryEvent event) {
     if (event.service == null) {
       return;
     }
 
     BonsoirService service = event.service!;
+    List<BonsoirService>? services = _services[service.type];
     if (event.type == BonsoirDiscoveryEventType.discoveryServiceFound) {
-      _services[service.name] = service;
-      _servicesResolver[service.name] = () => _resolveService(service);
+      if (services == null) {
+        _services[service.type] = [service];
+      } else {
+        services.add(service);
+      }
     } else if (event.type == BonsoirDiscoveryEventType.discoveryServiceResolved) {
-      _services[service.name] = service;
-      _servicesResolver.remove(service.name);
-    } else if (event.type == BonsoirDiscoveryEventType.discoveryServiceResolveFailed) {
-      _servicesResolver[service.name] = () => _resolveService(service);
+      services?.removeWhere((foundService) => foundService.name == service.name);
+      services?.add(service);
     } else if (event.type == BonsoirDiscoveryEventType.discoveryServiceLost) {
-      _services.remove(service.name);
+      services?.remove(service);
+      if (services != null && services.isEmpty) {
+        _services.remove(service.type);
+      }
     }
+    services?.sort((a, b) => a.name.compareTo(b.name));
     notifyListeners();
   }
 
-  /// Resolves the given service.
-  void _resolveService(BonsoirService service) {
-    if (_bonsoirDiscovery != null) {
-      service.resolve(_bonsoirDiscovery!.serviceResolver);
+  @override
+  Future<void> stop(String argument, {bool notify = true}) async {
+    await super.stop(argument, notify: false);
+    _services.remove(argument);
+    if (notify) {
+      notifyListeners();
     }
   }
 
-  @override
-  void dispose() {
-    stop();
-    super.dispose();
+  /// Resolves the given service.
+  void resolveService(BonsoirService service) {
+    BonsoirDiscovery? discovery = getAction(service.type);
+    if (discovery != null) {
+      service.resolve(discovery.serviceResolver);
+    }
   }
 }
