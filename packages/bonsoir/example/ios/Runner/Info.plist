@@ -47,5 +47,11 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>NSLocalNetworkUsageDescription</key>
+	<string>Find Bonsoir services on the network.</string>
+	<key>NSBonjourServices</key>
+	<array>
+		<string>_bonsoirdemo._tcp</string>
+	</array>
 </dict>
 </plist>
