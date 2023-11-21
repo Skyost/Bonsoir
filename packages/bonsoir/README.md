@@ -113,8 +113,10 @@ the following lines :
 
 ```xml
 
-<key>NSLocalNetworkUsageDescription</key><string>Describe here why you want to use Bonsoir.
-</string><key>NSBonjourServices</key><array>
+<key>NSLocalNetworkUsageDescription</key>
+<string>Describe here why you want to use Bonsoir.</string>
+<key>NSBonjourServices</key>
+<array>
 	<string>_first-service._tcp</string>
 	<string>_second-service._tcp</string>
 	<string>_third-service._tcp</string>
