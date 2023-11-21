@@ -1,3 +1,7 @@
+## 5.0.1
+
+ - **FIX**(android): Fixed a crash on `discovery.stop`. ([6f69efd6](https://github.com/Skyost/Bonsoir/commit/6f69efd670b87bff4f7148ef781a350203a02a97))
+
 ## 5.0.0
 
  - **FIX**(android): Fixed a crash occurring when a service TXT record could not be resolved. ([a9387d9d](https://github.com/Skyost/Bonsoir/commit/a9387d9d9514d2e8936ff7afd7c848615cbb8233))

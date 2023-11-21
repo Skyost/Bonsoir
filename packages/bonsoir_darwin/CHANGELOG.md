@@ -1,3 +1,7 @@
+## 5.0.1
+
+ - **REFACTOR**(darwin): Formatted Swift files. ([2a7f093a](https://github.com/Skyost/Bonsoir/commit/2a7f093a3be5e6aee26d395785d3973d967d9ffc))
+
 ## 5.0.0
 
  - **REFACTOR**(darwin): Formatted Swift files. ([2a7f093a](https://github.com/Skyost/Bonsoir/commit/2a7f093a3be5e6aee26d395785d3973d967d9ffc))
