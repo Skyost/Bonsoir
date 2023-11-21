@@ -1,5 +1,6 @@
 package fr.skyost.bonsoir.discovery
 
+import android.util.Log
 import fr.skyost.bonsoir.BonsoirService
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
@@ -11,6 +12,7 @@ import java.io.OutputStream
 import java.net.DatagramPacket
 import java.net.InetAddress
 import java.net.MulticastSocket
+import java.net.SocketTimeoutException
 
 
 /**
@@ -51,11 +53,10 @@ class TXTRecord {
          *
          * @return Whether record has been resolved successfully.
          */
-        suspend fun resolveTXTRecord(service: BonsoirService, timeout: Int = 10000): TXTRecordData? {
+        suspend fun resolveTXTRecord(service: BonsoirService, port: Int? = null, timeout: Int = 2000): TXTRecordData? {
             try {
-                require(timeout >= 0)
                 val group = InetAddress.getByName(MULTICAST_GROUP_ADDRESS)
-                val sock = MulticastSocket(5353)
+                val sock = if (port == null) MulticastSocket() else MulticastSocket(port)
                 sock.reuseAddress = true
                 sock.joinGroup(group)
                 val data = queryPacket("${service.name}.${service.type}.local", QCLASS_INTERNET or CLASS_FLAG_UNICAST, QTYPE_TXT)
@@ -83,7 +84,13 @@ class TXTRecord {
                     txtRecord = decodeTXTRecordIfPossible(packet.data, packet.length)
                 }
                 return txtRecord
-            } catch (ex: Exception) {
+            } catch (ex: SocketTimeoutException) {
+                if (port == null) {
+                    Log.d("TXTRecord", "Unable to query for a TXT record. Will now retry with a different port...")
+                    return resolveTXTRecord(service, PORT)
+                }
+            }
+            catch (ex: Exception) {
                 ex.printStackTrace()
             }
             return null
