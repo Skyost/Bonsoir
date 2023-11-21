@@ -55,7 +55,9 @@ class TXTRecord {
             try {
                 require(timeout >= 0)
                 val group = InetAddress.getByName(MULTICAST_GROUP_ADDRESS)
-                val sock = MulticastSocket() // binds to a random free source port
+                val sock = MulticastSocket(5353)
+                sock.reuseAddress = true
+                sock.joinGroup(group)
                 val data = queryPacket("${service.name}.${service.type}.local", QCLASS_INTERNET or CLASS_FLAG_UNICAST, QTYPE_TXT)
                 var packet = DatagramPacket(data, data.size, group, PORT)
                 sock.timeToLive = 255

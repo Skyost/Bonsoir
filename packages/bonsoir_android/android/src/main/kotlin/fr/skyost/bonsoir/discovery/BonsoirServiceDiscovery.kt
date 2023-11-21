@@ -7,7 +7,7 @@ import fr.skyost.bonsoir.BonsoirService
 import io.flutter.plugin.common.BinaryMessenger
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.job
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.atomic.AtomicBoolean
@@ -233,7 +233,7 @@ class BonsoirServiceDiscovery(
     }
 
     override fun stop() {
-        coroutineContext.job.cancel()
+        coroutineContext.cancel()
         nsdManager.stopServiceDiscovery(this)
     }
 
