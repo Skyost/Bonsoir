@@ -41,7 +41,7 @@ class BonsoirDiscoveryModel extends BonsoirActionModel<String, BonsoirDiscovery,
       services?.removeWhere((foundService) => foundService.name == service.name);
       services?.add(service);
     } else if (event.type == BonsoirDiscoveryEventType.discoveryServiceLost) {
-      services?.remove(service);
+      services?.removeWhere((foundService) => foundService.name == service.name);
       if (services != null && services.isEmpty) {
         _services.remove(service.type);
       }
