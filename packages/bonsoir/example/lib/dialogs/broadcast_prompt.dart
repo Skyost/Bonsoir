@@ -94,7 +94,11 @@ class _BroadcastPromptDialogState extends State<BroadcastPromptDialog> {
                     ),
                     IconButton(
                       onPressed: () {
-                        setState(() => attributes.remove(entry.key));
+                        setState(() {
+                          attributes.remove(entry.key);
+                          entry.key.dispose();
+                          entry.value.dispose();
+                        });
                       },
                       icon: const Icon(Icons.clear),
                     ),
