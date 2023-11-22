@@ -1,3 +1,8 @@
+## 5.0.2
+
+ - **REFACTOR**(android): Formatted some modified files. ([5c4a434a](https://github.com/Skyost/Bonsoir/commit/5c4a434a6f4636515c7c6febe713749170528b36))
+ - **FIX**(android): Fixed a bug with querying TXT records on Android emulators. ([16bb251a](https://github.com/Skyost/Bonsoir/commit/16bb251a3f5fdf6dec321e3847d4d8a6d0d63a63))
+
 ## 5.0.1
 
  - **FIX**(android): Fixed a crash on `discovery.stop`. ([6f69efd6](https://github.com/Skyost/Bonsoir/commit/6f69efd670b87bff4f7148ef781a350203a02a97))
