@@ -7,7 +7,7 @@ import { siteMeta } from '~/meta'
     <ski-navbar-collapse id="page-navbar-collapse">
       <template #brand>
         <ski-navbar-brand class="brand" to="/">
-          <img class="logo" src="/logo.svg" alt="Logo">
+          <img class="logo" src="/images/hand.svg" alt="Logo">
           Bonsoir
         </ski-navbar-brand>
       </template>
@@ -35,10 +35,22 @@ import { siteMeta } from '~/meta'
   font-family: Handlee, cursive;
   padding-top: 0.4em;
   font-size: 1.5em;
+  position: relative;
 
   .logo {
     height: 1em;
     vertical-align: sub;
+  }
+
+  &:before {
+    position: absolute;
+    top: 0.62em;
+    left: 0;
+    content: '';
+    height: 1em;
+    width: 1em;
+    background-image: url('/images/waves.svg');
+    background-repeat: no-repeat;
   }
 
   &:hover .logo {
