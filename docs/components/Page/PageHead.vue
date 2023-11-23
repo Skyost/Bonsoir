@@ -31,7 +31,7 @@ const currentAddress = `${runtimeConfig.public.url}${route.path}`
     <Meta name="og:site_name" :content="siteMeta.title" />
     <Meta name="og:url" :content="currentAddress" />
     <Meta name="og:image" :content="openGraphImage" />
-    <Meta name="og:locale" content="fr" />
+    <Meta name="og:locale" content="en" />
     <Meta name="twitter:card" :content="twitterCard" />
     <Meta name="twitter:title" :content="title" />
     <Meta name="twitter:description" :content="description" />
