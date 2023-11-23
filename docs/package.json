@@ -1,0 +1,38 @@
+{
+  "name": "bonsoir-docs",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "nuxt build",
+    "dev": "nuxt dev",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare"
+  },
+  "devDependencies": {
+    "@nuxt/devtools": "latest",
+    "@nuxtjs/eslint-config-typescript": "^12.1.0",
+    "@nuxtjs/google-fonts": "^3.0.2",
+    "eslint": "^8.54.0",
+    "eslint-plugin-nuxt": "^4.0.0",
+    "eslint-plugin-vue": "^9.18.1",
+    "nuxt": "^3.8.2",
+    "nuxt-link-checker": "^2.1.10",
+    "nuxt-simple-robots": "^3.1.9",
+    "nuxt-simple-sitemap": "^4.1.6",
+    "sass": "^1.69.5",
+    "sass-loader": "^13.3.2",
+    "shikiji": "^0.7.2",
+    "stylelint": "^15.11.0",
+    "stylelint-config-recommended-vue": "^1.5.0",
+    "stylelint-config-standard-scss": "^11.1.0",
+    "vite-plugin-eslint": "^1.8.1",
+    "vite-plugin-stylelint": "^5.2.1",
+    "vue": "^3.3.8",
+    "vue-router": "^4.2.5"
+  },
+  "dependencies": {
+    "@nuxt/content": "^2.9.0",
+    "skimple-components": "^0.5.19"
+  }
+}

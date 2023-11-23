@@ -1,0 +1,24 @@
+@mixin title-anchor($anchorClass: 'anchor') {
+  position: relative;
+
+  .#{$anchorClass} {
+    @include anchor()
+  }
+
+  &:hover .#{$anchorClass} {
+    @include anchor-visible()
+  }
+}
+
+@mixin anchor() {
+  position: absolute;
+  top: 0;
+  right: -1em;
+  opacity: 0;
+  transition: opacity 0.25s, right 0.25s;
+}
+
+@mixin anchor-visible() {
+  opacity: 1;
+  right: -1.25em;
+}

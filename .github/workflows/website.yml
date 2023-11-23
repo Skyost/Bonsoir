@@ -1,0 +1,43 @@
+name: Build website
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  pull_request:
+    branches:
+      - main
+      - master
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ ubuntu-latest ]
+        node: [ latest ]
+    defaults:
+      run:
+        working-directory: ./docs
+    steps:
+      - name: Checkout 🛎
+        uses: actions/checkout@v3
+      - name: Setup Node.js ${{ matrix.node }} 🏗
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node }}
+          cache: 'npm'
+          cache-dependency-path: ./docs/package-lock.json
+      - name: Install dependencies 👨🏻‍💻
+        run: npm ci
+      - name: Generate ⚙️
+        run: npm run generate
+      - name: Create .nojekyll file 🧪
+        run: touch ./dist/.nojekyll
+      - name: Deploy 🚀
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: docs/dist
+          branch: gh-pages
+          single-commit: true
