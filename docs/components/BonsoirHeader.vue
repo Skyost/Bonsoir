@@ -42,10 +42,11 @@ import { siteMeta } from '~/meta'
 
       &:before {
         animation: fade-in-animation;
-        animation-delay: 3s;
+        animation-delay: 1s;
         animation-duration: 1s;
         animation-iteration-count: 1;
         animation-fill-mode: forwards;
+        opacity: 0;
         position: absolute;
         content: '';
         height: 100%;
