@@ -1,3 +1,7 @@
+## 5.0.3
+
+ - **FIX**(example): Fixed some text fields not being disposed. ([612785d1](https://github.com/Skyost/Bonsoir/commit/612785d160e7d119d96e3c821221cede88a20f3e))
+
 ## 5.0.2
 
  - Update a dependency to the latest release.
