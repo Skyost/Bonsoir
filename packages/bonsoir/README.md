@@ -19,6 +19,10 @@ or <q>Good afternoon</q> depending on the current moment of the day).
 
 ![Bonsoir preview](https://github.com/Skyost/Bonsoir/raw/master/packages/bonsoir/images/preview.gif)
 
+## Installation
+
+See [how to install](https://bonsoir.skyost.eu/docs/#installation) on the Bonsoir website.
+
 ## Code snippet
 
 Here is how you can broadcast your service using _Bonsoir_ :
@@ -72,66 +76,6 @@ await discovery.stop();
 ```
 
 If you want a <q>full</q> example, don't hesitate to check [this one](https://github.com/Skyost/Bonsoir/tree/master/bonsoir/example) on Github.
-
-## Installation
-
-### Minimum OS requirements
-
-Depending on your project targets, you need at least :
-
-* Android : API level 21 (Android 5.0).
-* iOS : 12.0.
-* macOS : 10.11 (El Capitan).
-* Windows 10 (19H1/1903) (Mai 2019 Update).
-* Linux with [Avahi](https://www.avahi.org/).
-
-### Update deployment target
-
-If you want to use this plugin on iOS, you must update your deployment target to _at least_ 13.0. At the top of `ios/Podfile`, add the following :
-
-```
-platform :ios, '13.0'
-```
-
-Also, open your iOS project in Xcode and select Runner, Targets -> Runner and then the "General" tab.
-Under the "Minimum Deployments" section, update the iOS version to 13.0 or higher.
-
-You'll have to do the same steps if you want to use this plugin on macOS. Update your deployment
-target to _at least_ 10.15. At the top of `macOS/Podfile` :
-
-```
-platform :osx, '10.15'
-```
-
-Open your macOS project in xCode and in the "Minimum Deployments" section, update the macOS version
-to 10.15 or higher.
-
-### Update `Info.plist`
-
-If you're building your app for iOS 14 or higher, you have to edit your `Info.plist` file. Just add
-the following lines :
-
-```xml
-
-<key>NSLocalNetworkUsageDescription</key>
-<string>Describe here why you want to use Bonsoir.</string>
-<key>NSBonjourServices</key>
-<array>
-	<string>_first-service._tcp</string>
-	<string>_second-service._tcp</string>
-	<string>_third-service._tcp</string>
-	<!-- Add more here -->
-</array>
-```
-
-Don't forget to edit them according to your needs.
-
-## Final notes
-
-This plugin [cannot be tested on an Android emulator](https://stackoverflow.com/a/46926325/3608831)
-(well it can, but the only services that you are able to discover are the ones broadcasted by your emulator).
-
-The hand icon has been created by [Vitaly Gorbachev](https://www.flaticon.com/authors/vitaly-gorbachev).
 
 ## Contributions
 

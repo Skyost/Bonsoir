@@ -75,5 +75,11 @@ export default defineNuxtConfig({
 
   cname: {
     hostname: siteMeta.url
+  },
+
+  runtimeConfig: {
+    public: {
+      url: siteMeta.url
+    }
   }
 })

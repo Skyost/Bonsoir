@@ -24,4 +24,4 @@ logs
 !.env.example
 
 # Generated files
-docs/latest-commit.json
+content/latest-commit.json

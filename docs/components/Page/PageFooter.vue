@@ -12,7 +12,8 @@ import { siteMeta } from '~/meta'
       </p>
       <p>
         <small>
-          Copyright &copy; 2023, <a href="https://skyost.eu">Skyost</a>
+          Copyright &copy; 2023, <a href="https://skyost.eu">Skyost</a>.
+          Revision <current-commit-sha />.
         </small>
       </p>
       <ul class="icons">
