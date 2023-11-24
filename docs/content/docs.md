@@ -11,7 +11,7 @@ Depending on your project targets, you need at least :
 * macOS : 10.15 (El Capitan), for the same reason as above.
 * Windows : Win 10 (19H1/1903) (Mai 2019 Update).
   The [WIN32 DNS-SD API](https://msdn.microsoft.com/en-us/library/windows.networking.servicediscovery.dnssd.aspx)
-  has been exposed from, at least, this version.
+  has been exposed from, at least, that version.
 * Linux : requires [Avahi daemon](https://www.avahi.org/), because Bonsoir uses its D-Bus interface
   for browsing and registering mDNS/DNS-SD services.
 
@@ -55,7 +55,7 @@ the following lines :
 </array>
 ```
 
-Don't forget to edit it according to your needs.
+Don't forget to edit them according to your needs.
 
 ### macOS
 
@@ -154,3 +154,12 @@ You have a lot of options to contribute to this project ! You can :
 * [Fork it](https://github.com/Skyost/Bonsoir/fork) on Github to submit your pull requests.
 * [Submit](https://github.com/Skyost/Bonsoir/issues/new/choose) a feature request or a bug report.
 * [Donate](https://paypal.me/Skyost) to the developer.
+
+# About
+
+This plugin was initially created to use in my game, [Mobile Werewolf](https://werewolf.skyost.eu).
+It is an unofficial mobile version of the famous board game Mafia / Werewolves.
+In this game, players can play against each others via Wi-Fi, so Bonsoir allows them to easily broadcast,
+discover and join local network parties. 
+
+The hand icon has been created by [Vitaly Gorbachev](https://www.flaticon.com/authors/vitaly-gorbachev).
