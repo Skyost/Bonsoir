@@ -1,40 +1,44 @@
 <script setup lang="ts">
+const theme = useTheme()
+
 const props = withDefaults(
   defineProps<{
     code: string,
     language?: string
+    filename?: string
   }>(),
   {
-    language: 'dart'
+    language: 'dart',
+    filename: undefined
   }
 )
 
 import { getHighlighter } from 'shikiji'
 
 const shiki = await getHighlighter({
-  themes: ['min-light']
+  themes: ['min-light', 'github-dark']
 })
 
 // @ts-ignore
 await shiki.loadLanguage(props.language)
 
 const code = computed(() => props.code.trim().replace(/\r\n/g, '\n'))
-const content = ref<HTMLDivElement>()
-onMounted(() => {
-  content.value!.innerHTML = shiki.codeToHtml(
-    code.value,
-    // @ts-ignore
-    {
-      theme: 'min-light',
-      lang: props.language
-    }
-  )
-  const lineCount = code.value.split(/\r\n|\r|\n/).length
-  if (lineCount === 0 || lineCount === 1) {
-    content.value!.classList.add('no-linecount')
-  }
-})
 
+const codeHtml = computed(() => shiki.codeToHtml(
+  code.value,
+  // @ts-ignore
+  {
+    themes: {
+      light: 'min-light',
+      dark: 'github-dark'
+    },
+    lang: props.language
+  }
+))
+
+const lineCount = computed(() => code.value.split(/\r\n|\r|\n/).length)
+
+const content = ref<HTMLDivElement>()
 const copy = () => {
   if (window.clipboardData && window.clipboardData.setData) {
     return window.clipboardData.setData('Text', code.value)
@@ -58,8 +62,11 @@ const copy = () => {
 </script>
 
 <template>
-  <div class="shikiji-code">
-    <div ref="content" />
+  <div class="shikiji-code" :class="[`theme-${theme}`, {'has-filename': filename}]">
+    <span v-if="filename" class="filename">
+      <ski-icon class="icon" icon="chevron-right" /> {{ filename }}
+    </span>
+    <div ref="content" :class="{'no-line-count': lineCount === 0 || lineCount === 1}" v-html="codeHtml" />
     <ski-icon class="copy-icon" icon="copy" title="Copy code" @click="copy" />
   </div>
 </template>
@@ -69,7 +76,24 @@ const copy = () => {
 
 .shikiji-code {
   position: relative;
-  background-color: $light !important;
+
+  &.has-filename {
+    margin-top: 1.75em;
+
+    .filename {
+      position: absolute;
+      font-size: 0.75em;
+      top: 0;
+      left: 0;
+      transform: translateY(-100%);
+      font-family: var(--bs-font-monospace);
+      color: gray;
+
+      .icon {
+        vertical-align: middle;
+      }
+    }
+  }
 
   :deep(pre) {
     padding: 10px;
@@ -79,9 +103,30 @@ const copy = () => {
     margin-bottom: 0;
   }
 
-  :deep(.shiki),
-  :deep(.shiki span) {
-    background-color: $light !important;
+  &.theme-light {
+    background-color: $light;
+
+    :deep(.shiki),
+    :deep(.shiki span) {
+      background-color: $light !important;
+    }
+  }
+
+  &.theme-dark {
+    background-color: $body-dark;
+
+    :deep(.shiki),
+    :deep(.shiki span) {
+      background-color: $body-dark !important;
+      color: var(--shiki-dark) !important;
+      font-style: var(--shiki-dark-font-style) !important;
+      font-weight: var(--shiki-dark-font-weight) !important;
+      text-decoration: var(--shiki-dark-text-decoration) !important;
+    }
+
+    .copy-icon {
+      color: $light;
+    }
   }
 
   :deep(code) {
@@ -99,7 +144,7 @@ const copy = () => {
     color: rgba(#738A94, 0.4)
   }
 
-  .no-linecount :deep(code .line:before) {
+  .no-line-count :deep(code .line:before) {
     display: none;
   }
 

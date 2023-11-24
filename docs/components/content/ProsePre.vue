@@ -1,5 +1,10 @@
 <template>
-  <shikiji-code :language="language" :code="code" class="mb-3" />
+  <shikiji-code
+    :language="language"
+    :code="code"
+    :filename="filename"
+    class="mb-3"
+  />
 </template>
 
 <script setup lang="ts">

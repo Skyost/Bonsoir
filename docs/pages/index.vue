@@ -1,12 +1,16 @@
 <script setup lang="ts">
 import { siteMeta } from '~/meta'
+const theme = useTheme()
+
+const background = computed(() => theme.value === 'light' ? 'white' : 'dark')
+const button = computed(() => theme.value === 'light' ? 'dark' : 'light')
 </script>
 
 <template>
   <div>
     <page-head :title="siteMeta.title" title-suffix="" />
     <bonsoir-header />
-    <div class="bg-white">
+    <div :class="`bg-${background}`">
       <ski-container>
         <ski-columns class="pt-5">
           <ski-column
@@ -49,7 +53,7 @@ await broadcast.start();
           </ski-column>
         </ski-columns>
         <div class="text-center pt-5 pb-5">
-          <ski-button to="/docs" class="btn-lg ps-5 pe-5">
+          <ski-button to="/docs" class="btn-lg ps-5 pe-5" :variant="button">
             <ski-icon icon="code-slash" /> Get started
           </ski-button>
         </div>

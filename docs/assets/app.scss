@@ -7,7 +7,11 @@
 $headings-font-family: 'Raleway', sans-serif;
 $font-family-sans-serif: 'Raleway', sans-serif;
 $enable-rounded: false;
+$body-bg: $light;
+$body-bg-dark: $body-dark;
+$link-color-dark: $light;
 $code-color: #24292EFF;
+$code-color-dark: $light;
 
   // 3. Include remainder of required Bootstrap stylesheets
 @import 'bootstrap/scss/variables';

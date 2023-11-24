@@ -33,7 +33,7 @@ flutter pub add bonsoir
 If you want to use this plugin on iOS, you must update your deployment target to _at least_ 13.0.
 At the top of `ios/Podfile`, add the following :
 
-```shell
+```shell [ios/Podfile]
 platform :ios, '13.0'
 ```
 
@@ -43,7 +43,7 @@ Under the "Minimum Deployments" section, update the iOS version to 13.0 or highe
 If you're building your app for iOS 14 or higher, you have to edit your `Info.plist` file. Just add
 the following lines :
 
-```xml
+```xml [ios/Info.plist]
 <key>NSLocalNetworkUsageDescription</key>
 <string>Describe here why you want to use Bonsoir.</string>
 <key>NSBonjourServices</key>
@@ -60,13 +60,13 @@ Don't forget to edit them according to your needs.
 ### macOS
 
 If you want to use this plugin on macOS, you must update your deployment target to _at least_ 10.15.
-At the top of `ios/Podfile`, add the following :
+At the top of `macos/Podfile`, add the following :
 
-```shell
+```shell [macos/Podfile]
 platform :ios, '10.15'
 ```
 
-Also, open your iOS project in Xcode and select Runner, Targets -> Runner and then the "General" tab.
+Also, open your macOS project in Xcode and select Runner, Targets -> Runner and then the "General" tab.
 Under the "Minimum Deployments" section, update the macOS version to 10.15 or higher.
 
 ### Linux

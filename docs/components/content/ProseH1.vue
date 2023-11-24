@@ -1,9 +1,11 @@
 <script setup lang="ts">
 defineProps<{ id?: string }>()
+
+const theme = useTheme()
 </script>
 
 <template>
-  <h1 :id="id">
+  <h1 :id="id" :class="`theme-${theme}`">
     <span class="title">
       <slot />
       <anchor class="anchor" :target="id" />
@@ -21,6 +23,10 @@ h1 {
   margin-top: 2rem;
   margin-bottom: 1rem;
   border-bottom: 1px solid rgba(black, 0.2);
+
+  &.theme-dark {
+    border-bottom: 1px solid rgba(white, 0.2);
+  }
 
   &:first-child {
     margin-top: 0;

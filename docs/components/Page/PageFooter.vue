@@ -3,7 +3,7 @@ import { siteMeta } from '~/meta'
 </script>
 
 <template>
-  <footer class="bg-light">
+  <footer>
     <ski-container class="pt-4 pb-4 text-center" fluid>
       <p>
         <a :href="`https://github.com/${siteMeta.github}`">Github</a>

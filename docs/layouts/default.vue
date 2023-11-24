@@ -1,17 +1,22 @@
+<script setup lang="ts">
+const theme = useTheme()
+useUpdateTheme()
+</script>
+
 <template>
   <div>
+    <Html :data-bs-theme="theme" />
+    <nuxt-loading-indicator :color="theme === 'light' ? 'black' : 'white'" />
     <page-navbar />
-    <div class="page-content">
-      <slot />
-    </div>
+    <slot />
     <page-footer />
   </div>
 </template>
 
-<style lang="scss" scoped>
+<style lang="scss">
 @import 'assets/colors';
 
-.page-content {
+html {
   background-color: $light;
 }
 </style>

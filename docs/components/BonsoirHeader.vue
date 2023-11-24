@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import { siteMeta } from '~/meta'
+
+const theme = useTheme()
 </script>
 
 <template>
   <header class="bonsoir-header">
     <div class="title">
-      <div class="logo">
+      <div class="logo" :class="`theme-${theme}`">
         <img src="/images/hand.svg" alt="Hand" class="hand">
       </div>
       <h1>{{ siteMeta.title }}</h1>
@@ -53,6 +55,10 @@ import { siteMeta } from '~/meta'
         width: 100%;
         background-image: url('/images/waves.svg');
         background-repeat: no-repeat;
+      }
+
+      &.theme-dark:before {
+        filter: hue-rotate(225deg);
       }
     }
   }
