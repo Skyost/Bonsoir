@@ -66,7 +66,7 @@ export default defineNuxtConfig({
   site: {
     url: siteMeta.url,
     name: siteMeta.title,
-    trailingSlash: true
+    trailingSlash: false
   },
 
   linkChecker: {

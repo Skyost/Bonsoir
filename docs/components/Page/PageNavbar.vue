@@ -20,7 +20,7 @@ const theme = useTheme()
         <ski-navbar-item to="/" :active="$route.path === '/'">
           <ski-icon icon="house-door-fill" /> Home
         </ski-navbar-item>
-        <ski-navbar-item to="/docs/" :active="$route.path.startsWith('/docs/')">
+        <ski-navbar-item to="/docs" :active="$route.path.startsWith('/docs')">
           <ski-icon icon="file-text-fill" /> Docs
         </ski-navbar-item>
       </ski-navbar-items>

@@ -21,7 +21,7 @@ or <q>Good afternoon</q> depending on the current moment of the day).
 
 ## Installation
 
-See [how to install](https://bonsoir.skyost.eu/docs/#installation) on the Bonsoir website.
+See [how to install](https://bonsoir.skyost.eu/docs#installation) on the Bonsoir website.
 
 ## Code snippet
 
