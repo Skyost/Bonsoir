@@ -53,7 +53,7 @@ await broadcast.start();
           </ski-column>
         </ski-columns>
         <div class="text-center pt-5 pb-5">
-          <ski-button to="/docs" class="btn-lg ps-5 pe-5" :variant="button">
+          <ski-button to="/docs/" class="btn-lg ps-5 pe-5" :variant="button">
             <ski-icon icon="code-slash" /> Get started
           </ski-button>
         </div>
