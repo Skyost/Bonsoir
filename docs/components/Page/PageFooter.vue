@@ -7,8 +7,8 @@ import { siteMeta } from '~/meta'
     <ski-container class="pt-4 pb-4 text-center" fluid>
       <p>
         <a :href="`https://github.com/${siteMeta.github}`">Github</a>
-        &#128900; <a :href="`https://pub.dev/packages/${siteMeta.pubDev}`">pub.dev</a>
-        &#128900; <a :href="`https://paypal.me/${siteMeta.paypal}`">Donate</a>
+        <ski-icon class="circle" icon="circle-fill" /><a :href="`https://pub.dev/packages/${siteMeta.pubDev}`">pub.dev</a>
+        <ski-icon class="circle" icon="circle-fill" /><a :href="`https://paypal.me/${siteMeta.paypal}`">Donate</a>
       </p>
       <p>
         <small>
@@ -38,6 +38,12 @@ import { siteMeta } from '~/meta'
 </template>
 
 <style lang="scss" scoped>
+.circle {
+  font-size: 3px;
+  vertical-align: middle;
+  margin: 0 6px;
+}
+
 .icons {
   padding-left: 0;
   margin-bottom: 0;
