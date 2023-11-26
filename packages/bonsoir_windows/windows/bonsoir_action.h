@@ -26,12 +26,12 @@ namespace bonsoir_windows {
   class SuccessObject : public EventObject {
    public:
     std::string id;
-    BonsoirService *service;
+    std::shared_ptr<BonsoirService> service;
 
     SuccessObject(std::string _id, std::string _message)
       : SuccessObject(_id, _message, nullptr){};
 
-    SuccessObject(std::string _id, std::string _message, BonsoirService *_service);
+    SuccessObject(std::string _id, std::string _message, std::shared_ptr<BonsoirService> _service);
 
     void process(BonsoirAction *action) override;
 
@@ -74,14 +74,14 @@ namespace bonsoir_windows {
       onSuccess(_id, _message, nullptr);
     }
 
-    void onSuccess(std::string _id, std::string _message, BonsoirService *_service) {
-      SuccessObject successObject = SuccessObject(_id, _message, _service);
-      onEvent(&successObject);
+    void onSuccess(std::string _id, std::string _message, std::shared_ptr<BonsoirService> _service) {
+      std::shared_ptr<EventObject> successObjectPtr = std::make_shared<SuccessObject>(_id, _message, _service);
+      onEvent(successObjectPtr);
     }
 
     void onError(std::string _message, EncodableValue _error) {
-      ErrorObject errorObject = ErrorObject(_message, _error);
-      onEvent(&errorObject);
+      std::shared_ptr<ErrorObject> errorObjectPtr = std::make_shared<ErrorObject>(_message, _error);
+      onEvent(errorObjectPtr);
     }
 
     void log(std::string message);
@@ -91,12 +91,12 @@ namespace bonsoir_windows {
    protected:
     DNS_SERVICE_CANCEL cancelHandle{};
     std::shared_ptr<EventChannel<EncodableValue>> eventChannel;
-    std::atomic<int> state = 0;
 
    private:
-    void onEvent(EventObject *event);
+    void onEvent(std::shared_ptr<EventObject> eventObjectPtr);
 
     std::mutex mutex;
-    std::queue<EventObject *> eventQueue;
+    std::queue<std::shared_ptr<EventObject>> eventQueue;
+    std::atomic<int> state = 0;
   };
 }  // namespace bonsoir_windows

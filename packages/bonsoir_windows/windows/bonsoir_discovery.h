@@ -6,8 +6,8 @@ namespace bonsoir_windows {
   class BonsoirDiscovery : public BonsoirAction {
    public:
     std::string type;
-    std::list<BonsoirService> services;
-    std::map<BonsoirService *, PDNS_SERVICE_CANCEL> resolvingServices = std::map<BonsoirService *, PDNS_SERVICE_CANCEL>{};
+    std::list<std::shared_ptr<BonsoirService>> services;
+    std::map<std::shared_ptr<BonsoirService>, PDNS_SERVICE_CANCEL> resolvingServices = std::map<std::shared_ptr<BonsoirService>, PDNS_SERVICE_CANCEL>{};
 
     BonsoirDiscovery(
       int _id,
@@ -20,7 +20,7 @@ namespace bonsoir_windows {
 
     void start() override;
 
-    BonsoirService *findService(std::string serviceName, std::string serviceType);
+    std::shared_ptr<BonsoirService> findService(std::string serviceName, std::string serviceType);
 
     void resolveService(std::string serviceName, std::string serviceType);
 

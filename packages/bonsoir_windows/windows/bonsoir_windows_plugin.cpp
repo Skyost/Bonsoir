@@ -41,19 +41,19 @@ namespace bonsoir_windows {
       }
       auto hostValue = arguments->find(EncodableValue("service.host"));
       std::optional<std::string> host = hostValue == arguments->end() ? std::optional<std::string>() : std::get<std::string>(hostValue->second);
-      BonsoirService service = BonsoirService(
+      std::unique_ptr<BonsoirService> servicePtr = std::make_unique<BonsoirService>(
         std::get<std::string>(arguments->find(EncodableValue("service.name"))->second),
         std::get<std::string>(arguments->find(EncodableValue("service.type"))->second),
         std::get<int>(arguments->find(EncodableValue("service.port"))->second),
         host,
         attributes
       );
-      broadcasts[id] = std::unique_ptr<BonsoirBroadcast>(new BonsoirBroadcast(
+      broadcasts[id] = std::make_unique<BonsoirBroadcast>(
         id,
         std::get<bool>(arguments->find(EncodableValue("printLogs"))->second),
         messenger,
-        service
-      ));
+        std::move(servicePtr)
+      );
       result->Success(EncodableValue(true));
     } else if (method.compare("broadcast.start") == 0) {
       auto iterator = broadcasts.find(id);
@@ -73,12 +73,12 @@ namespace bonsoir_windows {
       // iterator->second->dispose();
       result->Success(EncodableValue(true));
     } else if (method.compare("discovery.initialize") == 0) {
-      discoveries[id] = std::unique_ptr<BonsoirDiscovery>(new BonsoirDiscovery(
+      discoveries[id] = std::make_unique<BonsoirDiscovery>(
         id,
         std::get<bool>(arguments->find(EncodableValue("printLogs"))->second),
         messenger,
         std::get<std::string>(arguments->find(EncodableValue("type"))->second)
-      ));
+      );
       result->Success(EncodableValue(true));
     } else if (method.compare("discovery.start") == 0) {
       auto iterator = discoveries.find(id);

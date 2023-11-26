@@ -1,6 +1,7 @@
 #pragma once
 
 #include "bonsoir_service.h"
+#include <iostream>
 
 namespace bonsoir_windows {
   BonsoirService::BonsoirService(

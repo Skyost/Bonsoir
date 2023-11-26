@@ -11,10 +11,10 @@ namespace bonsoir_windows {
     int _id,
     bool _printLogs,
     BinaryMessenger *_binaryMessenger,
-    BonsoirService _service
+    std::unique_ptr<BonsoirService> _servicePtr
   )
     : BonsoirAction("broadcast", _id, _printLogs, _binaryMessenger),
-      service(_service) {}
+      servicePtr(std::move(_servicePtr)) {}
 
   BonsoirBroadcast::~BonsoirBroadcast() {
     dispose();
@@ -23,7 +23,7 @@ namespace bonsoir_windows {
   void BonsoirBroadcast::start() {
     std::vector<PCWSTR> propertyKeys;
     std::vector<PCWSTR> propertyValues;
-    for (const auto &[key, value] : service.attributes) {
+    for (const auto &[key, value] : servicePtr->attributes) {
       PCWSTR duplicatedKey = _wcsdup(toUtf16(key).c_str());
       PCWSTR duplicatedValue = _wcsdup(toUtf16(value).c_str());
       if (duplicatedKey != nullptr && duplicatedValue != nullptr) {
@@ -35,18 +35,18 @@ namespace bonsoir_windows {
     propertyValues.push_back(nullptr);
 
     PIP4_ADDRESS ipAddress = nullptr;
-    if (service.host.has_value() && isValidIPv4(service.host.value())) {
-      DWORD ip = std::stoul(service.host.value());
+    if (servicePtr->host.has_value() && isValidIPv4(servicePtr->host.value())) {
+      DWORD ip = std::stoul(servicePtr->host.value());
       ipAddress = &ip;
     }
 
     auto computerHost = (getComputerName() + L".local");
     PDNS_SERVICE_INSTANCE serviceInstance = DnsServiceConstructInstance(
-      toUtf16(service.name + "." + service.type + ".local").c_str(),
+      toUtf16(servicePtr->name + "." + servicePtr->type + ".local").c_str(),
       computerHost.c_str(),
       nullptr,
       nullptr,
-      static_cast<WORD>(service.port),
+      static_cast<WORD>(servicePtr->port),
       0,
       0,
       static_cast<DWORD>(propertyKeys.size() - 1),
@@ -63,9 +63,9 @@ namespace bonsoir_windows {
     auto status = DnsServiceRegister(&registerRequest, &cancelHandle);
     if (status == DNS_REQUEST_PENDING) {
       BonsoirAction::start();
-      log("Bonsoir service broadcast initialized : " + service.getDescription());
+      log("Bonsoir service broadcast initialized : " + servicePtr->getDescription());
     } else {
-      onError("Bonsoir service failed to broadcast : " + service.getDescription() + ", error code : " + std::to_string(status), EncodableValue(std::to_string(status)));
+      onError("Bonsoir service failed to broadcast : " + servicePtr->getDescription() + ", error code : " + std::to_string(status), EncodableValue(std::to_string(status)));
       dispose();
     }
   }
@@ -73,7 +73,7 @@ namespace bonsoir_windows {
   void BonsoirBroadcast::dispose() {
     stop();
     if (eventChannel != nullptr) {
-      onSuccess("broadcastStopped", "Bonsoir service broadcast stopped : " + service.getDescription(), &service);
+      onSuccess("broadcastStopped", "Bonsoir service broadcast stopped : " + servicePtr->getDescription(), servicePtr);
       DnsServiceDeRegister(&registerRequest, nullptr);
       DnsServiceRegisterCancel(&cancelHandle);
     }
@@ -89,16 +89,16 @@ namespace bonsoir_windows {
     if (name == "") {
       return;
     }
-    BonsoirService service = broadcast->service;
-    if (service.name != name) {
-      std::string oldName = service.name;
-      service.name = name;
-      broadcast->onSuccess("broadcastNameAlreadyExists", "Trying to broadcast a service with a name that already exists : " + service.getDescription() + "(old name was " + oldName + ")", &service);
+    std::shared_ptr<BonsoirService> servicePtr = broadcast->servicePtr;
+    if (servicePtr->name != name) {
+      std::string oldName = servicePtr->name;
+      servicePtr->name = name;
+      broadcast->onSuccess("broadcastNameAlreadyExists", "Trying to broadcast a service with a name that already exists : " + servicePtr->getDescription() + "(old name was " + oldName + ")", servicePtr);
     }
     if (status == ERROR_SUCCESS) {
-      broadcast->onSuccess("broadcastStarted", "Bonsoir service broadcast started : " + service.getDescription(), &service);
+      broadcast->onSuccess("broadcastStarted", "Bonsoir service broadcast started : " + servicePtr->getDescription(), servicePtr);
     } else {
-      broadcast->onError("Bonsoir service failed to broadcast : " + service.getDescription(), EncodableValue(std::to_string(status)));
+      broadcast->onError("Bonsoir service failed to broadcast : " + servicePtr->getDescription(), EncodableValue(std::to_string(status)));
       broadcast->dispose();
     }
   }

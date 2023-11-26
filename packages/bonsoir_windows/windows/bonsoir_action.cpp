@@ -59,9 +59,9 @@ namespace bonsoir_windows {
     }
   }
 
-  void BonsoirAction::onEvent(EventObject *event) {
-    log(event->message);
-    eventQueue.push(event);
+  void BonsoirAction::onEvent(std::shared_ptr<EventObject> eventObjectPtr) {
+    log(eventObjectPtr->message);
+    eventQueue.push(std::move(eventObjectPtr));
     processEventQueue();
   }
 
@@ -84,7 +84,7 @@ namespace bonsoir_windows {
   EventObject::EventObject(std::string _message)
     : message(_message) {}
 
-  SuccessObject::SuccessObject(std::string _id, std::string _message, BonsoirService *_service)
+  SuccessObject::SuccessObject(std::string _id, std::string _message, std::shared_ptr<BonsoirService> _service)
     : EventObject(_message), id(_id), service(_service) {}
 
   void SuccessObject::process(BonsoirAction *action) {

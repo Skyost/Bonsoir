@@ -38,17 +38,17 @@ namespace bonsoir_windows {
     }
   }
 
-  BonsoirService *BonsoirDiscovery::findService(std::string serviceName, std::string serviceType) {
+  std::shared_ptr<BonsoirService> BonsoirDiscovery::findService(std::string serviceName, std::string serviceType) {
     for (auto &found_service : this->services) {
-      if (found_service.name == serviceName && found_service.type == serviceType) {
-        return &found_service;
+      if (found_service->name == serviceName && found_service->type == serviceType) {
+        return found_service;
       }
     }
     return nullptr;
   }
 
   void BonsoirDiscovery::resolveService(std::string serviceName, std::string serviceType) {
-    BonsoirService *service = findService(serviceName, serviceType);
+    std::shared_ptr<BonsoirService> service = findService(serviceName, serviceType);
     if (service == nullptr) {
       onError("Trying to resolve an undiscovered service : " + serviceName, EncodableValue(serviceName));
       return;
@@ -101,16 +101,16 @@ namespace bonsoir_windows {
     std::string name = std::get<0>(serviceData);
     std::string type = std::get<1>(serviceData);
 
-    BonsoirService *service = discovery->findService(name, type);
+    std::shared_ptr<BonsoirService> service = discovery->findService(name, type);
     if (dnsRecord->dwTtl <= 0) {
       if (service) {
         discovery->onSuccess("discoveryServiceLost", "A Bonsoir service has been lost : " + service->getDescription(), service);
-        discovery->services.remove(*service);
+        discovery->services.remove(service);
       }
       return;
     }
     if (!service) {
-      BonsoirService newService = BonsoirService(name, type, 0, std::optional<std::string>(), std::map<std::string, std::string>());
+      std::shared_ptr<BonsoirService> newService = std::make_shared<BonsoirService>(name, type, 0, std::optional<std::string>(), std::map<std::string, std::string>());
       PDNS_RECORD txtRecord = dnsRecord;
       while (txtRecord != nullptr) {
         if (txtRecord->wType == DNS_TYPE_TEXT) {
@@ -124,22 +124,22 @@ namespace bonsoir_windows {
               key = record.substr(0, splitIndex);
               value = record.substr(splitIndex + 1, record.length());
             }
-            if (key.rfind("=", 0) == std::string::npos && newService.attributes.find(key) == newService.attributes.end()) {
-              newService.attributes.insert({key, value});
+            if (key.rfind("=", 0) == std::string::npos && newService->attributes.find(key) == newService->attributes.end()) {
+              newService->attributes.insert({key, value});
             }
           }
         }
         txtRecord = txtRecord->pNext;
       }
       discovery->services.push_back(newService);
-      discovery->onSuccess("discoveryServiceFound", "Bonsoir has found a service : " + newService.getDescription(), &newService);
+      discovery->onSuccess("discoveryServiceFound", "Bonsoir has found a service : " + newService->getDescription(), newService);
     }
     DnsRecordListFree(dnsRecord, DnsFreeRecordList);
   }
 
   void resolveCallback(DWORD status, PVOID context, PDNS_SERVICE_INSTANCE serviceInstance) {
     auto discovery = (BonsoirDiscovery *)context;
-    BonsoirService *service = nullptr;
+    std::shared_ptr<BonsoirService> service = nullptr;
     std::string name = "";
     if (serviceInstance && serviceInstance->pszInstanceName) {
       std::string nameHost = toUtf8(serviceInstance->pszInstanceName);

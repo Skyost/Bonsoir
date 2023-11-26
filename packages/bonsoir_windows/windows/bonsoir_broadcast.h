@@ -7,13 +7,13 @@ using namespace flutter;
 namespace bonsoir_windows {
   class BonsoirBroadcast : public BonsoirAction {
    public:
-    BonsoirService service;
+    std::shared_ptr<BonsoirService> servicePtr;
 
     BonsoirBroadcast(
       int _id,
       bool _printLogs,
       flutter::BinaryMessenger *_binaryMessenger,
-      BonsoirService _service
+      std::unique_ptr<BonsoirService> _servicePtr
     );
 
     BonsoirBroadcast(BonsoirBroadcast const &) = delete;
