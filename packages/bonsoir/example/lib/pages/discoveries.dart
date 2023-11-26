@@ -16,10 +16,31 @@ class DiscoveriesPageWidget extends ConsumerWidget {
     BonsoirDiscoveryModel discoveryModel = ref.watch(discoveryModelProvider);
     return ServiceList.fromMap(
       services: discoveryModel.services,
-      emptyText: 'Currently not discovered any service.',
-      typeHeaderWidgetBuilder: (context, type) => _TypeHeaderWidget(
-        type: type,
-      ),
+      emptyText: 'Currently not discovering any service.',
+      typeHeaderWidgetBuilder: (context, type) {
+        _TypeHeaderWidget headerWidget = _TypeHeaderWidget(type: type);
+        return discoveryModel.services[type]!.isEmpty
+            ? Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  headerWidget,
+                  Card(
+                    child: ListTile(
+                      contentPadding: const EdgeInsets.all(10),
+                      leading: const CircularProgressIndicator(),
+                      title: Padding(
+                        padding: const EdgeInsets.only(left: 10),
+                        child: Text(
+                          'Searching for services of type "$type"...',
+                          style: const TextStyle(fontStyle: FontStyle.italic),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              )
+            : headerWidget;
+      },
       trailingServiceWidgetBuilder: (context, service) => service is ResolvedBonsoirService
           ? null
           : TextButton(

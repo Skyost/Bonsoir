@@ -20,6 +20,12 @@ class BonsoirDiscoveryModel extends BonsoirActionModel<String, BonsoirDiscovery,
   @override
   BonsoirDiscovery createAction(String argument) => BonsoirDiscovery(type: argument);
 
+  @override
+  Future<void> start(String argument, {bool notify = true}) async {
+    _services[argument] ??= [];
+    await super.start(argument, notify: notify);
+  }
+
   /// Returns the services map.
   Map<String, List<BonsoirService>> get services => Map.from(_services);
 
@@ -30,23 +36,16 @@ class BonsoirDiscoveryModel extends BonsoirActionModel<String, BonsoirDiscovery,
     }
 
     BonsoirService service = event.service!;
-    List<BonsoirService>? services = _services[service.type];
+    List<BonsoirService> services = _services[service.type]!;
     if (event.type == BonsoirDiscoveryEventType.discoveryServiceFound) {
-      if (services == null) {
-        _services[service.type] = [service];
-      } else {
-        services.add(service);
-      }
+      services.add(service);
     } else if (event.type == BonsoirDiscoveryEventType.discoveryServiceResolved) {
-      services?.removeWhere((foundService) => foundService.name == service.name);
-      services?.add(service);
+      services.removeWhere((foundService) => foundService.name == service.name);
+      services.add(service);
     } else if (event.type == BonsoirDiscoveryEventType.discoveryServiceLost) {
-      services?.removeWhere((foundService) => foundService.name == service.name);
-      if (services != null && services.isEmpty) {
-        _services.remove(service.type);
-      }
+      services.removeWhere((foundService) => foundService.name == service.name);
     }
-    services?.sort((a, b) => a.name.compareTo(b.name));
+    services.sort((a, b) => a.name.compareTo(b.name));
     notifyListeners();
   }
 
