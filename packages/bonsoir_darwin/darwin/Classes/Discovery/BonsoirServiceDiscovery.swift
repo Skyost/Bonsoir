@@ -173,7 +173,8 @@ class BonsoirServiceDiscovery: BonsoirAction {
     }
     
     /// Allows to unescape services FQDN.
-    private static func unescapeAscii(_ input: String) -> String {
+    private static func unescapeAscii(_ inputString: String) -> String {
+        let input = inputString.replacingOccurrences(of: "\\.", with: ".")
         var result = ""
         var i = 0
         while i < input.count {

@@ -242,6 +242,7 @@ class AvahiBonsoirDiscovery extends AvahiBonsoirAction<BonsoirDiscoveryEvent> wi
 
   /// Allows to unescape services FQDN.
   String _unescapeAscii(String input) {
+    input = input.replaceAll('\\.', '.');
     String result = '';
     for (int i = 0; i < input.length; i++) {
       if (input[i] == '\\' && i + 1 < input.length) {
