@@ -41,7 +41,13 @@ class BonsoirServiceDiscovery: BonsoirAction {
         case .ready:
             onSuccess("discoveryStarted", "Bonsoir discovery started : \(type)")
         case .failed(let error):
-            onError("Bonsoir has encountered an error during discovery : \(error)", error)
+            let details: Any?
+            if #available(iOS 16.4, *) {
+                details = error.errorCode
+            } else {
+                details = error.debugDescription
+            }
+            onError("Bonsoir has encountered an error during discovery : \(error)", details)
             dispose()
         case .cancelled:
             onSuccess("discoveryStopped", "Bonsoir discovery stopped : \(type)")
