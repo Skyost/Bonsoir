@@ -15,7 +15,7 @@ class BonsoirDiscovery extends BonsoirActionHandler<BonsoirDiscoveryEvent> {
     required this.type,
     required this.serviceResolver,
     required super.action,
-  });
+  }) : assert(type == BonsoirServiceNormalizer.normalizeType(type), 'The provided type "$type" is invalid.');
 
   /// Creates a new Bonsoir discovery instance.
   factory BonsoirDiscovery({
