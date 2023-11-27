@@ -1,3 +1,7 @@
+## 5.0.1
+
+ - **FIX**(windows): Fixed a bug occurring when listening to the `eventStream` AFTER starting the action. ([a4e788d7](https://github.com/Skyost/Bonsoir/commit/a4e788d7b71dd256b336b9edd5804892b48d4169))
+
 ## 5.0.0
 
  - **FIX**(windows): Fixed how we handle FQDN and TXT records on Windows. ([1e7d5451](https://github.com/Skyost/Bonsoir/commit/1e7d545197f2806d46d1923e5987aef64437fc19))

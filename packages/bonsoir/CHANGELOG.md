@@ -1,3 +1,9 @@
+## 5.1.0
+
+ - **REFACTOR**(docs): Removed trailing slashes. ([34c349bd](https://github.com/Skyost/Bonsoir/commit/34c349bdf5913828dfb82cfa8322df4ac459b435))
+ - **FIX**(bonsoir): Now checking if discovery types are valid. ([e67f6984](https://github.com/Skyost/Bonsoir/commit/e67f6984f537be976c979d8c56ee3f620cf8dce9))
+ - **FEAT**(example): Now displaying discoveries with empty service lists. ([5b6952b2](https://github.com/Skyost/Bonsoir/commit/5b6952b26c54af550bfbbc67a1932b622dd292f5))
+
 ## 5.0.3
 
  - **FIX**(example): Fixed some text fields not being disposed. ([612785d1](https://github.com/Skyost/Bonsoir/commit/612785d160e7d119d96e3c821221cede88a20f3e))

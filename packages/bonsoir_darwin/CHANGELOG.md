@@ -1,3 +1,8 @@
+## 5.0.2
+
+ - **FIX**(darwin): Fixed discovery errors causing app crashes. ([661f1bbf](https://github.com/Skyost/Bonsoir/commit/661f1bbf7d1f3094149b516549769298ddb1dc56))
+ - **FIX**(darwin,linux): Fixed `unescapeAscii` functions. ([314df41e](https://github.com/Skyost/Bonsoir/commit/314df41ef9da5e23837ea21a44b61ab9a4722e36))
+
 ## 5.0.1
 
  - **REFACTOR**(darwin): Formatted Swift files. ([2a7f093a](https://github.com/Skyost/Bonsoir/commit/2a7f093a3be5e6aee26d395785d3973d967d9ffc))
