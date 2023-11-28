@@ -42,7 +42,7 @@ class BonsoirServiceDiscovery: BonsoirAction {
             onSuccess("discoveryStarted", "Bonsoir discovery started : \(type)")
         case .failed(let error):
             let details: Any?
-            if #available(iOS 16.4, *) {
+            if #available(iOS 16.4, macOS 13.3, *) {
                 details = error.errorCode
             } else {
                 details = error.debugDescription
