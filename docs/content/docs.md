@@ -135,7 +135,7 @@ await discovery.start();
 await discovery.stop();
 ```
 
-**Note.** If you're transitioning from `multicast_dns`, note that types don't end with ".local".
+**Note.** If you're transitioning from `multicast_dns`, note that types don't end with <q>.local</q>.
 
 # In-depth example
 
