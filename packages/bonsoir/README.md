@@ -68,7 +68,7 @@ discovery.eventStream!.listen((event) { // `eventStream` is not null as the disc
   }
 });
 
-// Start discovery **after** having listened to discovery events :
+// Start the discovery **after** listening to discovery events :
 await discovery.start();
 
 // Then if you want to stop the discovery :
