@@ -135,6 +135,8 @@ await discovery.start();
 await discovery.stop();
 ```
 
+**Note.** If you're transitioning from `multicast_dns`, note that types don't end with ".local".
+
 # In-depth example
 
 If you want a <q>full</q> example, don't hesitate to check
