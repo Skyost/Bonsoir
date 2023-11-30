@@ -1,3 +1,9 @@
+## 5.1.0
+
+ - **REFACTOR**(darwin): Now using `Generated` on Darwin. ([46603be1](https://github.com/Skyost/Bonsoir/commit/46603be19ec128092bb074158dae1197d1f4c028))
+ - **FIX**(darwin): Fixed discovery errors not being detailed on macOS. ([8b2d075b](https://github.com/Skyost/Bonsoir/commit/8b2d075b2276ce16b8fa13dd030bedb80793d0a1))
+ - **FEAT**: Now generating constants for platform implementations. ([3b0834d6](https://github.com/Skyost/Bonsoir/commit/3b0834d61c4b4b1a420a1b728808450fc410393d))
+
 ## 5.0.2
 
  - **FIX**(darwin): Fixed discovery errors causing app crashes. ([661f1bbf](https://github.com/Skyost/Bonsoir/commit/661f1bbf7d1f3094149b516549769298ddb1dc56))

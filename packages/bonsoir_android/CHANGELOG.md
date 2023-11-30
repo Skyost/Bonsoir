@@ -1,3 +1,8 @@
+## 5.1.0
+
+ - **FIX**(android): Fixed `Generated` implementation. ([e15cbb6a](https://github.com/Skyost/Bonsoir/commit/e15cbb6ade2d0a8f2fb8698eb016ec8105e2d89c))
+ - **FEAT**: Now generating constants for platform implementations. ([3b0834d6](https://github.com/Skyost/Bonsoir/commit/3b0834d61c4b4b1a420a1b728808450fc410393d))
+
 ## 5.0.2
 
  - **REFACTOR**(android): Formatted some modified files. ([5c4a434a](https://github.com/Skyost/Bonsoir/commit/5c4a434a6f4636515c7c6febe713749170528b36))

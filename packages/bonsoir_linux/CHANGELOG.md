@@ -1,3 +1,7 @@
+## 5.1.0
+
+ - **FEAT**: Now generating constants for platform implementations. ([3b0834d6](https://github.com/Skyost/Bonsoir/commit/3b0834d61c4b4b1a420a1b728808450fc410393d))
+
 ## 5.0.1
 
  - **FIX**(darwin,linux): Fixed `unescapeAscii` functions. ([314df41e](https://github.com/Skyost/Bonsoir/commit/314df41ef9da5e23837ea21a44b61ab9a4722e36))

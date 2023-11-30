@@ -1,3 +1,8 @@
+## 5.1.0
+
+ - **REFACTOR**: Removed `AutoStopBonsoirAction`. ([441063ae](https://github.com/Skyost/Bonsoir/commit/441063ae5ee2a4bd9b3f8779ab05fd6f9b3d83bd))
+ - **FEAT**: Now generating constants for platform implementations. ([3b0834d6](https://github.com/Skyost/Bonsoir/commit/3b0834d61c4b4b1a420a1b728808450fc410393d))
+
 ## 5.0.0
 
 > Note: This release has breaking changes.
