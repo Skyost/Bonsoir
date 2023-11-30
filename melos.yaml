@@ -11,6 +11,12 @@ command:
     branch: master
     workspaceChangelog: false
     updateGitTagRefs: false
+    hooks:
+      pre: |
+        cd packages/bonsoir_platform_interface
+        dart run bonsoir_platform_interface:generate
+        cd ../../
+        melos analyze
     message: |
       chore(release): Publish packages.
 
