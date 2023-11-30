@@ -73,14 +73,12 @@ abstract class BonsoirAction(
      * @param parameters The message parameters.
      */
     fun onSuccess(eventId: String, service: BonsoirService? = null, message: String? = null, parameters: List<Any> = emptyList()) {
-        val logMessage = message ?: logMessages[eventId]
+        val logMessage = message ?: logMessages[eventId]!!
         val logParameters = ArrayList(parameters)
         if (service != null && !parameters.contains(service)) {
             logParameters.add(0, service)
         }
-        if (logMessage != null) {
-            log(logMessage, logParameters)
-        }
+        log(logMessage, logParameters)
         Handler(Looper.getMainLooper()).post {
             eventSink?.success(SuccessObject(eventId, service).toJson())
         }
