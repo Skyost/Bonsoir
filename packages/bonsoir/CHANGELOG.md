@@ -1,8 +1,7 @@
 ## 5.1.1
 
  - **REFACTOR**: Removed `AutoStopBonsoirAction`. ([441063ae](https://github.com/Skyost/Bonsoir/commit/441063ae5ee2a4bd9b3f8779ab05fd6f9b3d83bd))
- - **REFACTOR**(darwin): Now using `Generated` on Darwin. ([46603be1](https://github.com/Skyost/Bonsoir/commit/46603be19ec128092bb074158dae1197d1f4c028))
- - **FIX**(docs): Fixed a typo. ([74181554](https://github.com/Skyost/Bonsoir/commit/74181554a4435025b91aff74850cd13b48a9380f))
+ - **FEAT**: Now generating constants for platform implementations. ([3b0834d6](https://github.com/Skyost/Bonsoir/commit/3b0834d61c4b4b1a420a1b728808450fc410393d))
 
 ## 5.1.0
 
