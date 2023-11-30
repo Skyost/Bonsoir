@@ -1,5 +1,6 @@
 import 'package:bonsoir_platform_interface/src/actions/action.dart';
-import 'package:bonsoir_platform_interface/src/events/discovery_event.dart';
+import 'package:bonsoir_platform_interface/src/events/discovery.dart';
+import 'package:bonsoir_platform_interface/src/events/types/discovery.dart';
 import 'package:bonsoir_platform_interface/src/service/service.dart';
 import 'package:flutter/foundation.dart';
 
@@ -21,10 +22,7 @@ class MethodChannelBonsoirDiscoveryAction extends MethodChannelBonsoirAction<Bon
   BonsoirDiscoveryEvent transformPlatformEvent(dynamic event) {
     Map<String, dynamic> data = Map<String, dynamic>.from(event);
     return BonsoirDiscoveryEvent(
-      type: BonsoirDiscoveryEventType.values.firstWhere(
-        (type) => type.id == data['id'],
-        orElse: () => BonsoirDiscoveryEventType.unknown,
-      ),
+      type: BonsoirDiscoveryEventType.getById(data['id']),
       service: data.containsKey('service') ? BonsoirService.fromJson(Map<String, dynamic>.from(data['service'])) : null,
     );
   }

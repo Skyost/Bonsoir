@@ -10,6 +10,9 @@ abstract class AvahiBonsoirAction<T extends BonsoirEvent> extends BonsoirAction<
   /// A string describing the current action.
   final String action;
 
+  /// The log messages map.
+  final Map<String, String> logMessages;
+
   /// Whether to print logs.
   final bool printLogs;
 
@@ -28,6 +31,7 @@ abstract class AvahiBonsoirAction<T extends BonsoirEvent> extends BonsoirAction<
   /// Creates a new Avahi bonsoir action instance.
   AvahiBonsoirAction({
     required this.action,
+    required this.logMessages,
     required this.printLogs,
     DBusClient? busClient,
   }) : busClient = busClient ?? DBusClient.system();
@@ -42,17 +46,20 @@ abstract class AvahiBonsoirAction<T extends BonsoirEvent> extends BonsoirAction<
   bool get isStopped => _isStopped;
 
   /// Triggered when an event occurs.
-  void onEvent(T event, [String? message]) {
+  void onEvent(T event, { String? message, List parameters = const [] }) {
+    message ??= logMessages[event.type];
     if (message != null) {
-      log(message);
+      log(message, parameters: parameters);
     }
     _controller.add(event);
   }
 
   /// Triggered when an error occurs.
-  void onError(BonsoirLinuxError error) {
-    log(error.message);
-    _controller.addError(error);
+  void onError({ String? message, List parameters = const [], Object? details }) {
+    message ??= logMessages['${action}Error']!;
+    message = _format(message, parameters);
+    log(message);
+    _controller.addError(BonsoirLinuxError(message, details));
   }
 
   @override
@@ -86,10 +93,19 @@ If you have previously called "AvahiBonsoirDiscovery.stop()" on this instance, y
   }
 
   /// Prints a message to the console, if enabled.
-  void log(String message) {
+  void log(String message, { List parameters = const [] }) {
     if (printLogs) {
-      print('[$action] $message');
+      print('[$action] ${_format(message, parameters)}');
     }
+  }
+
+  /// Formats a given [message] with the [parameters].
+  String _format(String message, List parameters) {
+    String result = message;
+    for (dynamic parameter in parameters) {
+      result = result.replaceFirst('%s', parameter.toString());
+    }
+    return result;
   }
 }
 

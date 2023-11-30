@@ -2,6 +2,7 @@
 
 #include "bonsoir_discovery.h"
 
+#include "generated.h"
 #include "utilities.h"
 
 using namespace flutter;
@@ -13,7 +14,7 @@ namespace bonsoir_windows {
     BinaryMessenger *_binaryMessenger,
     std::string _type
   )
-    : BonsoirAction("discovery", _id, _printLogs, _binaryMessenger),
+    : BonsoirAction("discovery", Generated::discoveryMessages, _id, _printLogs, _binaryMessenger),
       type(_type) {}
 
   BonsoirDiscovery::~BonsoirDiscovery() {
@@ -31,9 +32,9 @@ namespace bonsoir_windows {
     DNS_STATUS status = DnsServiceBrowse(&browseRequest, &cancelHandle);
     if (status == DNS_REQUEST_PENDING) {
       BonsoirAction::start();
-      onSuccess("discoveryStarted", "Bonsoir discovery started : " + type);
+      onSuccess(Generated::discoveryStarted, nullptr, std::list<std::string>{type});
     } else {
-      onError("Bonsoir has encountered an error during discovery : " + std::to_string(status), EncodableValue(std::to_string(status)));
+      onError(EncodableValue(std::to_string(status)), std::list<std::string>{std::to_string(status)});
       dispose();
     }
   }
@@ -48,13 +49,13 @@ namespace bonsoir_windows {
   }
 
   void BonsoirDiscovery::resolveService(std::string serviceName, std::string serviceType) {
-    std::shared_ptr<BonsoirService> service = findService(serviceName, serviceType);
-    if (service == nullptr) {
-      onError("Trying to resolve an undiscovered service : " + serviceName, EncodableValue(serviceName));
+    std::shared_ptr<BonsoirService> servicePtr = findService(serviceName, serviceType);
+    if (servicePtr == nullptr) {
+      onError(nullptr, std::list<std::string>{serviceName, serviceType}, logMessages.find(Generated::discoveryUndiscoveredServiceResolveFailed)->second);
       return;
     }
 
-    auto queryName = toUtf16(service->name + "." + service->type + ".local");
+    auto queryName = toUtf16(servicePtr->name + "." + servicePtr->type + ".local");
     DNS_SERVICE_RESOLVE_REQUEST resolveRequest{};
     DNS_SERVICE_CANCEL resolveCancelHandle{};
     resolveRequest.Version = DNS_QUERY_REQUEST_VERSION1;
@@ -64,15 +65,15 @@ namespace bonsoir_windows {
     resolveRequest.pQueryContext = this;
     DNS_STATUS status = DnsServiceResolve(&resolveRequest, &resolveCancelHandle);
     if (status == DNS_REQUEST_PENDING) {
-      resolvingServices[service] = &resolveCancelHandle;
+      resolvingServices[servicePtr] = &resolveCancelHandle;
     } else {
-      onError("Bonsoir has failed to resolve a service : " + std::to_string(status), EncodableValue(status));
+      onSuccess(Generated::discoveryServiceResolveFailed, servicePtr, std::list<std::string>{std::to_string(status)});
     }
   }
 
   void BonsoirDiscovery::dispose() {
     BonsoirAction::stop();
-    onSuccess("discoveryStopped", "Bonsoir discovery stopped : " + type);
+    onSuccess(Generated::discoveryStopped, nullptr, std::list<std::string>{type});
     for (auto const &[key, value] : resolvingServices) {
       DnsServiceResolveCancel(value);
     }
@@ -92,7 +93,7 @@ namespace bonsoir_windows {
     }
 
     if (status != ERROR_SUCCESS) {
-      discovery->onError("Bonsoir has encountered an error during discovery : " + std::to_string(status), EncodableValue(std::to_string(status)));
+      discovery->onError(EncodableValue(std::to_string(status)), std::list<std::string>{std::to_string(status)});
       discovery->dispose();
       return;
     }
@@ -101,16 +102,16 @@ namespace bonsoir_windows {
     std::string name = std::get<0>(serviceData);
     std::string type = std::get<1>(serviceData);
 
-    std::shared_ptr<BonsoirService> service = discovery->findService(name, type);
+    std::shared_ptr<BonsoirService> servicePtr = discovery->findService(name, type);
     if (dnsRecord->dwTtl <= 0) {
-      if (service) {
-        discovery->onSuccess("discoveryServiceLost", "A Bonsoir service has been lost : " + service->getDescription(), service);
-        discovery->services.remove(service);
+      if (servicePtr) {
+        discovery->onSuccess(Generated::discoveryServiceLost, servicePtr);
+        discovery->services.remove(servicePtr);
       }
       return;
     }
-    if (!service) {
-      std::shared_ptr<BonsoirService> newService = std::make_shared<BonsoirService>(name, type, 0, std::optional<std::string>(), std::map<std::string, std::string>());
+    if (!servicePtr) {
+      std::shared_ptr<BonsoirService> newServicePtr = std::make_shared<BonsoirService>(name, type, 0, std::nullopt, std::map<std::string, std::string>());
       PDNS_RECORD txtRecord = dnsRecord;
       while (txtRecord != nullptr) {
         if (txtRecord->wType == DNS_TYPE_TEXT) {
@@ -124,50 +125,52 @@ namespace bonsoir_windows {
               key = record.substr(0, splitIndex);
               value = record.substr(splitIndex + 1, record.length());
             }
-            if (key.rfind("=", 0) == std::string::npos && newService->attributes.find(key) == newService->attributes.end()) {
-              newService->attributes.insert({key, value});
+            if (key.rfind("=", 0) == std::string::npos && newServicePtr->attributes.find(key) == newServicePtr->attributes.end()) {
+              newServicePtr->attributes.insert({key, value});
             }
           }
         }
         txtRecord = txtRecord->pNext;
       }
-      discovery->services.push_back(newService);
-      discovery->onSuccess("discoveryServiceFound", "Bonsoir has found a service : " + newService->getDescription(), newService);
+      discovery->services.push_back(newServicePtr);
+      discovery->onSuccess(Generated::discoveryServiceFound, newServicePtr);
     }
     DnsRecordListFree(dnsRecord, DnsFreeRecordList);
   }
 
   void resolveCallback(DWORD status, PVOID context, PDNS_SERVICE_INSTANCE serviceInstance) {
     auto discovery = (BonsoirDiscovery *)context;
-    std::shared_ptr<BonsoirService> service = nullptr;
-    std::string name = "";
+    std::shared_ptr<BonsoirService> servicePtr = nullptr;
+    std::tuple<std::string, std::string> serviceData = {"NULL", "NULL"};
     if (serviceInstance && serviceInstance->pszInstanceName) {
       std::string nameHost = toUtf8(serviceInstance->pszInstanceName);
-      auto serviceData = parseBonjourFqdn(nameHost);
-      service = discovery->findService(std::get<0>(serviceData), std::get<1>(serviceData));
+      serviceData = parseBonjourFqdn(nameHost);
+      servicePtr = discovery->findService(std::get<0>(serviceData), std::get<1>(serviceData));
     }
     if (status != ERROR_SUCCESS) {
-      if (service) {
-        discovery->onSuccess("discoveryServiceResolveFailed", "Bonsoir has failed to resolve a service : " + service->getDescription(), service);
+      if (servicePtr) {
+        discovery->onSuccess(Generated::discoveryServiceResolveFailed, servicePtr, std::list<std::string>{std::to_string(status)});
       } else {
-        discovery->onError("Bonsoir has failed to resolve a service : " + std::to_string(status), EncodableValue(std::to_string(status)));
+        discovery->onError(EncodableValue(std::to_string(status)), std::list<std::string>{"NULL", std::to_string(status)}, discovery->logMessages.find(Generated::discoveryServiceResolveFailed)->second);
       }
       if (serviceInstance) {
         DnsServiceFreeInstance(serviceInstance);
       }
       return;
     }
-    if (!service) {
-      discovery->onError("Trying to resolve an undiscovered service : " + name, EncodableValue(name));
+    if (!servicePtr) {
+      discovery->onError(nullptr, std::list<std::string>{std::get<0>(serviceData), std::get<1>(serviceData)}, discovery->logMessages.find(Generated::discoveryServiceResolveFailed)->second);
       if (serviceInstance) {
         DnsServiceFreeInstance(serviceInstance);
       }
       return;
     }
-    service->host = toUtf8(serviceInstance->pszHostName);
-    service->port = serviceInstance->wPort;
-    DnsServiceFreeInstance(serviceInstance);
-    discovery->resolvingServices.erase(service);
-    discovery->onSuccess("discoveryServiceResolved", "Bonsoir has resolved a service : " + service->getDescription(), service);
+    if (serviceInstance) {
+      servicePtr->host = toUtf8(serviceInstance->pszHostName);
+      servicePtr->port = serviceInstance->wPort;
+      DnsServiceFreeInstance(serviceInstance);
+    }
+    discovery->resolvingServices.erase(servicePtr);
+    discovery->onSuccess(Generated::discoveryServiceResolved, servicePtr);
   }
 }  // namespace bonsoir_windows

@@ -20,6 +20,7 @@ import io.flutter.plugin.common.EventChannel
 abstract class BonsoirAction(
     protected val id: Int,
     private val action: String,
+    protected val logMessages: Map<String, String>,
     private val printLogs: Boolean,
     private val onDispose: Runnable,
     protected val nsdManager: NsdManager,
@@ -67,12 +68,18 @@ abstract class BonsoirAction(
      * Triggered when a success occurs.
      *
      * @param eventId The event id.
-     * @param message The message.
      * @param service The service involved.
+     * @param message The message.
+     * @param parameters The message parameters.
      */
-    fun onSuccess(eventId: String, message: String? = null, service: BonsoirService? = null) {
-        if (message != null) {
-            log(message)
+    fun onSuccess(eventId: String, service: BonsoirService? = null, message: String? = null, parameters: List<Any> = emptyList()) {
+        val logMessage = message ?: logMessages[eventId]
+        val logParameters = ArrayList(parameters)
+        if (service != null && !parameters.contains(service)) {
+            logParameters.add(0, service)
+        }
+        if (logMessage != null) {
+            log(logMessage, logParameters)
         }
         Handler(Looper.getMainLooper()).post {
             eventSink?.success(SuccessObject(eventId, service).toJson())
@@ -83,12 +90,14 @@ abstract class BonsoirAction(
      * Triggered when an error occurs.
      *
      * @param message The message.
+     * @param parameters The message parameters.
      * @param details The error details.
      */
-    fun onError(message: String, details: Any? = null) {
-        log(message)
+    fun onError(message: String? = null, parameters: List<Any>, details: Any? = null) {
+        val logMessage = format(message ?: logMessages["${action}Error"]!!, parameters)
+        log(logMessage)
         Handler(Looper.getMainLooper()).post {
-            eventSink?.error("${action}Error", message, details)
+            eventSink?.error("${action}Error", logMessage, details)
         }
     }
 
@@ -131,9 +140,23 @@ abstract class BonsoirAction(
      *
      * @param message The message.
      */
-    fun log(message: String) {
+    fun log(message: String, parameters: List<Any> = emptyList()) {
         if (printLogs) {
-            Log.d(tag, "[$id] $message")
+            Log.d(tag, "[$action] [$id] ${format(message, parameters)}")
         }
+    }
+
+    /**
+     * Formats a given message with the given parameters.
+     *
+     * @param message The message.
+     * @param parameters The parameters.
+     */
+    private fun format(message: String, parameters: List<Any>): String {
+        var result: String = message
+        for (parameter in parameters) {
+            result = result.replaceFirst("%s", parameter.toString())
+        }
+        return result;
     }
 }

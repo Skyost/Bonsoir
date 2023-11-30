@@ -75,7 +75,7 @@ class BonsoirAction: NSObject, FlutterStreamHandler {
             #if canImport(os)
                 os_log("[%d] %s", log: OSLog(subsystem: SwiftBonsoirPlugin.package, category: action), type: OSLogType.info, id, message)
             #else
-                NSLog("\n[\(id)] \(message)")
+                NSLog("\n[\(action)] [\(id)] \(message)")
             #endif
         }
     }

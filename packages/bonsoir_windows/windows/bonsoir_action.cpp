@@ -11,11 +11,13 @@ using namespace flutter;
 namespace bonsoir_windows {
   BonsoirAction::BonsoirAction(
     std::string _action,
+    const std::map<std::string, std::string> _logMessages,
     int _id,
     bool _printLogs,
     BinaryMessenger *_binaryMessenger
   )
     : action(_action),
+      logMessages(_logMessages),
       id(_id),
       eventChannel(std::make_unique<EventChannel<EncodableValue>>(_binaryMessenger, "fr.skyost.bonsoir." + _action + "." + std::to_string(id), &StandardMethodCodec::GetInstance())),
       printLogs(_printLogs) {
@@ -59,16 +61,27 @@ namespace bonsoir_windows {
     }
   }
 
-  void BonsoirAction::onEvent(std::shared_ptr<EventObject> eventObjectPtr) {
-    log(eventObjectPtr->message);
+  void BonsoirAction::onEvent(std::shared_ptr<EventObject> eventObjectPtr, std::list<std::string> parameters) {
+    log(eventObjectPtr->message, parameters);
     eventQueue.push(std::move(eventObjectPtr));
     processEventQueue();
   }
 
-  void BonsoirAction::log(std::string message) {
+  void BonsoirAction::log(std::string message, std::list<std::string> parameters) {
     if (printLogs) {
-      std::cout << ("[" + action + "] [" + std::to_string(id) + "] " + message) << std::endl;
+      std::cout << ("[" + action + "] [" + std::to_string(id) + "] " + format(message, parameters)) << std::endl;
     }
+  }
+
+  std::string BonsoirAction::format(std::string message, std::list<std::string> parameters) {
+    std::string result = message;
+    for (auto const &parameter : parameters) {
+      size_t position = result.find("%s");
+      if (position != std::string::npos) {
+        result.replace(position, 2, parameter);
+      }
+    }
+    return result;
   }
 
   void BonsoirAction::processEventQueue() {
@@ -99,10 +112,10 @@ namespace bonsoir_windows {
     return result;
   }
 
-  ErrorObject::ErrorObject(std::string _message, EncodableValue _error)
-    : EventObject(_message), error(_error) {}
+  ErrorObject::ErrorObject(std::string _message, EncodableValue _details)
+    : EventObject(_message), details(_details) {}
 
   void ErrorObject::process(BonsoirAction *action) {
-    action->eventSink->Error(action->action + "Error", message, error);
+    action->eventSink->Error(action->action + "Error", message, details);
   }
 }  // namespace bonsoir_windows
