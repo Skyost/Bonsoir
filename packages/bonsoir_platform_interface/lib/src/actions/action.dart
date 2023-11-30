@@ -3,7 +3,6 @@ import 'dart:math';
 
 import 'package:bonsoir_platform_interface/src/events/event.dart';
 import 'package:bonsoir_platform_interface/src/service/service.dart';
-import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
@@ -114,43 +113,6 @@ If you have previously called "$runtimeType.stop()" on this instance, you have t
 
   /// Allows to generate a random identifier.
   static int _createRandomId() => Random().nextInt(100000);
-}
-
-/// Allows the bonsoir action to automatically stop when the network is disconnected.
-mixin AutoStopBonsoirAction<T extends BonsoirEvent> on BonsoirAction<T> {
-  /// The connectivity change subscription.
-  StreamSubscription<ConnectivityResult>? _connectivityChangeSubscription;
-
-  @override
-  @mustCallSuper
-  Future<void> start() async {
-    await super.start();
-    if (_connectivityChangeSubscription != null) {
-      await _cancelConnectivityChangeSubscription();
-    }
-    _connectivityChangeSubscription = Connectivity().onConnectivityChanged.listen(_onConnectivityChanged);
-  }
-
-  @override
-  @mustCallSuper
-  Future<void> stop() async {
-    await _cancelConnectivityChangeSubscription();
-    await super.stop();
-  }
-
-  /// Cancels the connectivity change subscription.
-  @protected
-  Future<void> _cancelConnectivityChangeSubscription() async {
-    await _connectivityChangeSubscription?.cancel();
-    _connectivityChangeSubscription = null;
-  }
-
-  /// Triggered when the connectivity has changed.
-  void _onConnectivityChanged(ConnectivityResult result) {
-    if (result == ConnectivityResult.none) {
-      stop();
-    }
-  }
 }
 
 /// An action that is capable of resolving a service.
