@@ -9,7 +9,6 @@ import 'package:bonsoir_linux/src/avahi/record_browser.dart';
 import 'package:bonsoir_linux/src/avahi/server.dart';
 import 'package:bonsoir_linux/src/avahi/service_browser.dart';
 import 'package:bonsoir_linux/src/avahi/service_resolver.dart';
-import 'package:bonsoir_linux/src/error.dart';
 import 'package:bonsoir_linux/src/service.dart';
 import 'package:bonsoir_platform_interface/bonsoir_platform_interface.dart';
 import 'package:dbus/dbus.dart';
@@ -41,6 +40,7 @@ class AvahiBonsoirDiscovery extends AvahiBonsoirAction<BonsoirDiscoveryEvent> wi
     required super.printLogs,
   }) : super(
           action: 'discovery',
+          logMessages: BonsoirPlatformInterfaceLogMessages.discoveryMessages,
         );
 
   @override
@@ -102,7 +102,7 @@ class AvahiBonsoirDiscovery extends AvahiBonsoirAction<BonsoirDiscoveryEvent> wi
     await _serviceBrowser!.callStart();
     onEvent(
       const BonsoirDiscoveryEvent(type: BonsoirDiscoveryEventType.discoveryStarted),
-      'Bonsoir discovery started : $type',
+      parameters: [type],
     );
   }
 
@@ -110,7 +110,10 @@ class AvahiBonsoirDiscovery extends AvahiBonsoirAction<BonsoirDiscoveryEvent> wi
   Future<void> resolveService(BonsoirService service) async {
     BonsoirService? serviceInstance = _findService(service.name, service.type);
     if (serviceInstance == null) {
-      onError(BonsoirLinuxError('Trying to resolve an undiscovered service : ${service.name}', service.name));
+      onError(
+        message: logMessages['discoveryUndiscoveredServiceResolveFailed'],
+        parameters: [service.name, service.type],
+      );
       return;
     }
     _avahiHandler!.resolveService(this, serviceInstance, _foundServices[serviceInstance]!);
@@ -125,7 +128,7 @@ class AvahiBonsoirDiscovery extends AvahiBonsoirAction<BonsoirDiscoveryEvent> wi
     cancelSubscriptions();
     onEvent(
       const BonsoirDiscoveryEvent(type: BonsoirDiscoveryEventType.discoveryStopped),
-      'Bonsoir discovery stopped : $type',
+      parameters: [type],
     );
     await super.stop();
   }
@@ -160,7 +163,7 @@ class AvahiBonsoirDiscovery extends AvahiBonsoirAction<BonsoirDiscoveryEvent> wi
     if (isNew) {
       onEvent(
         BonsoirDiscoveryEvent(type: BonsoirDiscoveryEventType.discoveryServiceFound, service: service),
-        'Bonsoir has found a service : ${service.description}',
+        parameters: [service.description],
       );
       AvahiRecordBrowser recordBrowser = await _avahiHandler!.createAvahiRecordBrowser(this, service);
       recordBrowser.callStart();
@@ -178,7 +181,7 @@ class AvahiBonsoirDiscovery extends AvahiBonsoirAction<BonsoirDiscoveryEvent> wi
       _foundServices.remove(service);
       onEvent(
         BonsoirDiscoveryEvent(type: BonsoirDiscoveryEventType.discoveryServiceLost, service: service),
-        'A Bonsoir service has been lost : ${service.description}',
+        parameters: [service.description],
       );
     }
   }
@@ -200,7 +203,7 @@ class AvahiBonsoirDiscovery extends AvahiBonsoirAction<BonsoirDiscoveryEvent> wi
     );
     onEvent(
       BonsoirDiscoveryEvent(type: BonsoirDiscoveryEventType.discoveryServiceResolved, service: service),
-      'Bonsoir has resolved a service : $service',
+      parameters: [service.description],
     );
   }
 
@@ -209,7 +212,7 @@ class AvahiBonsoirDiscovery extends AvahiBonsoirAction<BonsoirDiscoveryEvent> wi
     AvahiServiceResolverFailure event = AvahiServiceResolverFailure(signal);
     onEvent(
       const BonsoirDiscoveryEvent(type: BonsoirDiscoveryEventType.discoveryServiceResolveFailed),
-      'Bonsoir has failed to resolve a service : ${event.error}',
+      parameters: [event.path, event.error],
     );
   }
 
@@ -224,7 +227,7 @@ class AvahiBonsoirDiscovery extends AvahiBonsoirAction<BonsoirDiscoveryEvent> wi
 
     Map<String, String> attributes = _parseTXTRecordData(event.rdata);
     if (!mapEquals(service.attributes, attributes)) {
-      log('Bonsoir has found the attributes of a service : $service');
+      log(logMessages['discoveryTxtResolved']!, parameters: [service.description, attributes]);
       onEvent(BonsoirDiscoveryEvent(type: BonsoirDiscoveryEventType.discoveryServiceLost, service: service));
       AvahiServiceBrowserItemNew serviceEvent = _foundServices[service]!;
       _foundServices.remove(service);
@@ -237,7 +240,7 @@ class AvahiBonsoirDiscovery extends AvahiBonsoirAction<BonsoirDiscoveryEvent> wi
   /// Triggered when a Bonsoir service TXT record has not been found.
   void _onServiceTXTRecordNotFound(DBusSignal signal) {
     AvahiRecordBrowserFailure event = AvahiRecordBrowserFailure(signal);
-    log('Bonsoir has failed to get the TXT record of a service : ${event.error}');
+    log(logMessages['discoveryTxtResolveFailed']!, parameters: [event.path, event.error]);
   }
 
   /// Allows to unescape services FQDN.

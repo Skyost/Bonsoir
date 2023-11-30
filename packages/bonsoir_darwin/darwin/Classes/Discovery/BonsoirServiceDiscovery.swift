@@ -25,7 +25,7 @@ class BonsoirServiceDiscovery: BonsoirAction {
     public init(id: Int, printLogs: Bool, onDispose: @escaping () -> Void, messenger: FlutterBinaryMessenger, type: String) {
         self.type = type
         browser = NWBrowser(for: .bonjourWithTXTRecord(type: type, domain: "local."), using: .tcp)
-        super.init(id: id, action: "discovery", printLogs: printLogs, onDispose: onDispose, messenger: messenger)
+        super.init(id: id, action: "discovery", logMessages: Generated.discoveryMessages, printLogs: printLogs, onDispose: onDispose, messenger: messenger)
         browser.stateUpdateHandler = stateHandler
         browser.browseResultsChangedHandler = browseHandler
     }
@@ -39,7 +39,7 @@ class BonsoirServiceDiscovery: BonsoirAction {
     func stateHandler(_ newState: NWBrowser.State) {
         switch newState {
         case .ready:
-            onSuccess("discoveryStarted", "Bonsoir discovery started : \(type)")
+            onSuccess(eventId: Generated.discoveryStarted, parameters: [type])
         case .failed(let error):
             let details: Any?
             if #available(iOS 16.4, macOS 13.3, *) {
@@ -47,10 +47,10 @@ class BonsoirServiceDiscovery: BonsoirAction {
             } else {
                 details = error.debugDescription
             }
-            onError("Bonsoir has encountered an error during discovery : \(error)", details)
+            onError(parameters: [error], details: details)
             dispose()
         case .cancelled:
-            onSuccess("discoveryStopped", "Bonsoir discovery stopped : \(type)")
+            onSuccess(eventId: Generated.discoveryStopped, parameters: [type])
             dispose()
         default:
             break
@@ -71,7 +71,7 @@ class BonsoirServiceDiscovery: BonsoirAction {
                     if case .bonjour(let records) = result.metadata {
                         service!.attributes = records.dictionary
                     }
-                    onSuccess("discoveryServiceFound", "Bonsoir has found a service : \(service!)", service)
+                    onSuccess(eventId: Generated.discoveryServiceFound, service: service)
                     services.append(service!)
                 }
             case .removed(let result):
@@ -79,7 +79,7 @@ class BonsoirServiceDiscovery: BonsoirAction {
                     guard let service = findService(name, type) else {
                         break
                     }
-                    onSuccess("discoveryServiceLost", "A Bonsoir service has been lost : \(service)", service)
+                    onSuccess(eventId: Generated.discoveryServiceLost, service: service)
                     if let index = services.firstIndex(where: { $0 === service }) {
                         services.remove(at: index)
                     }
@@ -99,11 +99,11 @@ class BonsoirServiceDiscovery: BonsoirAction {
                         if oldName == newName && oldType == newType && newAttributes == service.attributes {
                             break
                         }
-                        onSuccess("discoveryServiceLost", "A Bonsoir service has changed \(service)", service)
+                        onSuccess(eventId: Generated.discoveryServiceLost, message: "A Bonsoir service has changed : %s.", service: service)
                         service.name = newName
                         service.type = newType
                         service.attributes = newAttributes
-                        onSuccess("discoveryServiceFound", "New service is \(service)", service)
+                        onSuccess(eventId: Generated.discoveryServiceFound, message: "New service is \(service)", service: service)
                     }
                 }
             default:
@@ -115,13 +115,13 @@ class BonsoirServiceDiscovery: BonsoirAction {
     /// Resolves a service.
     public func resolveService(name: String, type: String) -> Bool {
         guard let service = findService(name, type) else {
-            onError("Trying to resolve an undiscovered service : \(name)")
+            onError(message: Generated.discoveryUndiscoveredServiceResolveFailed, parameters: [name, type])
             return false
         }
         var sdRef: DNSServiceRef? = nil
         let error = DNSServiceResolve(&sdRef, 0, 0, name, type, "local.", BonsoirServiceDiscovery.resolveCallback, Unmanaged.passUnretained(self).toOpaque())
         if error != kDNSServiceErr_NoError {
-            onSuccess("discoveryServiceResolveFailed", "Bonsoir has failed to resolve a service : \(error)", service)
+            onSuccess(eventId: Generated.discoveryServiceResolveFailed, service: service, parameters: [error])
             stopResolution(sdRef: sdRef, remove: false)
             return false
         }
@@ -167,12 +167,12 @@ class BonsoirServiceDiscovery: BonsoirAction {
                 service!.host = String(cString: hosttarget!)
             }
             service!.port = Int(CFSwapInt16BigToHost(port))
-            discovery.onSuccess("discoveryServiceResolved", "Bonsoir has resolved a service : \(service!)", service)
+            discovery.onSuccess(eventId: Generated.discoveryServiceResolved, service: service)
         } else {
             if service == nil {
-                discovery.onError("Bonsoir has failed to resolve a service : \(errorCode)", errorCode)
+                discovery.onError(message: Generated.discoveryServiceResolveFailed, parameters: ["nil", errorCode])
             } else {
-                discovery.onSuccess("discoveryServiceResolveFailed", "Bonsoir has failed to resolve a service : \(errorCode)", service)
+                discovery.onSuccess(eventId: Generated.discoveryServiceResolveFailed, service: service, parameters: [errorCode])
             }
         }
         discovery.stopResolution(sdRef: sdRef, remove: sdRef != nil)

@@ -4,6 +4,7 @@ import android.net.nsd.NsdManager
 import android.net.nsd.NsdServiceInfo
 import fr.skyost.bonsoir.BonsoirAction
 import fr.skyost.bonsoir.BonsoirService
+import fr.skyost.bonsoir.Generated
 import io.flutter.plugin.common.BinaryMessenger
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -33,6 +34,7 @@ class BonsoirServiceDiscovery(
 ) : BonsoirAction(
     id,
     "discovery",
+    Generated.discoveryMessages,
     printLogs,
     onDispose,
     nsdManager,
@@ -95,42 +97,42 @@ class BonsoirServiceDiscovery(
 
     override fun onDiscoveryStarted(regType: String) {
         makeActive()
-        onSuccess("discoveryStarted", "Bonsoir discovery started : $regType")
+        onSuccess(Generated.discoveryStarted, parameters = listOf(regType))
     }
 
     override fun onStartDiscoveryFailed(serviceType: String, errorCode: Int) {
-        onError("Bonsoir failed to start discovery : $errorCode", errorCode)
+        onError(parameters = listOf(serviceType, errorCode), details = errorCode)
         dispose(true)
     }
 
     override fun onServiceFound(service: NsdServiceInfo) {
-        var bonsoirService =  findService(service)
+        var bonsoirService = findService(service)
         if (bonsoirService != null) {
             return
         }
         bonsoirService = BonsoirService(service)
         services.add(bonsoirService)
-        onSuccess("discoveryServiceFound", "Bonsoir has found a service : $bonsoirService", bonsoirService)
+        onSuccess(Generated.discoveryServiceFound, bonsoirService)
         queryTXTRecord(bonsoirService)
     }
 
     override fun onServiceLost(service: NsdServiceInfo) {
-        val bonsoirService =  findService(service)
+        val bonsoirService = findService(service)
         if (bonsoirService != null) {
             services.remove(bonsoirService)
-            onSuccess("discoveryServiceLost", "A Bonsoir service has been lost : $bonsoirService", bonsoirService)
+            onSuccess(Generated.discoveryServiceLost, bonsoirService)
         }
     }
 
     override fun onDiscoveryStopped(serviceType: String) {
         val wasActive = isActive
         makeUnactive()
-        onSuccess("discoveryStopped", "Bonsoir discovery stopped : $serviceType")
+        onSuccess(Generated.discoveryStopped, parameters = listOf(serviceType))
         dispose(wasActive)
     }
 
     override fun onStopDiscoveryFailed(serviceType: String, errorCode: Int) {
-        onError("Bonsoir has encountered an error while stopping the discovery : $errorCode", errorCode)
+        onError("Bonsoir has encountered an error while stopping the discovery : %s (error : %s).", listOf(type, errorCode), errorCode)
     }
 
     /**
@@ -142,9 +144,9 @@ class BonsoirServiceDiscovery(
         launch {
             val data = TXTRecord.resolveTXTRecord(service)
             if (data == null) {
-                onServiceTXTRecordNotFound(service)
+                onServiceTxtRecordNotFound(service)
             } else {
-                onServiceTXTRecordFound(service, data)
+                onServiceTxtRecordFound(service, data)
             }
         }
     }
@@ -155,12 +157,12 @@ class BonsoirServiceDiscovery(
      * @param service The Bonsoir service instance.
      * @param txtRecord The TXT record data instance.
      */
-    private fun onServiceTXTRecordFound(service: BonsoirService, txtRecord: TXTRecordData) {
+    private fun onServiceTxtRecordFound(service: BonsoirService, txtRecord: TXTRecordData) {
         if (service.attributes != txtRecord.dictionary) {
-            log("Bonsoir has found the attributes of a service : $service (new attributes are ${txtRecord.dictionary})")
-            onSuccess(eventId = "discoveryServiceLost", service = service)
+            log(logMessages[Generated.discoveryTxtResolved]!!, listOf(service, txtRecord.dictionary))
+            onSuccess(Generated.discoveryServiceLost, service)
             service.attributes = txtRecord.dictionary
-            onSuccess(eventId = "discoveryServiceFound", service = service)
+            onSuccess(Generated.discoveryServiceFound, service)
         }
     }
 
@@ -169,8 +171,8 @@ class BonsoirServiceDiscovery(
      *
      * @param service The Bonsoir service instance.
      */
-    private fun onServiceTXTRecordNotFound(service: BonsoirService) {
-        log("Bonsoir has failed to get the TXT record of a service : $service")
+    private fun onServiceTxtRecordNotFound(service: BonsoirService) {
+        log(logMessages[Generated.discoveryTxtResolveFailed]!!, listOf(service))
     }
 
     /**
@@ -179,13 +181,13 @@ class BonsoirServiceDiscovery(
     fun resolveService(name: String, type: String) {
         val bonsoirService = findService(name, type)
         if (bonsoirService == null) {
-            onError("Trying to resolve an undiscovered service : $name", name)
+            onError(logMessages[Generated.discoveryUndiscoveredServiceResolveFailed]!!, listOf(name, type))
             return
         }
         val listener = BonsoirDiscoveryResolveListener(
             id,
             { _: NsdServiceInfo, errorCode: Int ->
-                onSuccess("discoveryServiceResolveFailed", "Bonsoir has failed to resolve a service : $errorCode", bonsoirService)
+                onSuccess(Generated.discoveryServiceResolveFailed, bonsoirService, parameters = listOf(errorCode))
                 resolveNextInQueue()
             },
             { resolvedService: NsdServiceInfo ->
@@ -193,7 +195,7 @@ class BonsoirServiceDiscovery(
                 bonsoirService.host = resolvedBonsoirService.host
                 bonsoirService.port = resolvedBonsoirService.port
                 bonsoirService.attributes = resolvedBonsoirService.attributes
-                onSuccess("discoveryServiceResolved", "Bonsoir has resolved a service : $bonsoirService", bonsoirService)
+                onSuccess(Generated.discoveryServiceResolved, bonsoirService)
                 resolveNextInQueue()
             },
         )

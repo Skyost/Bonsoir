@@ -2,6 +2,7 @@
 
 #include "bonsoir_broadcast.h"
 
+#include "generated.h"
 #include "utilities.h"
 
 using namespace flutter;
@@ -13,7 +14,7 @@ namespace bonsoir_windows {
     BinaryMessenger *_binaryMessenger,
     std::unique_ptr<BonsoirService> _servicePtr
   )
-    : BonsoirAction("broadcast", _id, _printLogs, _binaryMessenger),
+    : BonsoirAction("broadcast", Generated::broadcastMessages, _id, _printLogs, _binaryMessenger),
       servicePtr(std::move(_servicePtr)) {}
 
   BonsoirBroadcast::~BonsoirBroadcast() {
@@ -63,9 +64,9 @@ namespace bonsoir_windows {
     auto status = DnsServiceRegister(&registerRequest, &cancelHandle);
     if (status == DNS_REQUEST_PENDING) {
       BonsoirAction::start();
-      log("Bonsoir service broadcast initialized : " + servicePtr->getDescription());
+      log(logMessages.find(Generated::broadcastInitialized)->second, std::list<std::string>{servicePtr->getDescription()});
     } else {
-      onError("Bonsoir service failed to broadcast : " + servicePtr->getDescription() + ", error code : " + std::to_string(status), EncodableValue(std::to_string(status)));
+      onError(EncodableValue(std::to_string(status)), std::list<std::string>{servicePtr->getDescription(), std::to_string(status)});
       dispose();
     }
   }
@@ -73,7 +74,7 @@ namespace bonsoir_windows {
   void BonsoirBroadcast::dispose() {
     stop();
     if (eventChannel != nullptr) {
-      onSuccess("broadcastStopped", "Bonsoir service broadcast stopped : " + servicePtr->getDescription(), servicePtr);
+      onSuccess(Generated::broadcastStopped, servicePtr);
       DnsServiceDeRegister(&registerRequest, nullptr);
       DnsServiceRegisterCancel(&cancelHandle);
     }
@@ -93,12 +94,12 @@ namespace bonsoir_windows {
     if (servicePtr->name != name) {
       std::string oldName = servicePtr->name;
       servicePtr->name = name;
-      broadcast->onSuccess("broadcastNameAlreadyExists", "Trying to broadcast a service with a name that already exists : " + servicePtr->getDescription() + "(old name was " + oldName + ")", servicePtr);
+      broadcast->onSuccess(Generated::broadcastNameAlreadyExists, servicePtr, std::list<std::string>{oldName});
     }
     if (status == ERROR_SUCCESS) {
-      broadcast->onSuccess("broadcastStarted", "Bonsoir service broadcast started : " + servicePtr->getDescription(), servicePtr);
+      broadcast->onSuccess(Generated::broadcastStarted, servicePtr);
     } else {
-      broadcast->onError("Bonsoir service failed to broadcast : " + servicePtr->getDescription(), EncodableValue(std::to_string(status)));
+      broadcast->onError(EncodableValue(std::to_string(status)), std::list<std::string>{servicePtr->getDescription(), std::to_string(status)});
       broadcast->dispose();
     }
   }

@@ -5,7 +5,6 @@ import 'package:bonsoir_linux/src/actions/action.dart';
 import 'package:bonsoir_linux/src/avahi/constants.dart';
 import 'package:bonsoir_linux/src/avahi/entry_group.dart';
 import 'package:bonsoir_linux/src/avahi/server.dart';
-import 'package:bonsoir_linux/src/error.dart';
 import 'package:bonsoir_linux/src/service.dart';
 import 'package:bonsoir_platform_interface/bonsoir_platform_interface.dart';
 import 'package:dbus/dbus.dart';
@@ -27,6 +26,7 @@ class AvahiBonsoirBroadcast extends AvahiBonsoirAction<BonsoirBroadcastEvent> {
     required super.printLogs,
   }) : super(
           action: 'broadcast',
+          logMessages: BonsoirPlatformInterfaceLogMessages.broadcastMessages,
         );
 
   @override
@@ -54,7 +54,7 @@ class AvahiBonsoirBroadcast extends AvahiBonsoirAction<BonsoirBroadcastEvent> {
       case AvahiEntryGroupState.AVAHI_ENTRY_GROUP_ESTABLISHED:
         onEvent(
           BonsoirBroadcastEvent(type: BonsoirBroadcastEventType.broadcastStarted, service: service),
-          'Bonsoir service broadcast started : ${service.description}',
+          parameters: [service.description],
         );
         break;
       case AvahiEntryGroupState.AVAHI_ENTRY_GROUP_COLLISION:
@@ -64,17 +64,17 @@ class AvahiBonsoirBroadcast extends AvahiBonsoirAction<BonsoirBroadcastEvent> {
         service = service.copyWith(name: newName);
         onEvent(
           BonsoirBroadcastEvent(type: BonsoirBroadcastEventType.broadcastNameAlreadyExists, service: service),
-          'Trying to broadcast a service with a name that already exists : ${service.description} (old name was ${name})',
+          parameters: [service.description, name],
         );
         _sendServiceToAvahi();
         break;
       case AvahiEntryGroupState.AVAHI_ENTRY_GROUP_FAILURE:
-        onError(BonsoirLinuxError('Bonsoir service failed to broadcast : ${service.description}', event.error));
+        onError(details: event.error);
         break;
       default:
         onEvent(
           const BonsoirBroadcastEvent(type: BonsoirBroadcastEventType.unknown),
-          'Bonsoir broadcast has received a unknown state with value ${event.state}',
+          message: 'Bonsoir broadcast has received a unknown state with value ${event.state}.',
         );
     }
   }
@@ -104,7 +104,7 @@ class AvahiBonsoirBroadcast extends AvahiBonsoirAction<BonsoirBroadcastEvent> {
     await _entryGroup!.callFree();
     onEvent(
       const BonsoirBroadcastEvent(type: BonsoirBroadcastEventType.broadcastStopped),
-      'Bonsoir service broadcast stopped : ${service.description}',
+      parameters: [service.description],
     );
     super.stop();
   }

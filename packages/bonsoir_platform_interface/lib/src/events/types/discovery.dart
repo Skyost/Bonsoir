@@ -1,16 +1,7 @@
-import 'package:bonsoir_platform_interface/src/events/event.dart';
-
-/// A Bonsoir discovery event.
-class BonsoirDiscoveryEvent extends BonsoirEvent<BonsoirDiscoveryEventType> {
-  /// Creates a new Bonsoir discovery event.
-  const BonsoirDiscoveryEvent({
-    required super.type,
-    super.service,
-  });
-}
+import 'package:bonsoir_platform_interface/src/events/types/type.dart';
 
 /// Available Bonsoir discovery event types.
-enum BonsoirDiscoveryEventType {
+enum BonsoirDiscoveryEventType with BonsoirEventType {
   /// Triggered when the discovery has started.
   discoveryStarted,
 
@@ -32,6 +23,9 @@ enum BonsoirDiscoveryEventType {
   /// Unknown type.
   unknown;
 
-  /// Returns the type name.
-  String get id => toString().split('.').last;
+  /// Returns a [BonsoirDiscoveryEventType] by its [id] or [unknown] if not found.
+  static BonsoirDiscoveryEventType getById(String id) => values.firstWhere(
+        (type) => type.id == id,
+        orElse: () => BonsoirDiscoveryEventType.unknown,
+      );
 }

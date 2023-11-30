@@ -1,8 +1,8 @@
 import 'package:bonsoir_platform_interface/src/actions/action.dart';
-import 'package:bonsoir_platform_interface/src/actions/broadcast_action.dart';
-import 'package:bonsoir_platform_interface/src/actions/discovery_action.dart';
-import 'package:bonsoir_platform_interface/src/events/broadcast_event.dart';
-import 'package:bonsoir_platform_interface/src/events/discovery_event.dart';
+import 'package:bonsoir_platform_interface/src/actions/broadcast.dart';
+import 'package:bonsoir_platform_interface/src/actions/discovery.dart';
+import 'package:bonsoir_platform_interface/src/events/broadcast.dart';
+import 'package:bonsoir_platform_interface/src/events/discovery.dart';
 import 'package:bonsoir_platform_interface/src/service/service.dart';
 import 'package:flutter/foundation.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';

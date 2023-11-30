@@ -17,6 +17,9 @@ class BonsoirAction: NSObject, FlutterStreamHandler {
     /// The action name.
     private let action: String
     
+    /// The log messages map.
+    internal let logMessages: [String: String]
+    
     /// Whether to print debug logs.
     private let printLogs: Bool
     
@@ -30,9 +33,10 @@ class BonsoirAction: NSObject, FlutterStreamHandler {
     private var eventSink: FlutterEventSink?
     
     /// Initializes this class.
-    public init(id: Int, action: String, printLogs: Bool, onDispose: @escaping () -> Void, messenger: FlutterBinaryMessenger) {
+    public init(id: Int, action: String, logMessages: [String: String], printLogs: Bool, onDispose: @escaping () -> Void, messenger: FlutterBinaryMessenger) {
         self.id = id
         self.action = action
+        self.logMessages = logMessages
         self.printLogs = printLogs
         self.onDispose = onDispose
         super.init()
@@ -53,15 +57,21 @@ class BonsoirAction: NSObject, FlutterStreamHandler {
     }
     
     /// Triggered when a success occurs.
-    func onSuccess(_ eventId: String, _ message: String, _ service: BonsoirService? = nil) {
-        log(message)
+    func onSuccess(eventId: String, message: String? = nil, service: BonsoirService? = nil, parameters: [Any] = []) {
+        let logMessage = message ?? logMessages[eventId]!
+        var logParameters = parameters
+        if service != nil && !logParameters.contains(where: { $0 is BonsoirService && ($0 as! BonsoirService) == service }) {
+            logParameters.insert(service!, at: 0)
+        }
+        log(logMessage, logParameters)
         eventSink?(SuccessObject(id: eventId, service: service).toJson())
     }
     
     /// Triggered when an error occurs.
-    func onError(_ message: String, _ details: Any? = nil) {
-        log(message)
-        eventSink?(FlutterError(code: "\(action)Error", message: message, details: details))
+    func onError(message: String? = nil, parameters: [Any] = [], details: Any? = nil) {
+        let logMessage = format(message ?? logMessages["\(action)Error"]!, parameters)
+        log(logMessage)
+        eventSink?(FlutterError(code: "\(action)Error", message: logMessage, details: details))
     }
 
     /// Disposes the current class instance.
@@ -70,13 +80,24 @@ class BonsoirAction: NSObject, FlutterStreamHandler {
     }
     
     /// Logs a given message.
-    func log(_ message: String) {
+    func log(_ message: String, _ parameters: [Any] = []) {
         if printLogs {
+            let string = format(message, parameters)
             #if canImport(os)
-                os_log("[%d] %s", log: OSLog(subsystem: SwiftBonsoirPlugin.package, category: action), type: OSLogType.info, id, message)
+                os_log("[%d] %s", log: OSLog(subsystem: SwiftBonsoirPlugin.package, category: action), type: OSLogType.info, id, string)
             #else
-                NSLog("\n[\(id)] \(message)")
+                NSLog("\n[\(action)] [\(id)] \(string)")
             #endif
         }
+    }
+    
+    private func format(_ message: String, _ parameters: [Any]) -> String {
+        var result = message
+        for parameter in parameters {
+            if let range = result.range(of: "%s") {
+                result = result.replacingCharacters(in: range, with: String(describing: parameter))
+            }
+        }
+        return result
     }
 }

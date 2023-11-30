@@ -4,6 +4,7 @@ import android.net.nsd.NsdManager
 import android.net.nsd.NsdServiceInfo
 import fr.skyost.bonsoir.BonsoirAction
 import fr.skyost.bonsoir.BonsoirService
+import fr.skyost.bonsoir.Generated
 import io.flutter.plugin.common.BinaryMessenger
 
 /**
@@ -26,6 +27,7 @@ class BonsoirServiceBroadcast(
 ) : BonsoirAction(
     id,
     "broadcast",
+    Generated.broadcastMessages,
     printLogs,
     onDispose,
     nsdManager,
@@ -46,25 +48,25 @@ class BonsoirServiceBroadcast(
         if (this.service.name != service.serviceName) {
             val oldName = this.service.name
             this.service.name = service.serviceName
-            onSuccess("broadcastNameAlreadyExists", "Trying to broadcast a service with a name that already exists : ${this.service} (old name was ${oldName})", this.service)
+            onSuccess(Generated.broadcastNameAlreadyExists, this.service, parameters = listOf(oldName))
         }
-        onSuccess("broadcastStarted", "Bonsoir service registered : ${this.service}", this.service)
+        onSuccess(Generated.broadcastStarted, this.service)
     }
 
     override fun onRegistrationFailed(service: NsdServiceInfo, errorCode: Int) {
-        onError("Bonsoir service registration failed : ${this.service}, error code : $errorCode", errorCode)
+        onError(parameters = listOf(this.service, errorCode), details = errorCode)
         dispose()
     }
 
     override fun onServiceUnregistered(service: NsdServiceInfo) {
         val wasActive = isActive
         makeUnactive()
-        onSuccess("broadcastStopped", "Bonsoir service broadcast stopped : ${this.service}", this.service)
+        onSuccess(Generated.broadcastStopped, this.service)
         dispose(wasActive)
     }
 
     override fun onUnregistrationFailed(service: NsdServiceInfo, errorCode: Int) {
-        onError("Bonsoir service unregistration failed : ${this.service}, error code : $errorCode", errorCode)
+        onError("Bonsoir service unregistration failed : %s (error : %s).", listOf(this.service, errorCode), errorCode)
     }
 
     override fun stop() {

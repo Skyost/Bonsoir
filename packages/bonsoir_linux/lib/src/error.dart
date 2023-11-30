@@ -4,16 +4,16 @@ class BonsoirLinuxError implements Exception {
   final String message;
 
   /// The (possibly null) error code / message.
-  final Object? error;
+  final Object? details;
 
   /// Creates a new Avahi Bonsoir error instance.
-  BonsoirLinuxError(this.message, [this.error]);
+  BonsoirLinuxError(this.message, [this.details]);
 
   @override
   String toString() {
     String string = 'BonsoirLinuxError';
-    if (error != null) {
-      string += '(${error})';
+    if (details != null) {
+      string += '(${details})';
     }
     string += ' : $message';
     return string;

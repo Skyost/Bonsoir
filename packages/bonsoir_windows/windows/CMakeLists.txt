@@ -27,6 +27,7 @@ add_library(${PLUGIN_NAME} SHARED
   "bonsoir_discovery.cpp"
   "bonsoir_broadcast.cpp"
   "bonsoir_service.cpp"
+  "generated.cpp"
   "utilities.cpp"
   ${PLUGIN_SOURCES}
 )
