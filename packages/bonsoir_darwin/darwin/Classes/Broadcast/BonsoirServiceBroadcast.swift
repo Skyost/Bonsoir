@@ -18,7 +18,7 @@ class BonsoirServiceBroadcast: BonsoirAction {
     /// Initializes this class.
     public init(id: Int, printLogs: Bool, onDispose: @escaping () -> Void, messenger: FlutterBinaryMessenger, service: BonsoirService) {
         self.service = service
-        super.init(id: id, action: "broadcast", printLogs: printLogs, onDispose: onDispose, messenger: messenger)
+        super.init(id: id, action: "broadcast", logMessages: Generated.broadcastMessages, printLogs: printLogs, onDispose: onDispose, messenger: messenger)
     }
 
     /// Starts the broadcast.
@@ -30,17 +30,17 @@ class BonsoirServiceBroadcast: BonsoirAction {
         }
         let error = DNSServiceRegister(&sdRef, 0, 0, service.name, service.type, "local.", service.host, CFSwapInt16HostToBig(UInt16(service.port)), TXTRecordGetLength(&txtRecord), TXTRecordGetBytesPtr(&txtRecord), BonsoirServiceBroadcast.registerCallback as DNSServiceRegisterReply, Unmanaged.passUnretained(self).toOpaque())
         if error == kDNSServiceErr_NoError {
-            log("Bonsoir service broadcast initialized : \(service)")
+            log(logMessages[Generated.broadcastInitialized]!, [service])
             DNSServiceProcessResult(sdRef)
         } else {
-            onError("Bonsoir service failed to broadcast : \(service), error code : \(error)", error)
+            onError(parameters: [service, error], details: error)
             dispose()
         }
     }
 
     override public func dispose() {
         DNSServiceRefDeallocate(sdRef)
-        onSuccess("broadcastStopped", "Bonsoir service broadcast stopped : \(service)", service)
+        onSuccess(eventId: Generated.broadcastStopped, service: service)
         super.dispose()
     }
 
@@ -52,11 +52,11 @@ class BonsoirServiceBroadcast: BonsoirAction {
             if newName != nil && broadcast.service.name != newName {
                 let oldName = broadcast.service.name
                 broadcast.service.name = newName!
-                broadcast.onSuccess("broadcastNameAlreadyExists", "Trying to broadcast a service with a name that already exists : \(broadcast.service) (old name was \(oldName))", broadcast.service)
+                broadcast.onSuccess(eventId: Generated.broadcastNameAlreadyExists, service: broadcast.service, parameters: [oldName])
             }
-            broadcast.onSuccess("broadcastStarted", "Bonsoir service broadcasted : \(broadcast.service)", broadcast.service)
+            broadcast.onSuccess(eventId: Generated.broadcastStarted, service: broadcast.service)
         } else {
-            broadcast.onError("Bonsoir service failed to broadcast : \(broadcast.service)", errorCode)
+            broadcast.onError(parameters: [broadcast.service, errorCode], details: errorCode)
             broadcast.dispose()
         }
     }
