@@ -20,10 +20,11 @@ This plugin [cannot be tested on an Android emulator](https://stackoverflow.com/
 
 ## Depend on it
 
-In your Flutter project directory, run the following command :
+In your Flutter project directory, run the following commands :
 
 ```shell
 flutter pub add bonsoir
+flutter pub get
 ```
 
 ## Additional instructions
