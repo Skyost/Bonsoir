@@ -77,7 +77,7 @@ class BonsoirServiceNormalizer {
   /// Normalizes a given service [attributes].
   ///
   /// Reference : [RFC 6763](https://datatracker.ietf.org/doc/html/rfc6763#section-6).
-  static Map<String, String> normalizeAttributes(Map<String, String> attributes) {
+  static Map<String, String> normalizeAttributes(Map<String, String> attributes, { bool limitKeyLength = false }) {
     Map<String, String> result = <String, String>{};
 
     for (MapEntry<String, String> entry in attributes.entries) {
@@ -87,7 +87,7 @@ class BonsoirServiceNormalizer {
       key = key.replaceAll('=', '');
 
       // The key SHOULD be no more than nine characters long.
-      if (key.length >= 9) {
+      if (limitKeyLength && key.length >= 9) {
         key = key.substring(0, 9);
       }
 
