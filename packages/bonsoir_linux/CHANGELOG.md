@@ -1,3 +1,7 @@
+## 5.1.1
+
+ - Update a dependency to the latest release.
+
 ## 5.1.0
 
  - **FEAT**: Now generating constants for platform implementations. ([3b0834d6](https://github.com/Skyost/Bonsoir/commit/3b0834d61c4b4b1a420a1b728808450fc410393d))

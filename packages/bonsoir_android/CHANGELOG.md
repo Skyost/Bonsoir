@@ -1,3 +1,7 @@
+## 5.1.1
+
+ - Update a dependency to the latest release.
+
 ## 5.1.0
 
  - **FIX**(android): Fixed `Generated` implementation. ([e15cbb6a](https://github.com/Skyost/Bonsoir/commit/e15cbb6ade2d0a8f2fb8698eb016ec8105e2d89c))

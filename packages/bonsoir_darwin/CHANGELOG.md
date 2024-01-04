@@ -1,3 +1,7 @@
+## 5.1.1
+
+ - Update a dependency to the latest release.
+
 ## 5.1.0
 
  - **REFACTOR**(darwin): Now using `Generated` on Darwin. ([46603be1](https://github.com/Skyost/Bonsoir/commit/46603be19ec128092bb074158dae1197d1f4c028))

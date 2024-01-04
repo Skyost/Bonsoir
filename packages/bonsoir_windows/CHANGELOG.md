@@ -1,3 +1,7 @@
+## 5.1.2
+
+ - Update a dependency to the latest release.
+
 ## 5.1.1
 
  - **FIX**(windows): Fixed some thread safety problems. ([28ff2a44](https://github.com/Skyost/Bonsoir/commit/28ff2a448333e382f5d3672b6f851246152be8e3))
