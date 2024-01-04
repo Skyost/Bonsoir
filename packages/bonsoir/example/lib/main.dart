@@ -11,7 +11,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 /// https://github.com/Skyost/Bonsoir/tree/master/packages/bonsoir/example.
 ///
 /// Feel free to check the available code snippets as well :
-/// https://bonsoir.skyost.eu/docs#getting-started
+/// https://bonsoir.skyost.eu/docs#getting-started.
 
 /// Plugin's main method.
 Future<void> main() async {
