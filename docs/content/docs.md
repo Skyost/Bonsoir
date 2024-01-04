@@ -163,6 +163,15 @@ You have a lot of options to contribute to this project ! You can :
 This plugin was initially created to use in my game, [Mobile Werewolf](https://werewolf.skyost.eu).
 It is an unofficial mobile version of the famous board game Mafia / Werewolves.
 In this game, players can play against each others via Wi-Fi, so Bonsoir allows them to easily broadcast,
-discover and join local network parties. 
+discover and join local network parties.
+
+<p style="display-block; text-align: center;">
+  <a href="https://apps.apple.com/app/id1504559806" class="mb-1 mb-sm-0" style="display: inline-block; width: 200px; max-width: 90%;">
+    <img src="https://werewolf.skyost.eu/images/stores/app_store.svg" alt="App Store" style="width: 100%;" />
+  </a>
+  <a href="https://play.google.com/store/apps/details?id=fr.skyost.werewolf" style="display: inline-block; width: 200px; max-width: 90%;">
+    <img src="https://werewolf.skyost.eu/images/stores/play_store.svg" alt="Play Store" style="width: 100%;" />
+  </a>
+</p>
 
 The hand icon has been created by [Vitaly Gorbachev](https://www.flaticon.com/authors/vitaly-gorbachev).
