@@ -1,3 +1,7 @@
+## 5.1.2
+
+ - Update a dependency to the latest release.
+
 ## 5.1.1
 
  - **REFACTOR**: Removed `AutoStopBonsoirAction`. ([441063ae](https://github.com/Skyost/Bonsoir/commit/441063ae5ee2a4bd9b3f8779ab05fd6f9b3d83bd))
