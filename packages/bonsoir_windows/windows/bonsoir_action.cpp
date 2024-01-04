@@ -25,14 +25,12 @@ namespace bonsoir_windows {
       std::make_unique<StreamHandlerFunctions<EncodableValue>>(
         [this](const EncodableValue *arguments, std::unique_ptr<EventSink<EncodableValue>> &&events)
           -> std::unique_ptr<StreamHandlerError<EncodableValue>> {
-          std::unique_lock<std::mutex> _ul(mutex);
           eventSink = std::move(events);
           processEventQueue();
           return nullptr;
         },
         [this](const EncodableValue *arguments)
           -> std::unique_ptr<StreamHandlerError<EncodableValue>> {
-          std::unique_lock<std::mutex> _ul(mutex);
           eventSink.release();
           eventSink = nullptr;
           return nullptr;
@@ -88,6 +86,7 @@ namespace bonsoir_windows {
     if (!eventSink) {
       return;
     }
+    std::scoped_lock lock{mutex};
     while (!eventQueue.empty()) {
       eventQueue.front()->process(this);
       eventQueue.pop();
