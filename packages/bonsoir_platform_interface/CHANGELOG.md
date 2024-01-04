@@ -1,5 +1,7 @@
 ## 5.1.1
 
+- **CHORE**(platform_interface): Attributes keys are no longer limited to 9 characters by default. ([421fe695](https://github.com/Skyost/Bonsoir/commit/421fe6959ed0a1039dffc19ede8246416b16a2f0))
+
 ## 5.1.0
 
  - **REFACTOR**: Removed `AutoStopBonsoirAction`. ([441063ae](https://github.com/Skyost/Bonsoir/commit/441063ae5ee2a4bd9b3f8779ab05fd6f9b3d83bd))
