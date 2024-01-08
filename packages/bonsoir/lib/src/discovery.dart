@@ -15,7 +15,10 @@ class BonsoirDiscovery extends BonsoirActionHandler<BonsoirDiscoveryEvent> {
     required this.type,
     required this.serviceResolver,
     required super.action,
-  }) : assert(type == BonsoirServiceNormalizer.normalizeType(type), 'The provided type "$type" is invalid.');
+  }) : assert(
+          type == BonsoirServiceNormalizer.normalizeType(type),
+          'The provided type "$type" is invalid.',
+        );
 
   /// Creates a new Bonsoir discovery instance.
   factory BonsoirDiscovery({
@@ -23,8 +26,14 @@ class BonsoirDiscovery extends BonsoirActionHandler<BonsoirDiscoveryEvent> {
     required String type,
     ServiceResolver? serviceResolver,
   }) {
-    BonsoirAction<BonsoirDiscoveryEvent> action = BonsoirPlatformInterface.instance.createDiscoveryAction(type, printLogs: printLogs);
-    serviceResolver ??= action is ServiceResolver ? (action as ServiceResolver) : _NoServiceResolver();
+    BonsoirAction<BonsoirDiscoveryEvent> action =
+        BonsoirPlatformInterface.instance.createDiscoveryAction(
+      type,
+      printLogs: printLogs,
+    );
+    serviceResolver ??= action is ServiceResolver
+        ? (action as ServiceResolver)
+        : _NoServiceResolver();
     return BonsoirDiscovery._internal(
       type: type,
       serviceResolver: serviceResolver,
@@ -37,6 +46,8 @@ class BonsoirDiscovery extends BonsoirActionHandler<BonsoirDiscoveryEvent> {
 class _NoServiceResolver with ServiceResolver {
   @override
   Future<void> resolveService(BonsoirService service) {
-    throw UnimplementedError('No service resolver provided. Please ensure either you or your current platform interface provide one !');
+    throw UnimplementedError(
+      'No service resolver provided. Please ensure either you or your current platform interface provide one !',
+    );
   }
 }
