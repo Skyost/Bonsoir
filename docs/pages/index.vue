@@ -22,7 +22,7 @@ const button = computed(() => theme.value === 'light' ? 'dark' : 'light')
               <p>
                 Bonsoir is a Flutter Zeroconf library that allows you to discover network services and to broadcast your own.
                 It's based on <a href="https://developer.android.com/training/connect-devices-wirelessly/nsd">Android NSD</a>
-                and on Apple's popular framework Bonjour.
+                and on Apple's popular framework <a href="https://developer.apple.com/documentation/foundation/bonjour">Bonjour</a>.
               </p>
               <p>
                 In fact, <q>Bonsoir</q> can be translated into <q>Good evening</q> (and <q>Bonjour</q> into
