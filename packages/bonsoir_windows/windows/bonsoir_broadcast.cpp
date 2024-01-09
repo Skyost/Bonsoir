@@ -35,16 +35,10 @@ namespace bonsoir_windows {
     propertyKeys.push_back(nullptr);
     propertyValues.push_back(nullptr);
 
-    PIP4_ADDRESS ipAddress = nullptr;
-    if (servicePtr->host.has_value() && isValidIPv4(servicePtr->host.value())) {
-      DWORD ip = std::stoul(servicePtr->host.value());
-      ipAddress = &ip;
-    }
-
-    auto computerHost = (getComputerName() + L".local");
+    std::wstring host = servicePtr->host.has_value() ? toUtf16(servicePtr->host.value()) : (getComputerName() + L".local");
     PDNS_SERVICE_INSTANCE serviceInstance = DnsServiceConstructInstance(
       toUtf16(servicePtr->name + "." + servicePtr->type + ".local").c_str(),
-      computerHost.c_str(),
+      host.c_str(),
       nullptr,
       nullptr,
       static_cast<WORD>(servicePtr->port),

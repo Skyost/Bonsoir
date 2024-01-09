@@ -9,6 +9,4 @@ namespace bonsoir_windows {
   std::tuple<std::string, std::string> parseBonjourFqdn(const std::string fqdn);
 
   std::wstring getComputerName();
-
-  bool isValidIPv4(const std::string &ipAddress);
 }  // namespace bonsoir_windows

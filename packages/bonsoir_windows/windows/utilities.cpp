@@ -73,9 +73,4 @@ namespace bonsoir_windows {
     }
     return &computerName[0];
   }
-
-  bool isValidIPv4(const std::string &ipAddress) {
-    const std::regex ipv4Regex(R"(\b(?:\d{1,3}\.){3}\d{1,3}\b)");
-    return std::regex_match(ipAddress, ipv4Regex);
-  }
 }  // namespace bonsoir_windows
