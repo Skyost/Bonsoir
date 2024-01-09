@@ -1,3 +1,7 @@
+## 5.1.5
+
+ - Update a dependency to the latest release.
+
 ## 5.1.4
 
  - **REFACTOR**(bonsoir): Ran `dart format`. ([41360b61](https://github.com/Skyost/Bonsoir/commit/41360b61326e134e44f391cc70725cb8e1b4f6e9))
