@@ -89,8 +89,7 @@ class TXTRecord {
                     Log.d("TXTRecord", "Unable to query for a TXT record. Will now retry with a different port...")
                     return resolveTXTRecord(service, PORT)
                 }
-            }
-            catch (ex: Exception) {
+            } catch (ex: Exception) {
                 ex.printStackTrace()
             }
             return null
@@ -206,7 +205,9 @@ class TXTRecord {
                 var length: Int
                 while (true) {
                     length = dataInputStream.readUnsignedByte()
-                    if (length == 0) return result.toString()
+                    if (length == 0) {
+                        return result.toString()
+                    }
                     if (length and 0xc0 == 0xc0) {
                         // this is a compression method, the remainder of the string is a pointer to elsewhere in the packet
                         // adjust the stream boundary and repeat processing
@@ -225,7 +226,9 @@ class TXTRecord {
                 }
                 val segment = ByteArray(length)
                 dataInputStream.readFully(segment)
-                if (dot) result.append('.')
+                if (dot) {
+                    result.append('.')
+                }
                 dot = true
                 result.append(String(segment))
                 if (result.length > packetLength) {
@@ -246,7 +249,7 @@ class TXTRecord {
  * populated data structures. When no such answer is present in the packet, fields will be
  * `null`.
  */
-data class TXTRecordData (
+data class TXTRecordData(
     /**
      * The service FQDN.
      */

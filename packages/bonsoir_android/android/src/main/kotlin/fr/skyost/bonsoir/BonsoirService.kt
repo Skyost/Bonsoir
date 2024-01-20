@@ -34,7 +34,7 @@ data class BonsoirService(
     ) {
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
             for (attribute in service.attributes.entries) {
-                attributes[attribute.key] = String(attribute.value)
+                attributes[attribute.key] = if (attribute.value == null) "" else String(attribute.value)
             }
         }
     }
