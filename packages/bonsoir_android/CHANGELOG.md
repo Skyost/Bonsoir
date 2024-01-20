@@ -1,3 +1,7 @@
+## 5.1.2
+
+ - **FIX**(android): Fixed a crash with empty attributes values. ([87d8d60c](https://github.com/Skyost/Bonsoir/commit/87d8d60ced5e97284a91103c07594dd3fc979789))
+
 ## 5.1.1
 
  - Update a dependency to the latest release.
