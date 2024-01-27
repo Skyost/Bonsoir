@@ -11,7 +11,7 @@ your app when you do.
 
 ## Thanks
 
-I went through several steps before arriving at the current implementation :
+I tried various things before arriving at the current implementation :
 
 * Dart FFI : thanks to [Piero512](https://github.com/Piero512/bonjour_ffi).
 * `<dns-hd.h>` : thanks
