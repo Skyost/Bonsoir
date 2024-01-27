@@ -19,7 +19,7 @@ import java.net.SocketTimeoutException
  * Allows to resolve a service TXT record.
  * Chery pick of https://github.com/youviewtv/tinydnssd/blob/master/lib/src/main/java/com/youview/tinydnssd/MDNSDiscover.java.
  */
-class TXTRecord {
+class TxtRecord {
     companion object {
         /**
          * The multicast group address.
@@ -53,19 +53,19 @@ class TXTRecord {
          *
          * @return Whether record has been resolved successfully.
          */
-        suspend fun resolveTXTRecord(service: BonsoirService, port: Int? = null, timeout: Int = 2000): TXTRecordData? {
+        suspend fun resolveTxtRecord(service: BonsoirService, port: Int? = null, timeout: Int = 2000): TxtRecordData? {
             try {
                 val group = InetAddress.getByName(MULTICAST_GROUP_ADDRESS)
                 val sock = if (port == null) MulticastSocket() else MulticastSocket(port)
                 sock.reuseAddress = true
                 sock.joinGroup(group)
-                val data = queryPacket("${service.name}.${service.type}.local", QCLASS_INTERNET or CLASS_FLAG_UNICAST, QTYPE_TXT)
+                val data = queryPacket(service, QCLASS_INTERNET or CLASS_FLAG_UNICAST, QTYPE_TXT)
                 var packet = DatagramPacket(data, data.size, group, PORT)
                 sock.timeToLive = 255
                 sock.send(packet)
                 val buf = ByteArray(1024)
                 packet = DatagramPacket(buf, buf.size)
-                var txtRecord: TXTRecordData? = null
+                var txtRecord: TxtRecordData? = null
                 var endTime: Long = 0
                 if (timeout != 0) {
                     endTime = System.currentTimeMillis() + timeout
@@ -81,13 +81,13 @@ class TXTRecord {
                         sock.soTimeout = remaining
                     }
                     sock.receive(packet)
-                    txtRecord = decodeTXTRecordIfPossible(packet.data, packet.length)
+                    txtRecord = decodeTxtRecordIfPossible(packet.data, packet.length)
                 }
                 return txtRecord
             } catch (ex: SocketTimeoutException) {
                 if (port == null) {
                     Log.d("TXTRecord", "Unable to query for a TXT record. Will now retry with a different port...")
-                    return resolveTXTRecord(service, PORT)
+                    return resolveTxtRecord(service, PORT)
                 }
             } catch (ex: Exception) {
                 ex.printStackTrace()
@@ -96,7 +96,7 @@ class TXTRecord {
         }
 
         @Throws(IOException::class)
-        private fun queryPacket(serviceName: String, qclass: Int, vararg qtypes: Int): ByteArray {
+        private fun queryPacket(service: BonsoirService, qclass: Int, vararg qtypes: Int): ByteArray {
             val bos = ByteArrayOutputStream()
             val dos = DataOutputStream(bos)
             dos.writeInt(0)
@@ -108,7 +108,7 @@ class TXTRecord {
             for (qtype in qtypes) {
                 if (fqdnPtr == -1) {
                     fqdnPtr = dos.size()
-                    writeFQDN(serviceName, dos)
+                    writeFqdn(service, dos)
                 } else {
                     // packet compression, string is just a pointer to previous occurrence
                     dos.write(0xc0 or (fqdnPtr shr 8))
@@ -122,8 +122,8 @@ class TXTRecord {
         }
 
         @Throws(IOException::class)
-        private fun writeFQDN(name: String, out: OutputStream) {
-            for (part in name.split("\\.".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()) {
+        private fun writeFqdn(service: BonsoirService, out: OutputStream) {
+            for (part in listOf(service.name, service.type, "local")) {
                 out.write(part.length)
                 out.write(part.toByteArray())
             }
@@ -131,7 +131,7 @@ class TXTRecord {
         }
 
         @Throws(IOException::class)
-        private fun decodeTXTRecordIfPossible(packet: ByteArray, packetLength: Int): TXTRecordData? {
+        private fun decodeTxtRecordIfPossible(packet: ByteArray, packetLength: Int): TxtRecordData? {
             val dis = DataInputStream(ByteArrayInputStream(packet, 0, packetLength))
             val transactionID = dis.readShort()
             val flags = dis.readShort()
@@ -141,13 +141,13 @@ class TXTRecord {
             val additionalRRs = dis.readUnsignedShort()
             // decode the queries
             for (i in 0 until questions) {
-                val fqdn: String = decodeFQDN(dis, packet, packetLength)
+                val fqdn: String = decodeFqdn(dis, packet, packetLength)
                 val type = dis.readShort()
                 val qclass = dis.readShort()
             }
             // decode the answers
             for (i in 0 until answers + authorityRRs + additionalRRs) {
-                val fqdn: String = decodeFQDN(dis, packet, packetLength)
+                val fqdn: String = decodeFqdn(dis, packet, packetLength)
                 val type = dis.readShort()
                 val aclass = dis.readShort()
                 val ttl = dis.readInt()
@@ -155,7 +155,7 @@ class TXTRecord {
                 val data = ByteArray(length)
                 dis.readFully(data)
                 if (type.toInt() == QTYPE_TXT) {
-                    val txtRecord = decodeTXT(data)
+                    val txtRecord = decodeTxt(data)
                     txtRecord.fqdn = fqdn
                     txtRecord.ttl = ttl
                     return txtRecord
@@ -165,8 +165,8 @@ class TXTRecord {
         }
 
         @Throws(IOException::class)
-        private fun decodeTXT(data: ByteArray): TXTRecordData {
-            val txtRecord = TXTRecordData()
+        private fun decodeTxt(data: ByteArray): TxtRecordData {
+            val txtRecord = TxtRecordData()
             val dis = DataInputStream(ByteArrayInputStream(data))
             while (true) {
                 val length: Int = try {
@@ -196,7 +196,7 @@ class TXTRecord {
         }
 
         @Throws(IOException::class)
-        private fun decodeFQDN(dis: DataInputStream, packet: ByteArray, packetLength: Int): String {
+        private fun decodeFqdn(dis: DataInputStream, packet: ByteArray, packetLength: Int): String {
             var dataInputStream = dis
             val result = StringBuilder()
             var dot = false
@@ -249,7 +249,7 @@ class TXTRecord {
  * populated data structures. When no such answer is present in the packet, fields will be
  * `null`.
  */
-data class TXTRecordData(
+data class TxtRecordData(
     /**
      * The service FQDN.
      */
@@ -259,7 +259,7 @@ data class TXTRecordData(
      */
     var ttl: Int? = null,
     /**
-     * The content of the TXT record's key-value store decoded as a [Map]
+     * The content of the TXT record's key-value store decoded as a [Map].
      */
     val dictionary: HashMap<String, String> = HashMap()
 )

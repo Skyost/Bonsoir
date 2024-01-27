@@ -113,7 +113,7 @@ class BonsoirServiceDiscovery(
         bonsoirService = BonsoirService(service)
         services.add(bonsoirService)
         onSuccess(Generated.discoveryServiceFound, bonsoirService)
-        queryTXTRecord(bonsoirService)
+        queryTxtRecord(bonsoirService)
     }
 
     override fun onServiceLost(service: NsdServiceInfo) {
@@ -140,9 +140,9 @@ class BonsoirServiceDiscovery(
      *
      * @param
      */
-    private fun queryTXTRecord(service: BonsoirService) {
+    private fun queryTxtRecord(service: BonsoirService) {
         launch {
-            val data = TXTRecord.resolveTXTRecord(service)
+            val data = TxtRecord.resolveTxtRecord(service)
             if (data == null) {
                 onServiceTxtRecordNotFound(service)
             } else {
@@ -157,7 +157,7 @@ class BonsoirServiceDiscovery(
      * @param service The Bonsoir service instance.
      * @param txtRecord The TXT record data instance.
      */
-    private fun onServiceTxtRecordFound(service: BonsoirService, txtRecord: TXTRecordData) {
+    private fun onServiceTxtRecordFound(service: BonsoirService, txtRecord: TxtRecordData) {
         if (service.attributes != txtRecord.dictionary) {
             log(logMessages[Generated.discoveryTxtResolved]!!, listOf(service, txtRecord.dictionary))
             onSuccess(Generated.discoveryServiceLost, service)
