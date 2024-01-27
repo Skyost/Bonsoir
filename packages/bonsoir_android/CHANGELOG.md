@@ -1,3 +1,7 @@
+## 5.1.3
+
+ - **FIX**(android): Fixed a crash with services name containing a dot. ([8caf1c75](https://github.com/Skyost/Bonsoir/commit/8caf1c752bf4da6df7946ac0820acde169b50583))
+
 ## 5.1.2
 
  - **FIX**(android): Fixed a crash with empty attributes values. ([87d8d60c](https://github.com/Skyost/Bonsoir/commit/87d8d60ced5e97284a91103c07594dd3fc979789))
