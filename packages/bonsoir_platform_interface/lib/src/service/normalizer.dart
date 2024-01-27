@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
+
 /// Contains various methods that helps conforming to RFC 6335 and RFC 6763.
 class BonsoirServiceNormalizer {
   /// The default service name.
@@ -16,6 +18,15 @@ class BonsoirServiceNormalizer {
 
     // Service names MUST NOT contain ASCII control characters (byte values 0x00-0x1F and 0x7F).
     result.replaceAll(RegExp(r'[\x00-\x1F\x7F]'), '');
+
+    // On some platforms (eg. Windows), services name are not correctly handled if they're ending with a dot.
+    if (name.endsWith(name)) {
+      if (kDebugMode) {
+        print("It seems that you've provided a service name ending with a dot : $name.");
+        print("Note that it's not correctly handled on all platforms (eg. Windows).");
+        print('Please consider removing the trailing dot of your service name.');
+      }
+    }
 
     return result.isEmpty ? defaultServiceName : result;
   }
