@@ -1,6 +1,6 @@
 ## 5.1.2
 
- - chore(platform_interface): Added a warning for services name ending with a dot. ([0a30efc2](https://github.com/Skyost/Bonsoir/commit/0a30efc2144428641aa0c8d97ae180e6c76249cb))
+- **CHORE**(platform_interface): Added a warning for services name ending with a dot. ([0a30efc2](https://github.com/Skyost/Bonsoir/commit/0a30efc2144428641aa0c8d97ae180e6c76249cb))
 
 ## 5.1.1
 
