@@ -1,3 +1,7 @@
+## 5.1.2
+
+ - chore(platform_interface): Added a warning for services name ending with a dot. ([0a30efc2](https://github.com/Skyost/Bonsoir/commit/0a30efc2144428641aa0c8d97ae180e6c76249cb))
+
 ## 5.1.1
 
 - **CHORE**(platform_interface): Attributes keys are no longer limited to 9 characters by default. ([421fe695](https://github.com/Skyost/Bonsoir/commit/421fe6959ed0a1039dffc19ede8246416b16a2f0))

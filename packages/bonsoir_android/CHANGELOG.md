@@ -1,3 +1,7 @@
+## 5.1.4
+
+ - Update a dependency to the latest release.
+
 ## 5.1.3
 
  - **FIX**(android): Fixed a crash with services name containing a dot. ([8caf1c75](https://github.com/Skyost/Bonsoir/commit/8caf1c752bf4da6df7946ac0820acde169b50583))

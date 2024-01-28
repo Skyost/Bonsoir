@@ -3,7 +3,7 @@ description: Darwin (iOS & macOS) implementation of the Bonsoir plugin.
 homepage: https://bonsoir.skyost.eu
 repository: https://github.com/Skyost/Bonsoir/tree/master/packages/bonsoir_darwin
 issue_tracker: https://github.com/Skyost/Bonsoir/issues
-version: 5.1.1
+version: 5.1.2
 
 environment:
   sdk: ">=3.0.0 <4.0.0"
@@ -23,7 +23,7 @@ flutter:
 dependencies:
   flutter:
     sdk: flutter
-  bonsoir_platform_interface: ^5.1.1
+  bonsoir_platform_interface: ^5.1.2
 
 dependency_overrides:
   bonsoir_platform_interface:

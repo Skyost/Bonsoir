@@ -1,3 +1,7 @@
+## 5.1.4
+
+ - Update a dependency to the latest release.
+
 ## 5.1.3
 
  - **FIX**(windows): Fixed broadcast hostnames not being used. ([57c8c9a6](https://github.com/Skyost/Bonsoir/commit/57c8c9a6e8d5412a2f6a62b88583a1150689473d))
