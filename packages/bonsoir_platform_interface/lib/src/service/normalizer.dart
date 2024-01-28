@@ -20,7 +20,7 @@ class BonsoirServiceNormalizer {
     result.replaceAll(RegExp(r'[\x00-\x1F\x7F]'), '');
 
     // On some platforms (eg. Windows), services name are not correctly handled if they're ending with a dot.
-    if (name.endsWith(name)) {
+    if (name.endsWith('.')) {
       if (kDebugMode) {
         print("It seems that you've provided a service name ending with a dot : $name.");
         print("Note that it's not correctly handled on all platforms (eg. Windows).");
