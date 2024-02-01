@@ -39,8 +39,11 @@ const codeHtml = computed(() => shiki.codeToHtml(
 const lineCount = computed(() => code.value.split(/\r\n|\r|\n/).length)
 
 const content = ref<HTMLDivElement>()
+
 const copy = () => {
+  // @ts-ignore
   if (window.clipboardData && window.clipboardData.setData) {
+    // @ts-ignore
     return window.clipboardData.setData('Text', code.value)
   } else if (document.queryCommandSupported && document.queryCommandSupported('copy')) {
     const textarea = document.createElement('textarea')

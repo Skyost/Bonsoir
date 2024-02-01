@@ -33,13 +33,13 @@ export default defineNuxtConfig({
   },
 
   modules: [
-    '~/modules/generate-cname',
-    '~/modules/generate-commit-sha-file',
+    '~/modules/cname-generator',
+    '~/modules/commit-sha-file-generator',
     'skimple-components/nuxt',
     '@nuxt/content',
     '@nuxtjs/google-fonts',
     'nuxt-link-checker',
-    'nuxt-simple-sitemap',
+    '@nuxtjs/sitemap',
     'nuxt-simple-robots'
   ],
 

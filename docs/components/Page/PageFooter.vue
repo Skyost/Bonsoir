@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { siteMeta } from '~/meta'
+
+const year = (new Date()).getFullYear()
 </script>
 
 <template>
@@ -12,7 +14,7 @@ import { siteMeta } from '~/meta'
       </p>
       <p>
         <small>
-          Copyright &copy; 2023, <a href="https://skyost.eu">Skyost</a>.
+          Copyright &copy; {{ year }}, <a href="https://skyost.eu">Skyost</a>.
           Revision <current-commit-sha />.
         </small>
       </p>
