@@ -33,7 +33,7 @@ export default defineNuxtConfig({
   },
 
   modules: [
-    '~/modules/cname-generator',
+    'nuxt-cname-generator',
     '~/modules/commit-sha-file-generator',
     'skimple-components/nuxt',
     '@nuxt/content',
@@ -74,7 +74,7 @@ export default defineNuxtConfig({
   },
 
   cname: {
-    hostname: siteMeta.url
+    host: siteMeta.url
   },
 
   runtimeConfig: {

@@ -1,13 +1,14 @@
 import { execSync } from 'child_process'
 import fs from 'fs'
-import { createResolver, defineNuxtModule } from '@nuxt/kit'
-import * as logger from '../utils/logger'
+import { createResolver, defineNuxtModule, useLogger } from '@nuxt/kit'
 
 export interface ModuleOptions {
   fileName: string
 }
 
 const name = 'generate-commit-sha-file'
+const logger = useLogger(name)
+
 export default defineNuxtModule<ModuleOptions>({
   meta: {
     name,
@@ -24,6 +25,6 @@ export default defineNuxtModule<ModuleOptions>({
     const long = execSync('git rev-parse HEAD', { cwd: srcDir }).toString().trim()
     const short = execSync('git rev-parse --short HEAD', { cwd: srcDir }).toString().trim()
     fs.writeFileSync(resolver.resolve(srcDir, 'content', options.fileName), JSON.stringify({ long, short }))
-    logger.success(name, `Wrote latest info commit for ${long}.`)
+    logger.success(`Wrote latest info commit for ${long}.`)
   }
 })
