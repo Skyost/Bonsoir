@@ -1,0 +1,1 @@
+import{u as s}from"./theme.pDxVkQEY.js";import{d as r,o as t,i as a,r as n,n as c,u as d,h as l}from"./entry.UKyApRid.js";const m=r({__name:"ProseCodeInline",setup(p){const e=s();return(o,_)=>(t(),a("code",{class:c(["prose-code",`theme-${d(e)}`])},[n(o.$slots,"default",{},void 0,!0)],2))}}),f=l(m,[["__scopeId","data-v-bcc137eb"]]);export{f as default};
