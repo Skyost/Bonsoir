@@ -26,7 +26,8 @@ class BonsoirDiscovery extends BonsoirActionHandler<BonsoirDiscoveryEvent> {
     if (kDebugMode) {
       String normalizedType = BonsoirServiceNormalizer.normalizeType(type);
       if (type != normalizedType) {
-        print('It seems that you are trying to discover an invalid type using Bonsoir.');
+        print(
+            'It seems that you are trying to discover an invalid type using Bonsoir.');
         print('Did you mean "$normalizedType" instead of "$type" ?');
       }
     }
