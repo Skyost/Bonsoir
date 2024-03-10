@@ -6,7 +6,7 @@ class BonsoirActionHandler<T extends BonsoirEvent> {
   final BonsoirAction<T> _action;
 
   /// Creates a new Bonsoir discovery instance.
-  BonsoirActionHandler({
+  const BonsoirActionHandler({
     required BonsoirAction<T> action,
   }) : _action = action;
 

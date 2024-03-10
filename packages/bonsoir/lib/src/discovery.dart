@@ -11,14 +11,11 @@ class BonsoirDiscovery extends BonsoirActionHandler<BonsoirDiscoveryEvent> {
   final ServiceResolver serviceResolver;
 
   /// Creates a new Bonsoir discovery instance with the given action.
-  BonsoirDiscovery._internal({
+  const BonsoirDiscovery._internal({
     required this.type,
     required this.serviceResolver,
     required super.action,
-  }) : assert(
-          type == BonsoirServiceNormalizer.normalizeType(type),
-          'The provided type "$type" is invalid.',
-        );
+  });
 
   /// Creates a new Bonsoir discovery instance.
   factory BonsoirDiscovery({
@@ -26,6 +23,13 @@ class BonsoirDiscovery extends BonsoirActionHandler<BonsoirDiscoveryEvent> {
     required String type,
     ServiceResolver? serviceResolver,
   }) {
+    if (kDebugMode) {
+      String normalizedType = BonsoirServiceNormalizer.normalizeType(type);
+      if (type != normalizedType) {
+        print('It seems that you are trying to discover an invalid type using Bonsoir.');
+        print('Did you mean "$normalizedType" instead of "$type" ?');
+      }
+    }
     BonsoirAction<BonsoirDiscoveryEvent> action =
         BonsoirPlatformInterface.instance.createDiscoveryAction(
       type,
