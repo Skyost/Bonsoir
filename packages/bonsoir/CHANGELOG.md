@@ -1,3 +1,7 @@
+## 5.1.9
+
+ - **FIX**(bonsoir): "Fixed" some errors that were occurring while trying to discover an invalid type. ([d24cc1d6](https://github.com/Skyost/Bonsoir/commit/d24cc1d6ec92424184559f970cae054efb845043))
+
 ## 5.1.8
 
  - Update a dependency to the latest release.
