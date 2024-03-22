@@ -21,6 +21,8 @@ class BonsoirServiceDiscovery: BonsoirAction {
     /// Contains all services we're currently resolving.
     private var pendingResolution: [DNSServiceRef] = []
     
+    private var dispatchSourceRead: DispatchSourceRead?
+
     /// Initializes this class.
     public init(id: Int, printLogs: Bool, onDispose: @escaping () -> Void, messenger: FlutterBinaryMessenger, type: String) {
         self.type = type
@@ -126,7 +128,26 @@ class BonsoirServiceDiscovery: BonsoirAction {
             return false
         }
         pendingResolution.append(sdRef!)
-        DNSServiceProcessResult(sdRef)
+
+        var socket = DNSServiceRefSockFD(sdRef);
+        guard socket != -1 else {
+            onSuccess(eventId: Generated.discoveryServiceResolveFailed, service: service, parameters: [nil])
+            stopResolution(sdRef: sdRef, remove: false)
+            return false
+        }
+
+        dispatchSourceRead = DispatchSource.makeReadSource(fileDescriptor: socket, queue: .main);
+        dispatchSourceRead!.setEventHandler(handler: {
+            DNSServiceProcessResult(sdRef)
+        });
+
+        dispatchSourceRead!.setCancelHandler(handler: {
+            self.onSuccess(eventId: Generated.discoveryServiceResolveFailed, service: service, parameters: [nil])
+            self.stopResolution(sdRef: sdRef, remove: false)
+        });
+
+        dispatchSourceRead!.resume();
+
         return true
     }
     
