@@ -1,0 +1,1 @@
+h3[data-v-5e635aa5]{counter-increment:headline-3;font-size:1.5rem}h3 .title[data-v-5e635aa5]{position:relative}h3 .title .anchor[data-v-5e635aa5]{opacity:0;position:absolute;right:-1em;top:0;transition:opacity .25s,right .25s}h3 .title:hover .anchor[data-v-5e635aa5]{opacity:1;right:-1.25em}h3[data-v-5e635aa5]:before{content:counter(headline-3,lower-alpha) ". "}
