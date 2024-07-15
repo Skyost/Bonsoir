@@ -1,7 +1,8 @@
 ## 5.1.3
 
  - **FIX**: Fixed some issues triggered by the analyzer. ([db62bd06](https://github.com/Skyost/Bonsoir/commit/db62bd06b6bc4b1714d623a23b836fbac0f188b5))
- - **FIX**: support unascii character for TxtRecord on darwin. ([f89e3c06](https://github.com/Skyost/Bonsoir/commit/f89e3c06dbd0b5540c2baca1fe9cccc4cb0e200e))
+ - **FIX**(darwin): Fixed crashes in DNSServiceProcessResult by using DispatchSourceRead. ([67d6ea3f](https://github.com/Skyost/Bonsoir/commit/67d6ea3f2b5d6263b84f761631229205b54518e8))
+ - **FIX**: Support unascii character for TxtRecord on darwin. ([f89e3c06](https://github.com/Skyost/Bonsoir/commit/f89e3c06dbd0b5540c2baca1fe9cccc4cb0e200e))
 
 ## 5.1.2
 
