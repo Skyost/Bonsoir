@@ -26,7 +26,8 @@ class BonsoirServiceBroadcast: BonsoirAction {
         var txtRecord = TXTRecordRef()
         TXTRecordCreate(&txtRecord, 0, nil)
         for (key, value) in service.attributes {
-            TXTRecordSetValue(&txtRecord, key, UInt8(value.count), value)
+            guard let valueData = value.data(using: .utf8) else { continue }
+            TXTRecordSetValue(&txtRecord, key, UInt8(valueData.count), [UInt8](valueData))
         }
         let error = DNSServiceRegister(&sdRef, 0, 0, service.name, service.type, "local.", service.host, CFSwapInt16HostToBig(UInt16(service.port)), TXTRecordGetLength(&txtRecord), TXTRecordGetBytesPtr(&txtRecord), BonsoirServiceBroadcast.registerCallback as DNSServiceRegisterReply, Unmanaged.passUnretained(self).toOpaque())
         if error == kDNSServiceErr_NoError {

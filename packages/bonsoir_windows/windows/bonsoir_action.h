@@ -87,7 +87,7 @@ namespace bonsoir_windows {
       onEvent(successObjectPtr, successParameters);
     }
 
-    void onError(EncodableValue details, std::list<std::string> parameters = std::list<std::string>(), std::optional<std::string> message = nullptr) {
+    void onError(EncodableValue details, std::list<std::string> parameters = std::list<std::string>(), std::optional<std::string> message = std::nullopt) {
       std::string errorMessage = format(message.value_or(logMessages.find(action + "Error")->second), parameters);
         
       std::shared_ptr<ErrorObject> errorObjectPtr = std::make_shared<ErrorObject>(errorMessage, details);

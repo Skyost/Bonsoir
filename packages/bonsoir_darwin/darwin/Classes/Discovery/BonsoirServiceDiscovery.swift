@@ -20,7 +20,8 @@ class BonsoirServiceDiscovery: BonsoirAction {
     
     /// Contains all services we're currently resolving.
     private var pendingResolution: [DNSServiceRef] = []
-    
+    private var pendingDispatchSources: [DispatchSourceRead] = []
+
     /// Initializes this class.
     public init(id: Int, printLogs: Bool, onDispose: @escaping () -> Void, messenger: FlutterBinaryMessenger, type: String) {
         self.type = type
@@ -125,8 +126,49 @@ class BonsoirServiceDiscovery: BonsoirAction {
             stopResolution(sdRef: sdRef, remove: false)
             return false
         }
+
         pendingResolution.append(sdRef!)
-        DNSServiceProcessResult(sdRef)
+
+        let socket = DNSServiceRefSockFD(sdRef);
+        if socket == -1 {
+            onSuccess(eventId: Generated.discoveryServiceResolveFailed, service: service, parameters: [])
+            stopResolution(sdRef: sdRef, remove: false)
+            return false
+        }
+
+        let dispatchSource = DispatchSource.makeReadSource(fileDescriptor: socket, queue: DispatchQueue.global(qos: .userInitiated));
+        dispatchSource.setEventHandler(handler: {
+            DNSServiceProcessResult(sdRef)
+            
+            DispatchQueue.main.async {
+                let foundIndex = self.pendingDispatchSources.firstIndex(where: {
+                    return $0.isEqual(dispatchSource);
+                })
+                
+                if foundIndex != nil {
+                    self.pendingDispatchSources.remove(at: foundIndex!)
+                }
+            }
+        });
+
+        dispatchSource.setCancelHandler(handler: {
+            DispatchQueue.main.async {
+                let foundIndex = self.pendingDispatchSources.firstIndex(where: {
+                    return $0.isEqual(dispatchSource);
+                })
+                
+                if foundIndex != nil {
+                    self.pendingDispatchSources.remove(at: foundIndex!)
+                }
+                
+                self.onSuccess(eventId: Generated.discoveryServiceResolveFailed, service: service, parameters: [])
+                self.stopResolution(sdRef: sdRef, remove: false)
+            }
+        });
+
+        dispatchSource.activate()
+        
+        pendingDispatchSources.append(dispatchSource)
         return true
     }
     
@@ -167,15 +209,25 @@ class BonsoirServiceDiscovery: BonsoirAction {
                 service!.host = String(cString: hosttarget!)
             }
             service!.port = Int(CFSwapInt16BigToHost(port))
-            discovery.onSuccess(eventId: Generated.discoveryServiceResolved, service: service)
+
+            DispatchQueue.main.async {
+                discovery.onSuccess(eventId: Generated.discoveryServiceResolved, service: service)
+            }
         } else {
             if service == nil {
-                discovery.onError(message: Generated.discoveryServiceResolveFailed, parameters: ["nil", errorCode])
+                DispatchQueue.main.async {
+                    discovery.onError(message: Generated.discoveryServiceResolveFailed, parameters: ["nil", errorCode])
+                }
             } else {
-                discovery.onSuccess(eventId: Generated.discoveryServiceResolveFailed, service: service, parameters: [errorCode])
+                DispatchQueue.main.async {
+                    discovery.onSuccess(eventId: Generated.discoveryServiceResolveFailed, service: service, parameters: [errorCode])
+                }
             }
         }
-        discovery.stopResolution(sdRef: sdRef, remove: sdRef != nil)
+        
+        DispatchQueue.main.async {
+            discovery.stopResolution(sdRef: sdRef, remove: sdRef != nil)
+        }
     }
     
     /// Allows to unescape services FQDN.
