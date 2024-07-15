@@ -1,3 +1,7 @@
+## 5.1.10
+
+ - **FIX**: Fixed some issues triggered by the analyzer. ([db62bd06](https://github.com/Skyost/Bonsoir/commit/db62bd06b6bc4b1714d623a23b836fbac0f188b5))
+
 ## 5.1.9
 
  - **FIX**(bonsoir): "Fixed" some errors that were occurring while trying to discover an invalid type. ([d24cc1d6](https://github.com/Skyost/Bonsoir/commit/d24cc1d6ec92424184559f970cae054efb845043))

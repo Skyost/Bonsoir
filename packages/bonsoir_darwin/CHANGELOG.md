@@ -1,3 +1,8 @@
+## 5.1.3
+
+ - **FIX**: Fixed some issues triggered by the analyzer. ([db62bd06](https://github.com/Skyost/Bonsoir/commit/db62bd06b6bc4b1714d623a23b836fbac0f188b5))
+ - **FIX**: support unascii character for TxtRecord on darwin. ([f89e3c06](https://github.com/Skyost/Bonsoir/commit/f89e3c06dbd0b5540c2baca1fe9cccc4cb0e200e))
+
 ## 5.1.2
 
  - Update a dependency to the latest release.
