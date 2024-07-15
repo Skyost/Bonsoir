@@ -1,0 +1,5 @@
+# START nuxt-simple-robots (indexable)
+User-agent: *
+
+Sitemap: https://bonsoir.skyost.eu/sitemap.xml
+# END nuxt-simple-robots
