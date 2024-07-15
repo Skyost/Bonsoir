@@ -138,7 +138,7 @@ class BonsoirService {
             );
 
   @override
-  bool operator ==(dynamic other) {
+  bool operator ==(Object other) {
     if (other is! BonsoirService) {
       return false;
     }

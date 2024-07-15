@@ -42,7 +42,7 @@ class ResolvedBonsoirService extends BonsoirService {
   Map<String, dynamic> toJson({String prefix = 'service.'}) => super.toJson(prefix: prefix)..['${prefix}host'] = host;
 
   @override
-  bool operator ==(dynamic other) {
+  bool operator ==(Object other) {
     if (other is! ResolvedBonsoirService) {
       return false;
     }

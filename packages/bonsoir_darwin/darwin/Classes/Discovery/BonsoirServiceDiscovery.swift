@@ -20,6 +20,8 @@ class BonsoirServiceDiscovery: BonsoirAction {
     
     /// Contains all services we're currently resolving.
     private var pendingResolution: [DNSServiceRef] = []
+
+    /// Contains all dispatch sources.
     private var pendingDispatchSources: [DispatchSourceRead] = []
 
     /// Initializes this class.
