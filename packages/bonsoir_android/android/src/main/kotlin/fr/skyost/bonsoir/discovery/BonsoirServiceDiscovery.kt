@@ -87,7 +87,7 @@ class BonsoirServiceDiscovery(
      * @param type The service type.
      */
     private fun findService(name: String, type: String? = null): BonsoirService? {
-        for (service in services) {
+        for (service in ArrayList(services)) {
             if (name == service.name && (type == null || type == service.type)) {
                 return service
             }
