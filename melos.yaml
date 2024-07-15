@@ -10,14 +10,8 @@ command:
     linkToCommits: true
     branch: master
     workspaceChangelog: false
-    updateGitTagRefs: false
     hooks:
-      pre: |
-        dart format "packages/bonsoir/lib" 
-        && "cd packages/bonsoir_platform_interface" 
-        && dart run "bonsoir_platform_interface:generate" 
-        && cd "../../" 
-        && melos analyze
+      pre: dart format "packages/bonsoir/lib" && "cd packages/bonsoir_platform_interface" && dart run "bonsoir_platform_interface:generate" && cd "../../" && melos analyze
     message: |
       chore(release): Publish packages.
 
