@@ -8,6 +8,9 @@ cmake_minimum_required(VERSION 3.14)
 set(PROJECT_NAME "bonsoir_windows")
 project(${PROJECT_NAME} LANGUAGES CXX)
 
+# Deal with MSVC incompatiblity
+add_compile_definitions(_DISABLE_CONSTEXPR_MUTEX_CONSTRUCTOR)
+
 # This value is used when generating builds using this plugin, so it must
 # not be changed
 set(PLUGIN_NAME "bonsoir_windows_plugin")
