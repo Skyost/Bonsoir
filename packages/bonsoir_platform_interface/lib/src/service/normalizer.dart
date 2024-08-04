@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:bonsoir_platform_interface/src/platform_interface.dart';
 import 'package:flutter/foundation.dart';
 
 /// Contains various methods that helps conforming to RFC 6335 and RFC 6763.
@@ -37,6 +38,11 @@ class BonsoirServiceNormalizer {
   /// * [RFC 6335](https://datatracker.ietf.org/doc/html/rfc6335#section-5.1);
   /// * [RFC 6763](https://datatracker.ietf.org/doc/html/rfc6763#section-7).
   static String normalizeType(String type) {
+    // If the type is the meta query, we return it as is.
+    if (type == bonsoirMetaQuery) {
+      return type;
+    }
+
     List<String> parts = type.split('.');
     if (parts.length != 2) {
       return defaultServiceType;
@@ -88,7 +94,7 @@ class BonsoirServiceNormalizer {
   /// Normalizes a given service [attributes].
   ///
   /// Reference : [RFC 6763](https://datatracker.ietf.org/doc/html/rfc6763#section-6).
-  static Map<String, String> normalizeAttributes(Map<String, String> attributes, { bool limitKeyLength = false }) {
+  static Map<String, String> normalizeAttributes(Map<String, String> attributes, {bool limitKeyLength = false}) {
     Map<String, String> result = <String, String>{};
 
     for (MapEntry<String, String> entry in attributes.entries) {
