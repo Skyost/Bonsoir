@@ -1,5 +1,6 @@
 ## 5.1.5
 
+- **FIX**(windows): Fixed a crash when DNS client is stopping on Windows. ([5941f71](https://github.com/Skyost/Bonsoir/commit/5941f71cc275fe86b23f309e1c0e1dcfa6dd4d38))
  - Update a dependency to the latest release.
 
 ## 5.1.4
