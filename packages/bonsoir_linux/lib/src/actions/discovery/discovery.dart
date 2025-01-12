@@ -125,6 +125,7 @@ class AvahiBonsoirDiscovery extends AvahiBonsoirAction<BonsoirDiscoveryEvent> wi
     for (AvahiRecordBrowser recordBrowser in _recordBrowsers) {
       recordBrowser.callFree();
     }
+    cancelSubscriptions();
     onEvent(
       const BonsoirDiscoveryEvent(type: BonsoirDiscoveryEventType.discoveryStopped),
       parameters: [type],
