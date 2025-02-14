@@ -16,12 +16,6 @@ command:
       chore(release): Publish packages.
 
       {new_package_versions}
-    changelogs:
-      - path: packages/bonsoir/CHANGELOG.md
-        description: |
-          All notable changes to Bonsoir packages will be documented in this file.
-        packageFilters:
-          scope: bonsoir*
 
 scripts:
   analyze:
