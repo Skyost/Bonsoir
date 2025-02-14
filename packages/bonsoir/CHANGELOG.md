@@ -1,3 +1,38 @@
+# Change Log
+
+All notable changes to Bonsoir packages will be documented in this file.
+
+## 2025-02-14
+
+### Changes
+
+---
+
+Packages with breaking changes:
+
+ - There are no breaking changes in this release.
+
+Packages with other changes:
+
+ - [`bonsoir_android` - `v5.1.6`](#bonsoir_android---v516)
+ - [`bonsoir` - `v5.1.11`](#bonsoir---v5111)
+
+Packages with dependency updates only:
+
+> Packages listed below depend on other packages in this workspace that have had changes. Their versions have been incremented to bump the minimum dependency versions of the packages they depend upon in this project.
+
+ - `bonsoir` - `v5.1.11`
+
+---
+
+#### `bonsoir_android` - `v5.1.6`
+
+ - **FIX**: remove android v1 embedding. ([d26707f7](https://github.com/Skyost/Bonsoir/commit/d26707f7c870a19d64bf256b7173de7ac5891825))
+
+## 5.1.11
+
+ - Update a dependency to the latest release.
+
 ## 5.1.10
 
  - **FIX**: Fixed some issues triggered by the analyzer. ([db62bd06](https://github.com/Skyost/Bonsoir/commit/db62bd06b6bc4b1714d623a23b836fbac0f188b5))

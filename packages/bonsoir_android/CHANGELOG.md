@@ -1,3 +1,7 @@
+## 5.1.6
+
+ - **FIX**: remove android v1 embedding. ([d26707f7](https://github.com/Skyost/Bonsoir/commit/d26707f7c870a19d64bf256b7173de7ac5891825))
+
 ## 5.1.5
 
  - **FIX**(android): Fixed a `ConcurrentModificationException`. ([1f0b163](https://github.com/Skyost/Bonsoir/commit/1f0b163c2a7c59127f1c58bc923c81015c735bd5))
