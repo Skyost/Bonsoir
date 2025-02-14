@@ -5,7 +5,6 @@ import android.net.wifi.WifiManager
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.MethodChannel
-import io.flutter.plugin.common.PluginRegistry.Registrar
 
 /**
  * The main plugin Kotlin class.
@@ -16,16 +15,6 @@ public class BonsoirPlugin : FlutterPlugin {
          * The plugin channel.
          */
         const val channel: String = "fr.skyost.bonsoir"
-
-        @JvmStatic
-        fun registerWith(registrar: Registrar) {
-            val plugin = BonsoirPlugin()
-            plugin.startListening(registrar.context(), registrar.messenger())
-            registrar.addViewDestroyListener {
-                plugin.stopListening()
-                false
-            }
-        }
     }
 
     /**
