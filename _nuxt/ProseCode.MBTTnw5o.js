@@ -1,0 +1,1 @@
+import{d as t,r}from"./entry.iv_d2pPt.js";const u=t({__name:"ProseCode",props:{code:{type:String,default:""},language:{type:String,default:null},filename:{type:String,default:null},highlights:{type:Array,default:()=>[]},meta:{type:String,default:null}},setup(a){return(e,l)=>r(e.$slots,"default")}});export{u as default};
