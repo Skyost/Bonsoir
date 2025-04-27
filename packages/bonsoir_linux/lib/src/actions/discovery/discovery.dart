@@ -43,6 +43,9 @@ class AvahiBonsoirDiscovery extends AvahiBonsoirAction<BonsoirDiscoveryEvent> wi
           logMessages: BonsoirPlatformInterfaceLogMessages.discoveryMessages,
         );
 
+  // This returns whether the service is a meta query.
+  bool get isMetaQuery => type == bonsoirMetaQuery;
+
   @override
   Future<void> get ready async {
     if (_serviceBrowser == null) {
@@ -146,7 +149,7 @@ class AvahiBonsoirDiscovery extends AvahiBonsoirAction<BonsoirDiscoveryEvent> wi
   /// Triggered when a service has been found.
   Future<void> _onServiceFound(DBusSignal signal) async {
     AvahiServiceBrowserItemNew event = AvahiServiceBrowserItemNew(signal);
-    if (event.type != this.type) {
+    if (event.type != this.type && !isMetaQuery) {
       return;
     }
     BonsoirService? service = _findService(event.serviceName, event.type);
