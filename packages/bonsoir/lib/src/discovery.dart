@@ -26,19 +26,15 @@ class BonsoirDiscovery extends BonsoirActionHandler<BonsoirDiscoveryEvent> {
     if (kDebugMode) {
       String normalizedType = BonsoirServiceNormalizer.normalizeType(type);
       if (type != normalizedType) {
-        print(
-            'It seems that you are trying to discover an invalid type using Bonsoir.');
+        print('It seems that you are trying to discover an invalid type using Bonsoir.');
         print('Did you mean "$normalizedType" instead of "$type" ?');
       }
     }
-    BonsoirAction<BonsoirDiscoveryEvent> action =
-        BonsoirPlatformInterface.instance.createDiscoveryAction(
+    BonsoirAction<BonsoirDiscoveryEvent> action = BonsoirPlatformInterface.instance.createDiscoveryAction(
       type,
       printLogs: printLogs,
     );
-    serviceResolver ??= action is ServiceResolver
-        ? (action as ServiceResolver)
-        : _NoServiceResolver();
+    serviceResolver ??= action is ServiceResolver ? (action as ServiceResolver) : _NoServiceResolver();
     return BonsoirDiscovery._internal(
       type: type,
       serviceResolver: serviceResolver,

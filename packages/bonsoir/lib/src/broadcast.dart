@@ -12,9 +12,9 @@ class BonsoirBroadcast extends BonsoirActionHandler<BonsoirBroadcastEvent> {
     bool printLogs = kDebugMode,
     required this.service,
   }) : super(
-          action: BonsoirPlatformInterface.instance.createBroadcastAction(
-            service,
-            printLogs: printLogs,
-          ),
-        );
+         action: BonsoirPlatformInterface.instance.createBroadcastAction(
+           service,
+           printLogs: printLogs,
+         ),
+       );
 }

@@ -28,12 +28,12 @@ class AvahiDiscoveryV2 extends AvahiHandler {
 
   @override
   Future<String> getAvahiServiceBrowserPath(String serviceType) => _server.callServiceBrowserPrepare(
-        AvahiIfIndexUnspecified,
-        AvahiProtocolUnspecified,
-        serviceType,
-        '',
-        0,
-      );
+    AvahiIfIndexUnspecified,
+    AvahiProtocolUnspecified,
+    serviceType,
+    '',
+    0,
+  );
 
   @override
   Future<AvahiRecordBrowser> createAvahiRecordBrowser(AvahiBonsoirDiscovery discovery, BonsoirService service) async {

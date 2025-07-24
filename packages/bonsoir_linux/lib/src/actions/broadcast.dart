@@ -25,9 +25,9 @@ class AvahiBonsoirBroadcast extends AvahiBonsoirAction<BonsoirBroadcastEvent> {
     required this.service,
     required super.printLogs,
   }) : super(
-          action: 'broadcast',
-          logMessages: BonsoirPlatformInterfaceLogMessages.broadcastMessages,
-        );
+         action: 'broadcast',
+         logMessages: BonsoirPlatformInterfaceLogMessages.broadcastMessages,
+       );
 
   @override
   Future<void> get ready async {
@@ -53,7 +53,7 @@ class AvahiBonsoirBroadcast extends AvahiBonsoirAction<BonsoirBroadcastEvent> {
         break;
       case AvahiEntryGroupState.AVAHI_ENTRY_GROUP_ESTABLISHED:
         onEvent(
-          BonsoirBroadcastEvent(type: BonsoirBroadcastEventType.broadcastStarted, service: service),
+          BonsoirBroadcastStartedEvent(service: service),
           parameters: [service.description],
         );
         break;
@@ -63,7 +63,7 @@ class AvahiBonsoirBroadcast extends AvahiBonsoirAction<BonsoirBroadcastEvent> {
         String name = service.name;
         service = service.copyWith(name: newName);
         onEvent(
-          BonsoirBroadcastEvent(type: BonsoirBroadcastEventType.broadcastNameAlreadyExists, service: service),
+          BonsoirBroadcastNameAlreadyExistsEvent(service: service),
           parameters: [service.description, name],
         );
         _sendServiceToAvahi();
@@ -73,7 +73,7 @@ class AvahiBonsoirBroadcast extends AvahiBonsoirAction<BonsoirBroadcastEvent> {
         break;
       default:
         onEvent(
-          const BonsoirBroadcastEvent(type: BonsoirBroadcastEventType.unknown),
+          const BonsoirBroadcastUnknownEvent(),
           message: 'Bonsoir broadcast has received a unknown state with value ${event.state}.',
         );
     }
@@ -81,10 +81,6 @@ class AvahiBonsoirBroadcast extends AvahiBonsoirAction<BonsoirBroadcastEvent> {
 
   /// Sends the current service to Avahi.
   Future<void> _sendServiceToAvahi() async {
-    String host = '';
-    if (service is ResolvedBonsoirService) {
-      host = (service as ResolvedBonsoirService).host ?? '';
-    }
     await _entryGroup!.callAddService(
       interface: AvahiIfIndexUnspecified,
       protocol: AvahiProtocolUnspecified,
@@ -92,7 +88,7 @@ class AvahiBonsoirBroadcast extends AvahiBonsoirAction<BonsoirBroadcastEvent> {
       name: service.name,
       type: service.type,
       domain: '',
-      host: host,
+      host: service.host ?? '',
       port: service.port,
       txt: service.txtRecord,
     );
@@ -103,7 +99,7 @@ class AvahiBonsoirBroadcast extends AvahiBonsoirAction<BonsoirBroadcastEvent> {
     cancelSubscriptions();
     await _entryGroup!.callFree();
     onEvent(
-      const BonsoirBroadcastEvent(type: BonsoirBroadcastEventType.broadcastStopped),
+      BonsoirBroadcastStoppedEvent(service: service),
       parameters: [service.description],
     );
     super.stop();

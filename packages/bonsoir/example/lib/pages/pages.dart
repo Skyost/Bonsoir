@@ -1,7 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-
-final appPageProvider = StateProvider<AppPage>((_) => AppPage.discoveries);
 
 /// An app page.
 enum AppPage {

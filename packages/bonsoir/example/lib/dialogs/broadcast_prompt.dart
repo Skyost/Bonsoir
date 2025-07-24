@@ -106,12 +106,12 @@ class _BroadcastPromptDialogState extends State<BroadcastPromptDialog> {
                 ),
               Padding(
                 padding: const EdgeInsets.only(top: 20),
-                child: TextButton.icon(
+                child: FilledButton.tonalIcon(
                   icon: const Icon(Icons.add),
                   onPressed: () {
                     setState(() => attributes[TextEditingController()] = TextEditingController());
                   },
-                  label: Text('Add new attribute'.toUpperCase()),
+                  label: Text('Add new attribute'),
                 ),
               ),
             ],
@@ -120,7 +120,7 @@ class _BroadcastPromptDialogState extends State<BroadcastPromptDialog> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text('Cancel'.toUpperCase()),
+            child: Text('Cancel'),
           ),
           TextButton(
             onPressed: () => Navigator.pop(
@@ -132,7 +132,7 @@ class _BroadcastPromptDialogState extends State<BroadcastPromptDialog> {
                 attributes: attributes.map((key, value) => MapEntry(key.text, value.text)),
               ),
             ),
-            child: Text('Ok'.toUpperCase()),
+            child: Text('Ok'),
           ),
         ],
       );

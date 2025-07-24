@@ -39,9 +39,9 @@ class AvahiBonsoirDiscovery extends AvahiBonsoirAction<BonsoirDiscoveryEvent> wi
     required this.type,
     required super.printLogs,
   }) : super(
-          action: 'discovery',
-          logMessages: BonsoirPlatformInterfaceLogMessages.discoveryMessages,
-        );
+         action: 'discovery',
+         logMessages: BonsoirPlatformInterfaceLogMessages.discoveryMessages,
+       );
 
   // This returns whether the service is a meta query.
   bool get isMetaQuery => type == bonsoirMetaQuery;
@@ -104,7 +104,7 @@ class AvahiBonsoirDiscovery extends AvahiBonsoirAction<BonsoirDiscoveryEvent> wi
     }
     await _serviceBrowser!.callStart();
     onEvent(
-      const BonsoirDiscoveryEvent(type: BonsoirDiscoveryEventType.discoveryStarted),
+      const BonsoirDiscoveryStartedEvent(),
       parameters: [type],
     );
   }
@@ -130,7 +130,7 @@ class AvahiBonsoirDiscovery extends AvahiBonsoirAction<BonsoirDiscoveryEvent> wi
     }
     cancelSubscriptions();
     onEvent(
-      const BonsoirDiscoveryEvent(type: BonsoirDiscoveryEventType.discoveryStopped),
+      const BonsoirDiscoveryStoppedEvent(),
       parameters: [type],
     );
     await super.stop();
@@ -165,7 +165,7 @@ class AvahiBonsoirDiscovery extends AvahiBonsoirAction<BonsoirDiscoveryEvent> wi
     _foundServices[service] = event;
     if (isNew) {
       onEvent(
-        BonsoirDiscoveryEvent(type: BonsoirDiscoveryEventType.discoveryServiceFound, service: service),
+        BonsoirDiscoveryServiceFoundEvent(service: service),
         parameters: [service.description],
       );
       AvahiRecordBrowser recordBrowser = await _avahiHandler!.createAvahiRecordBrowser(this, service);
@@ -183,7 +183,7 @@ class AvahiBonsoirDiscovery extends AvahiBonsoirAction<BonsoirDiscoveryEvent> wi
     if (service != null) {
       _foundServices.remove(service);
       onEvent(
-        BonsoirDiscoveryEvent(type: BonsoirDiscoveryEventType.discoveryServiceLost, service: service),
+        BonsoirDiscoveryServiceLostEvent(service: service),
         parameters: [service.description],
       );
     }
@@ -192,7 +192,7 @@ class AvahiBonsoirDiscovery extends AvahiBonsoirAction<BonsoirDiscoveryEvent> wi
   /// Triggered when a service has been resolved.
   void _onServiceResolved(DBusSignal signal) {
     AvahiServiceResolverFound event = AvahiServiceResolverFound(signal);
-    BonsoirService service = ResolvedBonsoirService(
+    BonsoirService service = BonsoirService(
       name: event.serviceName,
       type: event.type,
       host: event.address,
@@ -205,7 +205,7 @@ class AvahiBonsoirDiscovery extends AvahiBonsoirAction<BonsoirDiscoveryEvent> wi
       ),
     );
     onEvent(
-      BonsoirDiscoveryEvent(type: BonsoirDiscoveryEventType.discoveryServiceResolved, service: service),
+      BonsoirDiscoveryServiceResolvedEvent(service: service),
       parameters: [service.description],
     );
   }
@@ -214,7 +214,7 @@ class AvahiBonsoirDiscovery extends AvahiBonsoirAction<BonsoirDiscoveryEvent> wi
   void _onServiceResolveFailure(DBusSignal signal) {
     AvahiServiceResolverFailure event = AvahiServiceResolverFailure(signal);
     onEvent(
-      const BonsoirDiscoveryEvent(type: BonsoirDiscoveryEventType.discoveryServiceResolveFailed),
+      const BonsoirDiscoveryServiceResolveFailedEvent(),
       parameters: [event.path, event.error],
     );
   }
@@ -231,12 +231,12 @@ class AvahiBonsoirDiscovery extends AvahiBonsoirAction<BonsoirDiscoveryEvent> wi
     Map<String, String> attributes = _parseTXTRecordData(event.rdata);
     if (!mapEquals(service.attributes, attributes)) {
       log(logMessages['discoveryTxtResolved']!, parameters: [service.description, attributes]);
-      onEvent(BonsoirDiscoveryEvent(type: BonsoirDiscoveryEventType.discoveryServiceLost, service: service));
+      onEvent(BonsoirDiscoveryServiceLostEvent(service: service));
       AvahiServiceBrowserItemNew serviceEvent = _foundServices[service]!;
       _foundServices.remove(service);
       service = service.copyWith(attributes: attributes);
       _foundServices[service] = serviceEvent;
-      onEvent(BonsoirDiscoveryEvent(type: BonsoirDiscoveryEventType.discoveryServiceFound, service: service));
+      onEvent(BonsoirDiscoveryServiceFoundEvent(service: service));
     }
   }
 

@@ -60,11 +60,11 @@ class _DiscoveryPromptDialogState extends State<DiscoveryPromptDialog> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text('Cancel'.toUpperCase()),
+            child: Text('Cancel'),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, '_${type.text}._$protocol'),
-            child: Text('Ok'.toUpperCase()),
+            child: Text('Ok'),
           ),
         ],
       );

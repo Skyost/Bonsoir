@@ -4,16 +4,22 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// Allows to navigate through the app.
 class BottomBar extends ConsumerWidget {
+  /// The current page index.
+  final int currentIndex;
+
+  /// Triggered when the page changes.
+  final Function(int) onPageChange;
+
   /// Creates a new bottom bar instance.
   const BottomBar({
     super.key,
+    this.currentIndex = 0,
+    required this.onPageChange,
   });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final currentPage = ref.watch(appPageProvider);
-    return BottomNavigationBar(
-      currentIndex: AppPage.values.indexOf(currentPage),
+  Widget build(BuildContext context, WidgetRef ref) => BottomNavigationBar(
+      currentIndex: currentIndex,
       items: [
         for (AppPage page in AppPage.values)
           BottomNavigationBarItem(
@@ -21,7 +27,6 @@ class BottomBar extends ConsumerWidget {
             label: page.label,
           ),
       ],
-      onTap: (index) => ref.read(appPageProvider.notifier).update((state) => AppPage.values[index]),
+      onTap: onPageChange,
     );
-  }
 }
