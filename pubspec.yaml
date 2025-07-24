@@ -1,7 +1,43 @@
 name: bonsoir_workspace
+publish_to: none
 
 environment:
-  sdk: ">=3.0.0 <4.0.0"
+  sdk: ^3.8.1
+
+workspace:
+  - packages/bonsoir
+  - packages/bonsoir_android
+  - packages/bonsoir_darwin
+  - packages/bonsoir_linux
+  - packages/bonsoir_platform_interface
+  - packages/bonsoir_windows
+  - packages/bonsoir/example
 
 dev_dependencies:
-  melos: ^6.3.2
+  melos: ^7.0.0-dev.9
+
+melos:
+  repository: https://github.com/Skyost/Bonsoir
+  categories:
+    packages:
+      - packages/bonsoir
+      - packages/bonsoir_android
+      - packages/bonsoir_darwin
+      - packages/bonsoir_linux
+      - packages/bonsoir_platform_interface
+      - packages/bonsoir_windows
+    apps:
+      - packages/bonsoir/example
+  ide:
+    moduleNamePrefix: ''
+  command:
+    version:
+      linkToCommits: true
+      branch: main
+      hooks:
+        pre: dart format "packages/bonsoir/lib" && cd "packages/bonsoir_platform_interface" && dart run "bonsoir_platform_interface:generate" && cd "../../"
+        post: cp CHANGELOG.md "packages/bonsoir/CHANGELOG.md"
+      message: |
+        chore(release): Publish packages.
+
+        {new_package_versions}

@@ -4,9 +4,10 @@ homepage: https://bonsoir.skyost.eu
 repository: https://github.com/Skyost/Bonsoir/tree/master/packages/bonsoir_linux
 issue_tracker: https://github.com/Skyost/Bonsoir/issues
 version: 5.1.3
+resolution: workspace
 
 environment:
-  sdk: ">=3.0.0 <4.0.0"
+  sdk: ">=3.8.0 <4.0.0"
   flutter: ">=3.7.0"
 
 flutter:
@@ -20,12 +21,8 @@ dependencies:
   flutter:
     sdk: flutter
   bonsoir_platform_interface: ^5.1.3
-  dbus: ^0.7.10
-  meta: ^1.8.0
+  dbus: ^0.7.11
+  meta: ^1.16.0
 
 dev_dependencies:
-  flutter_lints: ^3.0.1
-
-dependency_overrides:
-  bonsoir_platform_interface:
-    path: ../bonsoir_platform_interface/
+  flutter_lints: ^6.0.0

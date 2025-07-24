@@ -8,3 +8,6 @@ linter:
 analyzer:
   errors:
     omit_local_variable_types: ignore
+
+formatter:
+  trailing_commas: preserve
