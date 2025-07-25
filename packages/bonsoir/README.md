@@ -1,5 +1,5 @@
 <div align="center">
-    <img src="https://github.com/Skyost/Bonsoir/raw/master/packages/bonsoir/images/logo.svg" height="200">
+    <img src="https://github.com/Skyost/Bonsoir/raw/main/packages/bonsoir/images/logo.svg" height="200">
 </div>
 
 &nbsp;
@@ -37,7 +37,7 @@ BonsoirService service = BonsoirService(
 
 // And now we can broadcast it :
 BonsoirBroadcast broadcast = BonsoirBroadcast(service: service);
-await broadcast.ready;
+await broadcast.initialize();
 await broadcast.start();
 
 // ...
@@ -54,17 +54,27 @@ String type = '_wonderful-service._tcp';
 
 // Once defined, we can start the discovery :
 BonsoirDiscovery discovery = BonsoirDiscovery(type: type);
-await discovery.ready;
+await discovery.initialize();
 
 // If you want to listen to the discovery :
 discovery.eventStream!.listen((event) { // `eventStream` is not null as the discovery instance is "ready" !
-  if (event.type == BonsoirDiscoveryEventType.discoveryServiceFound) {
-    print('Service found : ${event.service.toJson()}')
-    event.service!.resolve(discovery.serviceResolver); // Should be called when the user wants to connect to this service.
-  } else if (event.type == BonsoirDiscoveryEventType.discoveryServiceResolved) {
-    print('Service resolved : ${event.service.toJson()}')
-  } else if (event.type == BonsoirDiscoveryEventType.discoveryServiceLost) {
-    print('Service lost : ${event.service.toJson()}')
+  switch (event) {
+    case BonsoirDiscoveryServiceFoundEvent():
+      print('Service found : ${event.service.toJson()}');
+      event.service!.resolve(discovery.serviceResolver); // Should be called when the user wants to connect to this service.
+      break;
+    case BonsoirDiscoveryServiceResolvedEvent():
+      print('Service resolved : ${event.service.toJson()}');
+      break;
+    case BonsoirDiscoveryServiceUpdatedEvent():
+      print('Service updated : ${event.service.toJson()}');
+      break;
+    case BonsoirDiscoveryServiceLostEvent():
+      print('Service lost : ${event.service.toJson()}');
+      break;
+    default:
+      print('Another event occurred : $event.');
+      break;
   }
 });
 
