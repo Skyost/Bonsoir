@@ -44,10 +44,10 @@ class AvahiBonsoirDiscovery extends AvahiBonsoirAction<BonsoirDiscoveryEvent> wi
        );
 
   // This returns whether the service is a meta query.
-  bool get isMetaQuery => type == bonsoirMetaQuery;
+  bool get isMetaQuery => type == kDnsSdMetaQuery;
 
   @override
-  Future<void> get ready async {
+  Future<void> initialize() async {
     if (_serviceBrowser == null) {
       _avahiHandler = ((await _isModernAvahi) ? AvahiDiscoveryV2.new : AvahiDiscoveryLegacy.new)(busClient: busClient);
       _avahiHandler!.initialize();

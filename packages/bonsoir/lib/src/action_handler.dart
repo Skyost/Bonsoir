@@ -10,8 +10,9 @@ class BonsoirActionHandler<T extends BonsoirEvent> {
     required BonsoirAction<T> action,
   }) : _action = action;
 
-  /// The ready getter, that returns when the platform is ready for the action.
-  Future<void> get ready async => _action.ready;
+  /// The initialize method, that should be called before starting the action.
+  /// Await this method to know when the plugin will be ready.
+  Future<void> initialize() => _action.initialize();
 
   /// This returns whether the platform is ready for the action.
   bool get isReady => _action.isReady;

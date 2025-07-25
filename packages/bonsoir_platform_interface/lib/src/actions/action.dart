@@ -12,9 +12,9 @@ abstract class BonsoirAction<T extends BonsoirEvent> {
   /// Subscribe to it to receive this instance updates.
   Stream<T>? get eventStream;
 
-  /// The ready getter, that returns when the platform is ready for the operation requested.
+  /// The initialize method, that should be called before starting the action.
   /// Await this method to know when the plugin will be ready.
-  Future<void> get ready;
+  Future<void> initialize();
 
   /// This starts the required action (eg. discovery, or broadcast).
   Future<void> start();
@@ -63,7 +63,7 @@ abstract class MethodChannelBonsoirAction<T extends BonsoirEvent> extends Bonsoi
   Stream<T>? get eventStream => _eventStream;
 
   @override
-  Future<void> get ready async {
+  Future<void> initialize() async {
     if (eventStream == null) {
       await _channel.invokeMethod('$_classType.initialize', toJson());
       _eventStream = EventChannel('$_channelName.$_classType.$_id').receiveBroadcastStream().map(transformPlatformEvent);
@@ -119,4 +119,14 @@ If you have previously called "$runtimeType.stop()" on this instance, you have t
 mixin ServiceResolver {
   /// Allows to resolve a service.
   Future<void> resolveService(BonsoirService service);
+}
+
+/// Allows to resolve a service.
+extension Resolve on BonsoirService {
+  /// Tries to resolve this service.
+  Future<void> resolve(ServiceResolver resolver) async {
+    if (host == null) {
+      await resolver.resolveService(this);
+    }
+  }
 }

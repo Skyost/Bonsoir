@@ -30,7 +30,7 @@ class AvahiBonsoirBroadcast extends AvahiBonsoirAction<BonsoirBroadcastEvent> {
        );
 
   @override
-  Future<void> get ready async {
+  Future<void> initialize() async {
     if (_entryGroup == null) {
       _server = AvahiServer(busClient, BonsoirLinux.avahi, DBusObjectPath('/'));
       _entryGroup = AvahiEntryGroup(busClient, BonsoirLinux.avahi, DBusObjectPath(await _server!.callEntryGroupNew()));
