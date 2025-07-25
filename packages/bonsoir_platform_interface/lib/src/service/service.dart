@@ -5,6 +5,12 @@ import 'package:bonsoir_platform_interface/src/utils/utils.dart';
 
 /// Represents a broadcastable network service.
 class BonsoirService {
+  /// The default attributes.
+  /// Non-empty, see : https://github.com/Skyost/Bonsoir/issues/83.
+  static const Map<String, String> defaultAttributes = {
+    'lib': 'bonsoir',
+  };
+
   /// The service name. Should represent what you want to advertise.
   /// This name is subject to change based on conflicts with other services advertised on the same network.
   ///
@@ -75,7 +81,7 @@ class BonsoirService {
     required String type,
     this.host,
     required this.port,
-    Map<String, String> attributes = const {},
+    Map<String, String> attributes = defaultAttributes,
   }) : name = BonsoirServiceNormalizer.normalizeName(name),
        type = BonsoirServiceNormalizer.normalizeType(type),
        attributes = BonsoirServiceNormalizer.normalizeAttributes(attributes);
@@ -89,7 +95,7 @@ class BonsoirService {
     required this.type,
     this.host,
     required this.port,
-    this.attributes = const {},
+    this.attributes = defaultAttributes,
   });
 
   /// Creates a new Bonsoir service instance from the given JSON map.
