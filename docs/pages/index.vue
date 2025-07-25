@@ -46,7 +46,7 @@ BonsoirService service = BonsoirService(
 );
 
 BonsoirBroadcast broadcast = BonsoirBroadcast(service: service);
-await broadcast.ready;
+await broadcast.initialize();
 await broadcast.start();
 "
             />

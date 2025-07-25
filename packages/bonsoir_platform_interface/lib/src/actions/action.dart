@@ -79,8 +79,8 @@ abstract class MethodChannelBonsoirAction<T extends BonsoirEvent> extends Bonsoi
   @override
   Future<void> start() {
     assert(!isStopped, 'You should not try to start a stopped action.');
-    assert(isReady, '''$runtimeType should be ready to start in order to call this method.
-You must wait until this instance is ready by calling "await $runtimeType.ready".
+    assert(isReady, '''$runtimeType should be initialized in order to call this method.
+You must wait until this instance is initialized by calling "await $runtimeType.initialize()".
 If you have previously called "$runtimeType.stop()" on this instance, you have to create a new instance of this class.''');
     return _channel.invokeMethod('$_classType.start', toJson());
   }
