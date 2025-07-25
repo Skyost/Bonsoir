@@ -102,11 +102,10 @@ class BonsoirServiceDiscovery: BonsoirAction {
                         if oldName == newName && oldType == newType && newAttributes == service.attributes {
                             break
                         }
-                        onSuccess(eventId: Generated.discoveryServiceLost, message: "A Bonsoir service has changed : %s.", service: service)
                         service.name = newName
                         service.type = newType
                         service.attributes = newAttributes
-                        onSuccess(eventId: Generated.discoveryServiceFound, message: "New service is \(service)", service: service)
+                        onSuccess(eventId: Generated.discoveryServiceUpdated, service: service)
                     }
                 }
             default:
