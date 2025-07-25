@@ -18,7 +18,7 @@ class BonsoirAction: NSObject, FlutterStreamHandler {
     private let action: String
     
     /// The log messages map.
-    internal let logMessages: [String: String]
+    let logMessages: [String: String]
     
     /// Whether to print debug logs.
     private let printLogs: Bool
