@@ -23,6 +23,7 @@ sealed class BonsoirDiscoveryEvent extends BonsoirEvent {
     BonsoirDiscoveryStartedEvent.discoveryStarted => const BonsoirDiscoveryStartedEvent(),
     BonsoirDiscoveryServiceFoundEvent.discoveryServiceFound => BonsoirDiscoveryServiceFoundEvent(service: service!),
     BonsoirDiscoveryServiceResolvedEvent.discoveryServiceResolved => BonsoirDiscoveryServiceResolvedEvent(service: service!),
+    BonsoirDiscoveryServiceUpdatedEvent.discoveryServiceUpdated => BonsoirDiscoveryServiceUpdatedEvent(service: service!),
     BonsoirDiscoveryServiceResolveFailedEvent.discoveryServiceResolveFailed => const BonsoirDiscoveryServiceResolveFailedEvent(),
     BonsoirDiscoveryServiceLostEvent.discoveryServiceLost => BonsoirDiscoveryServiceLostEvent(service: service!),
     BonsoirDiscoveryStoppedEvent.discoveryStopped => const BonsoirDiscoveryStoppedEvent(),
@@ -60,6 +61,20 @@ class BonsoirDiscoveryServiceResolvedEvent extends BonsoirDiscoveryEvent {
 
   /// Creates a new Bonsoir discovery service resolved event instance.
   const BonsoirDiscoveryServiceResolvedEvent({
+    required BonsoirService super.service,
+  });
+
+  @override
+  BonsoirService get service => super.service as BonsoirService;
+}
+
+/// Triggered when a service has been updated.
+class BonsoirDiscoveryServiceUpdatedEvent extends BonsoirDiscoveryEvent {
+  /// The event id.
+  static const String discoveryServiceUpdated = 'discoveryServiceUpdated';
+
+  /// Creates a new Bonsoir discovery service updated event instance.
+  const BonsoirDiscoveryServiceUpdatedEvent({
     required BonsoirService super.service,
   });
 

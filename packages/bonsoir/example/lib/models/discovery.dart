@@ -37,7 +37,7 @@ class BonsoirDiscoveryTypeStateNotifier extends AutoDisposeFamilyAsyncNotifier<B
   @override
   FutureOr<BonsoirDiscoveryState> build(String arg) async {
     BonsoirDiscovery discovery = BonsoirDiscovery(type: arg);
-    await discovery.ready;
+    await discovery.initialize();
     discovery.eventStream?.listen(_onEventOccurred);
     ref.onDispose(discovery.stop);
     discovery.start();
@@ -51,6 +51,22 @@ class BonsoirDiscoveryTypeStateNotifier extends AutoDisposeFamilyAsyncNotifier<B
   /// Handles the discovery event.
   Future<void> _onEventOccurred(BonsoirDiscoveryEvent event) async {
     BonsoirDiscoveryState state = await future;
+    void onUpdate(BonsoirService updatedService) {
+      List<BonsoirService> services = List.of(state.services);
+      services = [
+        for (BonsoirService service in services)
+          if (service.name == updatedService.name) updatedService else service,
+      ];
+      sortServiceList(services);
+      this.state = AsyncData(
+        BonsoirDiscoveryStartedState(
+          type: state.type,
+          services: services,
+          serviceResolver: state.serviceResolver,
+        ),
+      );
+    }
+
     switch (event) {
       case BonsoirDiscoveryStartedEvent():
         this.state = AsyncData(
@@ -74,19 +90,10 @@ class BonsoirDiscoveryTypeStateNotifier extends AutoDisposeFamilyAsyncNotifier<B
         );
         break;
       case BonsoirDiscoveryServiceResolvedEvent():
-        List<BonsoirService> services = List.of(state.services);
-        services = [
-          for (BonsoirService service in services)
-            if (service.name == event.service.name) event.service else service,
-        ];
-        sortServiceList(services);
-        this.state = AsyncData(
-          BonsoirDiscoveryStartedState(
-            type: state.type,
-            services: services,
-            serviceResolver: state.serviceResolver,
-          ),
-        );
+        onUpdate(event.service);
+        break;
+      case BonsoirDiscoveryServiceUpdatedEvent():
+        onUpdate(event.service);
         break;
       case BonsoirDiscoveryServiceLostEvent():
         List<BonsoirService> services = List.of(state.services);

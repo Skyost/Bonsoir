@@ -40,7 +40,7 @@ class BonsoirBroadcastServiceStateNotifier extends AutoDisposeFamilyAsyncNotifie
   @override
   FutureOr<BonsoirBroadcastState> build(BonsoirService arg) async {
     BonsoirBroadcast broadcast = BonsoirBroadcast(service: arg);
-    await broadcast.ready;
+    await broadcast.initialize();
     broadcast.eventStream?.listen(_onEventOccurred);
     ref.onDispose(broadcast.stop);
     broadcast.start();

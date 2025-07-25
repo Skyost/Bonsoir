@@ -17,7 +17,7 @@ class Generated {
 
 
   /// Contains the discovery messages.
-  static let discoveryMessages: [String: String] = ["discoveryStarted": "Bonsoir discovery started : %s.", "discoveryServiceFound": "Bonsoir has found a service : %s.", "discoveryServiceResolved": "Bonsoir has resolved a service : %s.", "discoveryServiceResolveFailed": "Bonsoir has failed to resolve a service : %s (error : %s).", "discoveryServiceLost": "A Bonsoir service has been lost : %s.", "discoveryStopped": "Bonsoir discovery stopped : %s.", "discoveryUndiscoveredServiceResolveFailed": "Trying to resolve an undiscovered service : %s of type %s.", "discoveryTxtResolved": "Bonsoir has found the attributes of a service : %s (new attributes are : %s).", "discoveryTxtResolveFailed": "Bonsoir has failed to get the TXT record of a service : %s (error %s).", "discoveryError": "Bonsoir has encountered an error during discovery : %s (error %s)."]
+  static let discoveryMessages: [String: String] = ["discoveryStarted": "Bonsoir discovery started : %s.", "discoveryServiceFound": "Bonsoir has found a service : %s.", "discoveryServiceResolved": "Bonsoir has resolved a service : %s.", "discoveryServiceUpdated": "A Bonsoir service has been updated : %s.", "discoveryServiceResolveFailed": "Bonsoir has failed to resolve a service : %s (error : %s).", "discoveryServiceLost": "A Bonsoir service has been lost : %s.", "discoveryStopped": "Bonsoir discovery stopped : %s.", "discoveryUndiscoveredServiceResolveFailed": "Trying to resolve an undiscovered service : %s of type %s.", "discoveryTxtResolved": "Bonsoir has found the attributes of a service : %s (new attributes are : %s).", "discoveryTxtResolveFailed": "Bonsoir has failed to get the TXT record of a service : %s (error %s).", "discoveryError": "Bonsoir has encountered an error during discovery : %s (error %s)."]
 
   /// discoveryStarted
   static let discoveryStarted: String = "discoveryStarted"
@@ -25,6 +25,8 @@ class Generated {
   static let discoveryServiceFound: String = "discoveryServiceFound"
   /// discoveryServiceResolved
   static let discoveryServiceResolved: String = "discoveryServiceResolved"
+  /// discoveryServiceUpdated
+  static let discoveryServiceUpdated: String = "discoveryServiceUpdated"
   /// discoveryServiceResolveFailed
   static let discoveryServiceResolveFailed: String = "discoveryServiceResolveFailed"
   /// discoveryServiceLost

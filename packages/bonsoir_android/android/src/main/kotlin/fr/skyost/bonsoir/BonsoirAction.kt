@@ -30,13 +30,13 @@ abstract class BonsoirAction(
         /**
          * The log tag.
          */
-        private const val tag: String = "bonsoir"
+        private const val TAG: String = "bonsoir"
     }
 
     /**
      * The current event channel.
      */
-    private val eventChannel: EventChannel = EventChannel(messenger, "${BonsoirPlugin.channel}.$action.$id")
+    private val eventChannel: EventChannel = EventChannel(messenger, "${BonsoirPlugin.CHANNEL}.$action.$id")
 
     /**
      * The current event sink.
@@ -140,7 +140,7 @@ abstract class BonsoirAction(
      */
     fun log(message: String, parameters: List<Any> = emptyList()) {
         if (printLogs) {
-            Log.d(tag, "[$action] [$id] ${format(message, parameters)}")
+            Log.d(TAG, "[$action] [$id] ${format(message, parameters)}")
         }
     }
 
@@ -155,6 +155,6 @@ abstract class BonsoirAction(
         for (parameter in parameters) {
             result = result.replaceFirst("%s", parameter.toString())
         }
-        return result;
+        return result
     }
 }

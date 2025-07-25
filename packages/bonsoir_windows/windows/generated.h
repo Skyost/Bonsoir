@@ -32,6 +32,8 @@ namespace bonsoir_windows {
       static const std::string discoveryServiceFound;
       // discoveryServiceResolved
       static const std::string discoveryServiceResolved;
+      // discoveryServiceUpdated
+      static const std::string discoveryServiceUpdated;
       // discoveryServiceResolveFailed
       static const std::string discoveryServiceResolveFailed;
       // discoveryServiceLost

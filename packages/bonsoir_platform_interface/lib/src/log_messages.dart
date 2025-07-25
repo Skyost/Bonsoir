@@ -18,6 +18,7 @@ class BonsoirPlatformInterfaceLogMessages {
     BonsoirDiscoveryStartedEvent.discoveryStarted: 'Bonsoir discovery started : %s.',
     BonsoirDiscoveryServiceFoundEvent.discoveryServiceFound: 'Bonsoir has found a service : %s.',
     BonsoirDiscoveryServiceResolvedEvent.discoveryServiceResolved: 'Bonsoir has resolved a service : %s.',
+    BonsoirDiscoveryServiceUpdatedEvent.discoveryServiceUpdated: 'A Bonsoir service has been updated : %s.',
     BonsoirDiscoveryServiceResolveFailedEvent.discoveryServiceResolveFailed: 'Bonsoir has failed to resolve a service : %s (error : %s).',
     BonsoirDiscoveryServiceLostEvent.discoveryServiceLost: 'A Bonsoir service has been lost : %s.',
     BonsoirDiscoveryStoppedEvent.discoveryStopped: 'Bonsoir discovery stopped : %s.',

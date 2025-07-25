@@ -1,8 +1,7 @@
 import 'dart:convert';
 
-import 'package:bonsoir_platform_interface/src/actions/action.dart';
 import 'package:bonsoir_platform_interface/src/service/normalizer.dart';
-import 'package:flutter/foundation.dart';
+import 'package:bonsoir_platform_interface/src/utils/utils.dart';
 
 /// Represents a broadcastable network service.
 class BonsoirService {
@@ -113,13 +112,6 @@ class BonsoirService {
     '${prefix}port': port,
     '${prefix}attributes': attributes,
   };
-
-  /// Tries to resolve this service.
-  Future<void> resolve(ServiceResolver resolver) async {
-    if (host == null) {
-      await resolver.resolveService(this);
-    }
-  }
 
   /// Copies this service instance with the given parameters.
   BonsoirService copyWith({

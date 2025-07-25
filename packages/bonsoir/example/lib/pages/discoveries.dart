@@ -111,11 +111,11 @@ class _DiscoveryTypeWidgetState extends ConsumerState<_DiscoveryTypeWidget> with
             ServiceWidget(
               service: service,
               trailing: service.host == null
-                  ? null
-                  : TextButton(
+                  ? TextButton(
                       child: Text('Resolve'),
                       onPressed: () => service.resolve(discoveryState.value!.serviceResolver),
-                    ),
+                    )
+                  : null,
             ),
       ],
     );

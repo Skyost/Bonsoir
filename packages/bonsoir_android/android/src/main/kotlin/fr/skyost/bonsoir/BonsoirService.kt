@@ -32,10 +32,8 @@ data class BonsoirService(
         service.host?.hostAddress,
         hashMapOf(),
     ) {
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
-            for (attribute in service.attributes.entries) {
-                attributes[attribute.key] = if (attribute.value == null) "" else String(attribute.value)
-            }
+        for (attribute in service.attributes.entries) {
+            attributes[attribute.key] = if (attribute.value == null) "" else String(attribute.value)
         }
     }
 
@@ -70,10 +68,8 @@ data class BonsoirService(
         if (host != null) {
             service.host = InetAddress.getByName(host)
         }
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
-            for (entry in attributes.entries) {
-                service.setAttribute(entry.key, entry.value)
-            }
+        for (entry in attributes.entries) {
+            service.setAttribute(entry.key, entry.value)
         }
         return service
     }
