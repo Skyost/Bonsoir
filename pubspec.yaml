@@ -34,9 +34,9 @@ melos:
     version:
       linkToCommits: true
       branch: main
+      workspaceChangelog: false
       hooks:
         pre: dart format "packages/bonsoir/lib" && cd "packages/bonsoir_platform_interface" && dart run "bonsoir_platform_interface:generate" && cd "../../"
-        post: cp CHANGELOG.md "packages/bonsoir/CHANGELOG.md"
       message: |
         chore(release): Publish packages.
 
