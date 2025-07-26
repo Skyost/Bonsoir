@@ -1,81 +1,89 @@
+## 6.0.0
+
+> Note: This release has breaking changes.
+
+ - **REFACTOR**: Renamed `ready` into `initialize()` and moved the meta query constant in a separate file. ([cc4d0e27](https://github.com/Skyost/Bonsoir/commit/cc4d0e27122c6c2af5ff188f6b8bac6b2e709bf0))
+ - **FEAT**: Added a `BonsoirDiscoveryServiceUpdatedEvent` event. ([75d3ee9d](https://github.com/Skyost/Bonsoir/commit/75d3ee9dbb49b7e1ea7167a4479a862c9184a931))
+ - **BREAKING** **REFACTOR**: Rewrote some parts of the project. ([e984f552](https://github.com/Skyost/Bonsoir/commit/e984f552b301de73b88cc577175b426de0618143))
+
 ## 5.1.11
 
- - Update a dependency to the latest release.
+- Update a dependency to the latest release.
 
 ## 5.1.10
 
- - **FIX**: Fixed some issues triggered by the analyzer. ([db62bd06](https://github.com/Skyost/Bonsoir/commit/db62bd06b6bc4b1714d623a23b836fbac0f188b5))
+- **FIX**: Fixed some issues triggered by the analyzer. ([db62bd06](https://github.com/Skyost/Bonsoir/commit/db62bd06b6bc4b1714d623a23b836fbac0f188b5))
 
 ## 5.1.9
 
- - **FIX**(bonsoir): "Fixed" some errors that were occurring while trying to discover an invalid type. ([d24cc1d6](https://github.com/Skyost/Bonsoir/commit/d24cc1d6ec92424184559f970cae054efb845043))
+- **FIX**(bonsoir): "Fixed" some errors that were occurring while trying to discover an invalid type. ([d24cc1d6](https://github.com/Skyost/Bonsoir/commit/d24cc1d6ec92424184559f970cae054efb845043))
 
 ## 5.1.8
 
- - Update a dependency to the latest release.
+- Update a dependency to the latest release.
 
 ## 5.1.7
 
- - Update a dependency to the latest release.
+- Update a dependency to the latest release.
 
 ## 5.1.6
 
- - Update a dependency to the latest release.
+- Update a dependency to the latest release.
 
 ## 5.1.5
 
- - Update a dependency to the latest release.
+- Update a dependency to the latest release.
 
 ## 5.1.4
 
- - **REFACTOR**(bonsoir): Ran `dart format`. ([41360b61](https://github.com/Skyost/Bonsoir/commit/41360b61326e134e44f391cc70725cb8e1b4f6e9))
+- **REFACTOR**(bonsoir): Ran `dart format`. ([41360b61](https://github.com/Skyost/Bonsoir/commit/41360b61326e134e44f391cc70725cb8e1b4f6e9))
 
 ## 5.1.3
 
- - Update a dependency to the latest release.
+- Update a dependency to the latest release.
 
 ## 5.1.2
 
- - Update a dependency to the latest release.
+- Update a dependency to the latest release.
 
 ## 5.1.1
 
- - **REFACTOR**: Removed `AutoStopBonsoirAction`. ([441063ae](https://github.com/Skyost/Bonsoir/commit/441063ae5ee2a4bd9b3f8779ab05fd6f9b3d83bd))
- - **FEAT**: Now generating constants for platform implementations. ([3b0834d6](https://github.com/Skyost/Bonsoir/commit/3b0834d61c4b4b1a420a1b728808450fc410393d))
+- **REFACTOR**: Removed `AutoStopBonsoirAction`. ([441063ae](https://github.com/Skyost/Bonsoir/commit/441063ae5ee2a4bd9b3f8779ab05fd6f9b3d83bd))
+- **FEAT**: Now generating constants for platform implementations. ([3b0834d6](https://github.com/Skyost/Bonsoir/commit/3b0834d61c4b4b1a420a1b728808450fc410393d))
 
 ## 5.1.0
 
- - **REFACTOR**(docs): Removed trailing slashes. ([34c349bd](https://github.com/Skyost/Bonsoir/commit/34c349bdf5913828dfb82cfa8322df4ac459b435))
- - **FIX**(bonsoir): Now checking if discovery types are valid. ([e67f6984](https://github.com/Skyost/Bonsoir/commit/e67f6984f537be976c979d8c56ee3f620cf8dce9))
- - **FEAT**(example): Now displaying discoveries with empty service lists. ([5b6952b2](https://github.com/Skyost/Bonsoir/commit/5b6952b26c54af550bfbbc67a1932b622dd292f5))
+- **REFACTOR**(docs): Removed trailing slashes. ([34c349bd](https://github.com/Skyost/Bonsoir/commit/34c349bdf5913828dfb82cfa8322df4ac459b435))
+- **FIX**(bonsoir): Now checking if discovery types are valid. ([e67f6984](https://github.com/Skyost/Bonsoir/commit/e67f6984f537be976c979d8c56ee3f620cf8dce9))
+- **FEAT**(example): Now displaying discoveries with empty service lists. ([5b6952b2](https://github.com/Skyost/Bonsoir/commit/5b6952b26c54af550bfbbc67a1932b622dd292f5))
 
 ## 5.0.3
 
- - **FIX**(example): Fixed some text fields not being disposed. ([612785d1](https://github.com/Skyost/Bonsoir/commit/612785d160e7d119d96e3c821221cede88a20f3e))
+- **FIX**(example): Fixed some text fields not being disposed. ([612785d1](https://github.com/Skyost/Bonsoir/commit/612785d160e7d119d96e3c821221cede88a20f3e))
 
 ## 5.0.2
 
- - Update a dependency to the latest release.
+- Update a dependency to the latest release.
 
 ## 5.0.1
 
- - Update a dependency to the latest release.
+- Update a dependency to the latest release.
 
 ## 5.0.0
 
- - Bumped dependencies to `5.0.0`.
+- Bumped dependencies to `5.0.0`.
 
 ## 4.1.4
 
- - **FIX**: Fixed all links to the Github repository. ([9449e318](https://github.com/Skyost/Bonsoir/commit/9449e3185016d9531c4dfd8e46cc7bdbdbe563d0))
+- **FIX**: Fixed all links to the Github repository. ([9449e318](https://github.com/Skyost/Bonsoir/commit/9449e3185016d9531c4dfd8e46cc7bdbdbe563d0))
 
 ## 4.1.3
 
- - **FIX**(bonsoir): Updated `pubspec.yaml`. ([c35c9f7b](https://github.com/Skyost/Bonsoir/commit/c35c9f7bf3ec6b4b91f6c040b90a9d97157ae62e))
+- **FIX**(bonsoir): Updated `pubspec.yaml`. ([c35c9f7b](https://github.com/Skyost/Bonsoir/commit/c35c9f7bf3ec6b4b91f6c040b90a9d97157ae62e))
 
 ## 4.1.2
 
- - **REFACTOR**: Now using `melos` to handle the `bonsoir` packages. ([9c10a0c5](https://github.com/Skyost/Bonsoir/commit/9c10a0c588e407d80f7551ebb992e9b70b05da92))
+- **REFACTOR**: Now using `melos` to handle the `bonsoir` packages. ([9c10a0c5](https://github.com/Skyost/Bonsoir/commit/9c10a0c588e407d80f7551ebb992e9b70b05da92))
 
 ## 4.1.1
 

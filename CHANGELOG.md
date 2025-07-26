@@ -1,3 +1,61 @@
+# Change Log
+
+All notable changes to this project will be documented in this file.
+See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+
+## 2025-07-26
+
+### Changes
+
+---
+
+Packages with breaking changes:
+
+ - [`bonsoir` - `v6.0.0`](#bonsoir---v600)
+ - [`bonsoir_linux` - `v6.0.0`](#bonsoir_linux---v600)
+ - [`bonsoir_platform_interface` - `v6.0.0`](#bonsoir_platform_interface---v600)
+ - [`bonsoir_windows` - `v6.0.0`](#bonsoir_windows---v600)
+
+Packages with other changes:
+
+ - [`bonsoir_android` - `v6.0.0`](#bonsoir_android---v600)
+ - [`bonsoir_darwin` - `v6.0.0`](#bonsoir_darwin---v600)
+
+---
+
+#### `bonsoir` - `v6.0.0`
+
+ - **REFACTOR**: Renamed `ready` into `initialize()` and moved the meta query constant in a separate file. ([cc4d0e27](https://github.com/Skyost/Bonsoir/commit/cc4d0e27122c6c2af5ff188f6b8bac6b2e709bf0))
+ - **FEAT**: Added a `BonsoirDiscoveryServiceUpdatedEvent` event. ([75d3ee9d](https://github.com/Skyost/Bonsoir/commit/75d3ee9dbb49b7e1ea7167a4479a862c9184a931))
+ - **BREAKING** **REFACTOR**: Rewrote some parts of the project. ([e984f552](https://github.com/Skyost/Bonsoir/commit/e984f552b301de73b88cc577175b426de0618143))
+
+#### `bonsoir_linux` - `v6.0.0`
+
+ - **REFACTOR**: Renamed `ready` into `initialize()` and moved the meta query constant in a separate file. ([cc4d0e27](https://github.com/Skyost/Bonsoir/commit/cc4d0e27122c6c2af5ff188f6b8bac6b2e709bf0))
+ - **FEAT**(linux): Implemented `BonsoirDiscoveryServiceUpdatedEvent` on Linux. ([1371706e](https://github.com/Skyost/Bonsoir/commit/1371706e0589e052944c0f8ba6cbc6485f49e904))
+ - **BREAKING** **REFACTOR**: Rewrote some parts of the project. ([e984f552](https://github.com/Skyost/Bonsoir/commit/e984f552b301de73b88cc577175b426de0618143))
+
+#### `bonsoir_platform_interface` - `v6.0.0`
+
+ - **REFACTOR**: Renamed `ready` into `initialize()` and moved the meta query constant in a separate file. ([cc4d0e27](https://github.com/Skyost/Bonsoir/commit/cc4d0e27122c6c2af5ff188f6b8bac6b2e709bf0))
+ - **FEAT**: Added a `BonsoirDiscoveryServiceUpdatedEvent` event. ([75d3ee9d](https://github.com/Skyost/Bonsoir/commit/75d3ee9dbb49b7e1ea7167a4479a862c9184a931))
+ - **BREAKING** **REFACTOR**: Rewrote some parts of the project. ([e984f552](https://github.com/Skyost/Bonsoir/commit/e984f552b301de73b88cc577175b426de0618143))
+
+#### `bonsoir_windows` - `v6.0.0`
+
+ - **FEAT**(windows): Implemented `BonsoirDiscoveryServiceUpdatedEvent` on Windows. ([8cb0b1dd](https://github.com/Skyost/Bonsoir/commit/8cb0b1ddc75bdaf0a56c9be60fe9c819ac591d26))
+ - **FEAT**: Added a `BonsoirDiscoveryServiceUpdatedEvent` event. ([75d3ee9d](https://github.com/Skyost/Bonsoir/commit/75d3ee9dbb49b7e1ea7167a4479a862c9184a931))
+ - **BREAKING** **REFACTOR**: Rewrote some parts of the project. ([e984f552](https://github.com/Skyost/Bonsoir/commit/e984f552b301de73b88cc577175b426de0618143))
+
+#### `bonsoir_android` - `v6.0.0`
+
+ - **FEAT**: Added a `BonsoirDiscoveryServiceUpdatedEvent` event. ([75d3ee9d](https://github.com/Skyost/Bonsoir/commit/75d3ee9dbb49b7e1ea7167a4479a862c9184a931))
+
+#### `bonsoir_darwin` - `v6.0.0`
+
+ - **FEAT**(darwin): Implemented `BonsoirDiscoveryServiceUpdatedEvent` on Darwin. ([9b4900ef](https://github.com/Skyost/Bonsoir/commit/9b4900ef0fcbb64119c91373e59b95e0b14ece6c))
+ - **FEAT**: Added a `BonsoirDiscoveryServiceUpdatedEvent` event. ([75d3ee9d](https://github.com/Skyost/Bonsoir/commit/75d3ee9dbb49b7e1ea7167a4479a862c9184a931))
+
 ## 5.1.11
 
 - Update a dependency to the latest release.

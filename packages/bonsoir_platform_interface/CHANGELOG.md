@@ -1,3 +1,11 @@
+## 6.0.0
+
+> Note: This release has breaking changes.
+
+ - **REFACTOR**: Renamed `ready` into `initialize()` and moved the meta query constant in a separate file. ([cc4d0e27](https://github.com/Skyost/Bonsoir/commit/cc4d0e27122c6c2af5ff188f6b8bac6b2e709bf0))
+ - **FEAT**: Added a `BonsoirDiscoveryServiceUpdatedEvent` event. ([75d3ee9d](https://github.com/Skyost/Bonsoir/commit/75d3ee9dbb49b7e1ea7167a4479a862c9184a931))
+ - **BREAKING** **REFACTOR**: Rewrote some parts of the project. ([e984f552](https://github.com/Skyost/Bonsoir/commit/e984f552b301de73b88cc577175b426de0618143))
+
 ## 5.1.3
 
  - **FIX**: Fixed some issues triggered by the analyzer. ([db62bd06](https://github.com/Skyost/Bonsoir/commit/db62bd06b6bc4b1714d623a23b836fbac0f188b5))

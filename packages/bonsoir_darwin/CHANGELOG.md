@@ -1,3 +1,8 @@
+## 6.0.0
+
+ - **FEAT**(darwin): Implemented `BonsoirDiscoveryServiceUpdatedEvent` on Darwin. ([9b4900ef](https://github.com/Skyost/Bonsoir/commit/9b4900ef0fcbb64119c91373e59b95e0b14ece6c))
+ - **FEAT**: Added a `BonsoirDiscoveryServiceUpdatedEvent` event. ([75d3ee9d](https://github.com/Skyost/Bonsoir/commit/75d3ee9dbb49b7e1ea7167a4479a862c9184a931))
+
 ## 5.1.3
 
  - **FIX**: Fixed some issues triggered by the analyzer. ([db62bd06](https://github.com/Skyost/Bonsoir/commit/db62bd06b6bc4b1714d623a23b836fbac0f188b5))
