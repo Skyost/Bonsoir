@@ -3,24 +3,25 @@ import type { NuxtError } from '#app'
 
 const props = defineProps<{ error: NuxtError }>()
 
-const title = computed(() => {
-  let result = 'Error'
+watch (props.error, () => {
+  let title = 'Error'
   if ((Object.hasOwnProperty.call(props.error, 'statusCode'))) {
-    result += ` ${props.error.statusCode}`
+    title += ` ${props.error.statusCode}`
   }
-  return result
+  usePageHead({
+    title: title,
+  })
 })
-
 // onMounted(() => console.error(props.error))
 </script>
 
 <template>
   <nuxt-layout>
-    <page-head :title="title" />
     <div class="bg-white">
-      <ski-container class="pt-5 pb-5">
+      <b-container class="pt-5 pb-5">
         <error-display :error="error" />
-      </ski-container>
+        {{ error }}
+      </b-container>
     </div>
   </nuxt-layout>
 </template>

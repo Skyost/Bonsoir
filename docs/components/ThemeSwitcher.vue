@@ -1,12 +1,15 @@
 <script setup lang="ts">
 const theme = useTheme()
 
-const icon = computed(() => theme.value === 'light' ? 'moon-stars-fill' : 'sun-fill')
+const name = computed(() => theme.value === 'light' ? 'bi:moon-stars-fill' : 'bi:sun-fill')
 const toggleTheme = () => {
   theme.value = theme.value === 'light' ? 'dark' : 'light'
 }
 </script>
 
 <template>
-  <ski-icon :icon="icon" @click="toggleTheme" />
+  <icon
+    :name="name"
+    @click="toggleTheme"
+  />
 </template>

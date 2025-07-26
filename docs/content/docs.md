@@ -7,7 +7,7 @@ Depending on your project targets, you need at least :
 * Android : API level 21 (Android 5.0), which corresponds to minimum Android version supported by Flutter.
   Note that attributes don't work on Android 6.0 and below
   (see [this ticket](https://issuetracker.google.com/issues/37020436) for more details).
-* iOS : 13.0, because Bonsoir rely on `NWBrowser`.
+* iOS : 13.0, because Bonsoir relies on `NWBrowser`.
 * macOS : 10.15 (El Capitan), for the same reason as above.
 * Windows : Win 10 (19H1/1903) (Mai 2019 Update).
   The [WIN32 DNS-SD API](https://msdn.microsoft.com/en-us/library/windows.networking.servicediscovery.dnssd.aspx)

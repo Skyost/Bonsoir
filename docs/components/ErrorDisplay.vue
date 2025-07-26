@@ -2,11 +2,13 @@
 const props = defineProps<{ error: any }>()
 
 const errorCode = computed(() => {
-  if (/^-?\d+$/.test(props.error.toString())) {
-    return parseInt(props.error.toString())
-  }
-  if (Object.prototype.hasOwnProperty.call(props.error, 'statusCode')) {
-    return parseInt(props.error.statusCode)
+  if (props.error && props.error.toString) {
+    if (/^-?\d+$/.test(props.error.toString())) {
+      return parseInt(props.error.toString())
+    }
+    if (Object.prototype.hasOwnProperty.call(props.error, 'statusCode')) {
+      return parseInt(props.error.statusCode)
+    }
   }
   return null
 })

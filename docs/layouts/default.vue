@@ -1,6 +1,5 @@
 <script setup lang="ts">
-const theme = useTheme()
-useUpdateTheme()
+const theme = useUpdateTheme()
 </script>
 
 <template>
@@ -12,11 +11,3 @@ useUpdateTheme()
     <page-footer />
   </div>
 </template>
-
-<style lang="scss">
-@import 'assets/colors';
-
-html {
-  background-color: $light;
-}
-</style>

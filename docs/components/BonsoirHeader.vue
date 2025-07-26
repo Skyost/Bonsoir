@@ -7,8 +7,15 @@ const theme = useTheme()
 <template>
   <header class="bonsoir-header">
     <div class="title">
-      <div class="logo" :class="`theme-${theme}`">
-        <img src="/images/hand.svg" alt="Hand" class="hand">
+      <div
+        class="logo"
+        :class="`theme-${theme}`"
+      >
+        <img
+          src="/images/hand.svg"
+          alt="Hand"
+          class="hand"
+        >
       </div>
       <h1>{{ siteMeta.title }}</h1>
     </div>

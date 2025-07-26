@@ -3,7 +3,7 @@ export const useTheme = () => useState('theme', () => 'light')
 export const useUpdateTheme = () => {
   const theme = useTheme()
 
-  const getTheme = (mediaQuery: MediaQueryList | MediaQueryListEvent) : 'dark' | 'light' => mediaQuery.matches ? 'dark' : 'light'
+  const getTheme = (mediaQuery: MediaQueryList | MediaQueryListEvent): 'dark' | 'light' => mediaQuery.matches ? 'dark' : 'light'
   const themeUpdate = (event: MediaQueryListEvent) => {
     theme.value = getTheme(event)
   }
@@ -12,7 +12,8 @@ export const useUpdateTheme = () => {
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
     if ('addEventListener' in mediaQuery) {
       mediaQuery.addEventListener('change', themeUpdate)
-    } else {
+    }
+    else {
       // @ts-expect-error deprecated API
       mediaQuery.addListener(themeUpdate)
     }
@@ -22,7 +23,8 @@ export const useUpdateTheme = () => {
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
     if ('removeEventListener' in mediaQuery) {
       mediaQuery.removeEventListener('change', themeUpdate)
-    } else {
+    }
+    else {
       // @ts-expect-error deprecated API
       mediaQuery.removeListener(themeUpdate)
     }

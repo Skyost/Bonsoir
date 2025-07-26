@@ -5,35 +5,56 @@ const theme = useTheme()
 </script>
 
 <template>
-  <ski-navbar class="navbar" :class="`navbar-${theme}`" :color="theme">
-    <ski-navbar-collapse id="page-navbar-collapse">
-      <template #brand>
-        <ski-navbar-brand class="brand" to="/">
-          <img class="logo" src="/images/hand.svg" alt="Logo">
-          Bonsoir
-        </ski-navbar-brand>
-        <div class="d-block d-lg-none p-3">
+  <b-navbar
+    v-b-color-mode="theme"
+    class="navbar"
+    :data-bs-theme="theme"
+  >
+    <b-navbar-brand
+      class="brand"
+      to="/"
+    >
+      <img
+        class="logo"
+        src="/images/hand.svg"
+        alt="Logo"
+      >
+      Bonsoir
+    </b-navbar-brand>
+    <div class="d-block d-lg-none p-3">
+      <theme-switcher />
+    </div>
+    <b-navbar-toggle target="page-navbar-collapse" />
+    <b-collapse
+      id="page-navbar-collapse"
+      is-nav
+    >
+      <b-navbar-nav class="me-auto">
+        <b-nav-item
+          to="/"
+          :active="$route.path === '/'"
+        >
+          <icon name="bi:house-door-fill" /> Home
+        </b-nav-item>
+        <b-nav-item
+          to="/docs"
+          :active="$route.path.startsWith('/docs')"
+        >
+          <icon name="bi:file-text-fill" /> Docs
+        </b-nav-item>
+      </b-navbar-nav>
+      <b-navbar-nav>
+        <b-nav-item class="d-none d-lg-block">
           <theme-switcher />
-        </div>
-      </template>
-      <ski-navbar-items class="me-auto">
-        <ski-navbar-item to="/" :active="$route.path === '/'">
-          <ski-icon icon="house-door-fill" /> Home
-        </ski-navbar-item>
-        <ski-navbar-item to="/docs" :active="$route.path.startsWith('/docs')">
-          <ski-icon icon="file-text-fill" /> Docs
-        </ski-navbar-item>
-      </ski-navbar-items>
-      <ski-navbar-items>
-        <ski-navbar-item class="d-none d-lg-block" href="#">
-          <theme-switcher />
-        </ski-navbar-item>
-        <ski-navbar-item :href="`https://github.com/${siteMeta.github}`">
-          <ski-icon icon="github" /> Github
-        </ski-navbar-item>
-      </ski-navbar-items>
-    </ski-navbar-collapse>
-  </ski-navbar>
+        </b-nav-item>
+        <b-navbar-nav>
+          <b-nav-item :href="`https://github.com/${siteMeta.github}`">
+            <icon name="bi:github" /> Github
+          </b-nav-item>
+        </b-navbar-nav>
+      </b-navbar-nav>
+    </b-collapse>
+  </b-navbar>
 </template>
 
 <style lang="scss" scoped>

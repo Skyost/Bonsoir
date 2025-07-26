@@ -6,11 +6,20 @@ const year = (new Date()).getFullYear()
 
 <template>
   <footer>
-    <ski-container class="pt-4 pb-4 text-center" fluid>
+    <b-container
+      class="pt-4 pb-4 text-center"
+      fluid
+    >
       <p>
         <a :href="`https://github.com/${siteMeta.github}`">Github</a>
-        <ski-icon class="circle" icon="circle-fill" /><a :href="`https://pub.dev/packages/${siteMeta.pubDev}`">pub.dev</a>
-        <ski-icon class="circle" icon="circle-fill" /><a :href="`https://paypal.me/${siteMeta.paypal}`">Donate</a>
+        <icon
+          class="circle"
+          name="bi:circle-fill"
+        /><a :href="`https://pub.dev/packages/${siteMeta.pubDev}`">pub.dev</a>
+        <icon
+          class="circle"
+          name="bi:circle-fill"
+        /><a :href="`https://paypal.me/${siteMeta.paypal}`">Donate</a>
       </p>
       <p>
         <small>
@@ -21,21 +30,33 @@ const year = (new Date()).getFullYear()
       <ul class="icons">
         <li>
           <a href="https://vuejs.org">
-            <img class="icon" src="/icons/vue.svg" alt="Vue.js">
+            <img
+              class="icon"
+              src="/icons/vue.svg"
+              alt="Vue.js"
+            >
           </a>
         </li>
         <li>
           <a href="https://nuxt.com">
-            <img class="icon" src="/icons/nuxt.svg" alt="Nuxt">
+            <img
+              class="icon"
+              src="/icons/nuxt.svg"
+              alt="Nuxt"
+            >
           </a>
         </li>
         <li>
           <a href="https://flutter.dev">
-            <img class="icon" src="/icons/flutter.svg" alt="Flutter">
+            <img
+              class="icon"
+              src="/icons/flutter.svg"
+              alt="Flutter"
+            >
           </a>
         </li>
       </ul>
-    </ski-container>
+    </b-container>
   </footer>
 </template>
 
