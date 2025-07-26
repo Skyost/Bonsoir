@@ -3,7 +3,7 @@ description: Linux implementation of the Bonsoir plugin.
 homepage: https://bonsoir.skyost.eu
 repository: https://github.com/Skyost/Bonsoir/tree/main/packages/bonsoir_linux
 issue_tracker: https://github.com/Skyost/Bonsoir/issues
-version: 6.0.0
+version: 6.0.1
 resolution: workspace
 
 environment:
@@ -20,7 +20,7 @@ flutter:
 dependencies:
   flutter:
     sdk: flutter
-  bonsoir_platform_interface: ^6.0.0
+  bonsoir_platform_interface: ^6.0.1
   dbus: ^0.7.11
   meta: ^1.16.0
 
