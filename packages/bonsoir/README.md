@@ -11,7 +11,7 @@ In fact, <q>Bonsoir</q> can be translated into <q>Good evening</q> (and <q>Bonjo
 or <q>Good afternoon</q> depending on the current moment of the day).
 
 [![Pub Likes](https://img.shields.io/pub/likes/bonsoir?style=flat-square)](https://pub.dev/packages/bonsoir/score)
-[![Pub Popularity](https://img.shields.io/pub/popularity/bonsoir?style=flat-square)](https://pub.dev/packages/bonsoir/score)
+[![Pub Monthly Downloads](https://img.shields.io/pub/dm/bonsoir?style=flat-square)](https://pub.dev/packages/bonsoir/score)
 [![Pub Points](https://img.shields.io/pub/points/bonsoir?style=flat-square)](https://pub.dev/packages/bonsoir/score)
 [![Maintained with Melos](https://img.shields.io/badge/maintained%20with-melos-f700ff.svg?style=flat-square)](https://github.com/invertase/melos)
 
