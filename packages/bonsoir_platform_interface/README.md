@@ -6,7 +6,7 @@ This interface allows platform-specific implementations of the `bonsoir` plugin,
 
 # Usage
 
-To implement a new platform-specific implementation of `bonsoir`, extend [`BonsoirPlatformInterface`](https://github.com/Skyost/Bonsoir/blob/master/bonsoir_platform_interface/lib/src/platform_interface.dart) with an implementation that performs the platform-specific behavior, 
+To implement a new platform-specific implementation of `bonsoir`, extend [`BonsoirPlatformInterface`](https://github.com/Skyost/Bonsoir/blob/main/bonsoir_platform_interface/lib/src/platform_interface.dart) with an implementation that performs the platform-specific behavior, 
 and when you register your plugin, you need to set a default factory function in `BonsoirPlatformInterface` by calling `BonsoirPlatformInterface.instance = <Your factory function>`. 
 
 # Note on breaking changes

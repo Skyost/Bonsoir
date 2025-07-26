@@ -10,7 +10,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// This file is the entry point of the Bonsoir example project.
 /// The full source code is available here :
-/// https://github.com/Skyost/Bonsoir/tree/master/packages/bonsoir/example.
+/// https://github.com/Skyost/Bonsoir/tree/main/packages/bonsoir/example.
 ///
 /// Feel free to check the available code snippets as well :
 /// https://bonsoir.skyost.eu/docs#getting-started.

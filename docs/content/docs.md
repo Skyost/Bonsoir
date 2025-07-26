@@ -151,12 +151,12 @@ await discovery.stop();
 # In-depth example
 
 If you want a <q>full</q> example, don't hesitate to check
-[this one](https://github.com/Skyost/Bonsoir/tree/master/packages/bonsoir/example) on Github.
+[this one](https://github.com/Skyost/Bonsoir/tree/main/packages/bonsoir/example) on Github.
 
 To run it :
 
 1. [Install Melos](https://melos.invertase.dev/~melos-latest/getting-started#installation).
-2. [Clone the repository](https://github.com/Skyost/Bonsoir/archive/refs/heads/master.zip).
+2. [Clone the repository](https://github.com/Skyost/Bonsoir/archive/refs/heads/main.zip).
 3. Run `melos bs`.
 4. Go to the `packages/bonsoir/example` directory, and run `flutter run`.
 

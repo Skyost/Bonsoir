@@ -85,7 +85,7 @@ await discovery.start();
 await discovery.stop();
 ```
 
-If you want a <q>full</q> example, don't hesitate to check [this one](https://github.com/Skyost/Bonsoir/tree/master/packages/bonsoir/example) on Github.
+If you want a <q>full</q> example, don't hesitate to check [this one](https://github.com/Skyost/Bonsoir/tree/main/packages/bonsoir/example) on Github.
 
 ## Contributions
 

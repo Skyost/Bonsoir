@@ -81,7 +81,7 @@ command once.
 
 ### Performing changes
 
-- Create a new local branch from `master` (e.g. `git checkout -b my-new-feature`)
+- Create a new local branch from `main` (e.g. `git checkout -b my-new-feature`)
 - Make your changes (try to split them up with one PR per feature/fix).
 - When committing your changes, make sure that each commit message is clear
   (e.g. `git commit -m 'My very clear commit message'`).

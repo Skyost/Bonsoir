@@ -1,7 +1,7 @@
 name: bonsoir_windows
 description: Windows implementation of the Bonsoir plugin.
 homepage: https://bonsoir.skyost.eu
-repository: https://github.com/Skyost/Bonsoir/tree/master/packages/bonsoir_windows
+repository: https://github.com/Skyost/Bonsoir/tree/main/packages/bonsoir_windows
 issue_tracker: https://github.com/Skyost/Bonsoir/issues
 version: 6.0.0
 resolution: workspace
