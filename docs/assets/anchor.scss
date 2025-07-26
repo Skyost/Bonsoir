@@ -1,4 +1,4 @@
-@mixin title-anchor($anchorClass: 'anchor') {
+@mixin title-anchor($anchorClass: 'anchor-link') {
   position: relative;
 
   .#{$anchorClass} {
@@ -12,10 +12,14 @@
 
 @mixin anchor() {
   position: absolute;
-  top: 0;
+  top: 0.1em;
   right: -1em;
   opacity: 0;
   transition: opacity 0.25s, right 0.25s;
+  text-decoration: none;
+  color: grey;
+  font-size: 0.9em;
+  vertical-align: -0.125em;
 }
 
 @mixin anchor-visible() {

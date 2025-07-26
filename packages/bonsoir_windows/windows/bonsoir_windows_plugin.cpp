@@ -40,7 +40,12 @@ namespace bonsoir_windows {
         attributes.insert({std::get<std::string>(key), std::get<std::string>(value)});
       }
       auto hostValue = arguments->find(EncodableValue("service.host"));
-      std::optional<std::string> host = hostValue == arguments->end() ? std::optional<std::string>() : std::get<std::string>(hostValue->second);
+      std::optional<std::string> host;
+      if (hostValue == arguments->end() || hostValue->second.IsNull()) {
+        host = std::optional<std::string>();
+      } else {
+        host = std::get<std::string>(hostValue->second);
+      }
       std::unique_ptr<BonsoirService> servicePtr = std::make_unique<BonsoirService>(
         std::get<std::string>(arguments->find(EncodableValue("service.name"))->second),
         std::get<std::string>(arguments->find(EncodableValue("service.type"))->second),

@@ -1,7 +1,7 @@
 import 'dart:convert';
+import 'dart:io';
 
-import 'package:bonsoir_platform_interface/src/platform_interface.dart';
-import 'package:flutter/foundation.dart';
+import 'package:bonsoir_platform_interface/src/meta_query.dart';
 
 /// Contains various methods that helps conforming to RFC 6335 and RFC 6763.
 class BonsoirServiceNormalizer {
@@ -22,11 +22,9 @@ class BonsoirServiceNormalizer {
 
     // On some platforms (eg. Windows), services name are not correctly handled if they're ending with a dot.
     if (name.endsWith('.')) {
-      if (kDebugMode) {
-        print("It seems that you've provided a service name ending with a dot : $name.");
-        print("Note that it's not correctly handled on all platforms (eg. Windows).");
-        print('Please consider removing the trailing dot of your service name.');
-      }
+      stderr.writeln("It seems that you've provided a service name ending with a dot : $name.");
+      stderr.writeln("Note that it's not correctly handled on all platforms (eg. Windows).");
+      stderr.writeln('Please consider removing the trailing dot of your service name.');
     }
 
     return result.isEmpty ? defaultServiceName : result;
@@ -39,7 +37,7 @@ class BonsoirServiceNormalizer {
   /// * [RFC 6763](https://datatracker.ietf.org/doc/html/rfc6763#section-7).
   static String normalizeType(String type) {
     // If the type is the meta query, we return it as is.
-    if (type == bonsoirMetaQuery) {
+    if (type == kDnsSdMetaQuery) {
       return type;
     }
 

@@ -14,9 +14,9 @@ class BroadcastPromptDialog extends StatefulWidget {
 
   /// Prompts for a service to broadcast on the network.
   static Future<BonsoirService?> prompt(BuildContext context) => showDialog(
-        context: context,
-        builder: (context) => const BroadcastPromptDialog(),
-      );
+    context: context,
+    builder: (context) => const BroadcastPromptDialog(),
+  );
 }
 
 /// The dialog state.
@@ -34,108 +34,108 @@ class _BroadcastPromptDialogState extends State<BroadcastPromptDialog> {
   TextEditingController port = TextEditingController(text: DefaultAppService.port.toString());
 
   /// Corresponds to the service attributes.
-  Map<TextEditingController, TextEditingController> attributes =
-      DefaultAppService.service.attributes.map((key, value) => MapEntry(TextEditingController(text: key), TextEditingController(text: value)));
+  Map<TextEditingController, TextEditingController> attributes = DefaultAppService.service.attributes.map(
+    (key, value) => MapEntry(TextEditingController(text: key), TextEditingController(text: value)),
+  );
 
   @override
   Widget build(BuildContext context) => AlertDialog(
-        content: SizedBox(
-          width: MediaQuery.of(context).size.width,
-          child: ListView(
-            shrinkWrap: true,
-            padding: const EdgeInsets.all(24).copyWith(top: 16),
-            children: [
-              TextField(
-                controller: name,
-                decoration: const InputDecoration(labelText: 'Name'),
-              ),
-              TextField(
-                controller: type,
-                decoration: const InputDecoration(labelText: 'Type'),
-              ),
-              DropdownButtonFormField<String>(
-                value: protocol,
-                items: [
-                  for (String protocol in ['tcp', 'udp'])
-                    DropdownMenuItem<String>(
-                      value: protocol,
-                      child: Text(protocol.toUpperCase()),
-                    ),
-                ],
-                onChanged: (newProtocol) {
-                  if (newProtocol != null) {
-                    setState(() => protocol = newProtocol);
-                  }
-                },
-                decoration: const InputDecoration(labelText: 'Protocol'),
-              ),
-              TextField(
-                controller: port,
-                decoration: const InputDecoration(labelText: 'Port'),
-                keyboardType: TextInputType.number,
-              ),
-              for (MapEntry<TextEditingController, TextEditingController> entry in attributes.entries)
-                Row(
-                  children: [
-                    Flexible(
-                      flex: 10,
-                      child: TextField(
-                        controller: entry.key,
-                        decoration: const InputDecoration(labelText: 'Key'),
-                      ),
-                    ),
-                    const Spacer(flex: 1),
-                    Flexible(
-                      flex: 10,
-                      child: TextField(
-                        controller: entry.value,
-                        decoration: const InputDecoration(labelText: 'Value'),
-                      ),
-                    ),
-                    IconButton(
-                      onPressed: () {
-                        setState(() {
-                          attributes.remove(entry.key);
-                          entry.key.dispose();
-                          entry.value.dispose();
-                        });
-                      },
-                      icon: const Icon(Icons.clear),
-                    ),
-                  ],
+    scrollable: true,
+    content: SizedBox(
+      width: MediaQuery.of(context).size.width,
+      child: Column(
+        children: [
+          TextField(
+            controller: name,
+            decoration: const InputDecoration(labelText: 'Name'),
+          ),
+          TextField(
+            controller: type,
+            decoration: const InputDecoration(labelText: 'Type'),
+          ),
+          DropdownButtonFormField<String>(
+            value: protocol,
+            items: [
+              for (String protocol in ['tcp', 'udp'])
+                DropdownMenuItem<String>(
+                  value: protocol,
+                  child: Text(protocol.toUpperCase()),
                 ),
-              Padding(
-                padding: const EdgeInsets.only(top: 20),
-                child: TextButton.icon(
-                  icon: const Icon(Icons.add),
-                  onPressed: () {
-                    setState(() => attributes[TextEditingController()] = TextEditingController());
-                  },
-                  label: Text('Add new attribute'.toUpperCase()),
-                ),
-              ),
             ],
+            onChanged: (newProtocol) {
+              if (newProtocol != null) {
+                setState(() => protocol = newProtocol);
+              }
+            },
+            decoration: const InputDecoration(labelText: 'Protocol'),
           ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text('Cancel'.toUpperCase()),
+          TextField(
+            controller: port,
+            decoration: const InputDecoration(labelText: 'Port'),
+            keyboardType: TextInputType.number,
           ),
-          TextButton(
-            onPressed: () => Navigator.pop(
-              context,
-              BonsoirService(
-                name: name.text,
-                type: '_${type.text}._$protocol',
-                port: int.tryParse(port.text) ?? DefaultAppService.service.port,
-                attributes: attributes.map((key, value) => MapEntry(key.text, value.text)),
-              ),
+          for (MapEntry<TextEditingController, TextEditingController> entry in attributes.entries)
+            Row(
+              children: [
+                Flexible(
+                  flex: 10,
+                  child: TextField(
+                    controller: entry.key,
+                    decoration: const InputDecoration(labelText: 'Key'),
+                  ),
+                ),
+                const Spacer(flex: 1),
+                Flexible(
+                  flex: 10,
+                  child: TextField(
+                    controller: entry.value,
+                    decoration: const InputDecoration(labelText: 'Value'),
+                  ),
+                ),
+                IconButton(
+                  onPressed: () {
+                    setState(() {
+                      attributes.remove(entry.key);
+                      entry.key.dispose();
+                      entry.value.dispose();
+                    });
+                  },
+                  icon: const Icon(Icons.clear),
+                ),
+              ],
             ),
-            child: Text('Ok'.toUpperCase()),
+          Padding(
+            padding: const EdgeInsets.only(top: 20),
+            child: FilledButton.tonalIcon(
+              icon: const Icon(Icons.add),
+              onPressed: () {
+                setState(() => attributes[TextEditingController()] = TextEditingController());
+              },
+              label: Text('Add new attribute'),
+            ),
           ),
         ],
-      );
+      ),
+    ),
+    actions: [
+      TextButton(
+        onPressed: () => Navigator.pop(context),
+        child: Text('Cancel'),
+      ),
+      TextButton(
+        onPressed: () => Navigator.pop(
+          context,
+          BonsoirService(
+            name: name.text,
+            type: '_${type.text}._$protocol',
+            port: int.tryParse(port.text) ?? DefaultAppService.service.port,
+            attributes: attributes.map((key, value) => MapEntry(key.text, value.text)),
+          ),
+        ),
+        child: Text('Ok'),
+      ),
+    ],
+  );
 
   @override
   void dispose() {

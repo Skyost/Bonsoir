@@ -55,7 +55,7 @@ class Generated {
         /**
          * ${entry.key}
          */
-         public final const val ${entry.key} = "${entry.key}";
+         public final const val ${entry.key} = "${entry.key}"
 ''',
     fileTemplate: fileTemplate,
   );

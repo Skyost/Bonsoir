@@ -44,3 +44,6 @@ $code-color-dark: $light;
 @import 'bootstrap/scss/utilities/api';
 
 // 8. Add additional custom code here
+.vue-icon {
+  vertical-align: -0.125em;
+}

@@ -1,11 +1,7 @@
 <script setup lang="ts">
 import { siteMeta } from '~/meta'
 
-const { data: commitSha } = useLazyAsyncData(
-  'current-commit-sha',
-  () => queryContent('latest-commit')
-    .findOne()
-)
+const { data: commitSha } = await useFetch('/_api/latest-commit.json')
 </script>
 
 <template>

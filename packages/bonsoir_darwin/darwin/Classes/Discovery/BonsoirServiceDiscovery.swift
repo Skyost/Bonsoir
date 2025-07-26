@@ -102,11 +102,10 @@ class BonsoirServiceDiscovery: BonsoirAction {
                         if oldName == newName && oldType == newType && newAttributes == service.attributes {
                             break
                         }
-                        onSuccess(eventId: Generated.discoveryServiceLost, message: "A Bonsoir service has changed : %s.", service: service)
                         service.name = newName
                         service.type = newType
                         service.attributes = newAttributes
-                        onSuccess(eventId: Generated.discoveryServiceFound, message: "New service is \(service)", service: service)
+                        onSuccess(eventId: Generated.discoveryServiceUpdated, service: service)
                     }
                 }
             default:
@@ -131,32 +130,32 @@ class BonsoirServiceDiscovery: BonsoirAction {
 
         pendingResolution.append(sdRef!)
 
-        let socket = DNSServiceRefSockFD(sdRef);
+        let socket = DNSServiceRefSockFD(sdRef)
         if socket == -1 {
             onSuccess(eventId: Generated.discoveryServiceResolveFailed, service: service, parameters: [])
             stopResolution(sdRef: sdRef, remove: false)
             return false
         }
 
-        let dispatchSource = DispatchSource.makeReadSource(fileDescriptor: socket, queue: DispatchQueue.global(qos: .userInitiated));
+        let dispatchSource = DispatchSource.makeReadSource(fileDescriptor: socket, queue: DispatchQueue.global(qos: .userInitiated))
         dispatchSource.setEventHandler(handler: {
             DNSServiceProcessResult(sdRef)
             
             DispatchQueue.main.async {
                 let foundIndex = self.pendingDispatchSources.firstIndex(where: {
-                    return $0.isEqual(dispatchSource);
+                    $0.isEqual(dispatchSource)
                 })
                 
                 if foundIndex != nil {
                     self.pendingDispatchSources.remove(at: foundIndex!)
                 }
             }
-        });
+        })
 
         dispatchSource.setCancelHandler(handler: {
             DispatchQueue.main.async {
                 let foundIndex = self.pendingDispatchSources.firstIndex(where: {
-                    return $0.isEqual(dispatchSource);
+                    $0.isEqual(dispatchSource)
                 })
                 
                 if foundIndex != nil {
@@ -166,7 +165,7 @@ class BonsoirServiceDiscovery: BonsoirAction {
                 self.onSuccess(eventId: Generated.discoveryServiceResolveFailed, service: service, parameters: [])
                 self.stopResolution(sdRef: sdRef, remove: false)
             }
-        });
+        })
 
         dispatchSource.activate()
         

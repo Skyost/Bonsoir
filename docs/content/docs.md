@@ -7,7 +7,7 @@ Depending on your project targets, you need at least :
 * Android : API level 21 (Android 5.0), which corresponds to minimum Android version supported by Flutter.
   Note that attributes don't work on Android 6.0 and below
   (see [this ticket](https://issuetracker.google.com/issues/37020436) for more details).
-* iOS : 13.0, because Bonsoir rely on `NWBrowser`.
+* iOS : 13.0, because Bonsoir relies on `NWBrowser`.
 * macOS : 10.15 (El Capitan), for the same reason as above.
 * Windows : Win 10 (19H1/1903) (Mai 2019 Update).
   The [WIN32 DNS-SD API](https://msdn.microsoft.com/en-us/library/windows.networking.servicediscovery.dnssd.aspx)
@@ -96,7 +96,7 @@ BonsoirService service = BonsoirService(
 
 // And now we can broadcast it :
 BonsoirBroadcast broadcast = BonsoirBroadcast(service: service);
-await broadcast.ready;
+await broadcast.initialize();
 await broadcast.start();
 
 // ...
@@ -115,17 +115,27 @@ String type = '_wonderful-service._tcp';
 
 // Once defined, we can start the discovery :
 BonsoirDiscovery discovery = BonsoirDiscovery(type: type);
-await discovery.ready;
+await discovery.initialize();
 
 // If you want to listen to the discovery :
 discovery.eventStream!.listen((event) { // `eventStream` is not null as the discovery instance is "ready" !
-  if (event.type == BonsoirDiscoveryEventType.discoveryServiceFound) {
-    print('Service found : ${event.service.toJson()}')
-    event.service!.resolve(discovery.serviceResolver); // Should be called when the user wants to connect to this service.
-  } else if (event.type == BonsoirDiscoveryEventType.discoveryServiceResolved) {
-    print('Service resolved : ${event.service.toJson()}')
-  } else if (event.type == BonsoirDiscoveryEventType.discoveryServiceLost) {
-    print('Service lost : ${event.service.toJson()}')
+  switch (event) {
+    case BonsoirDiscoveryServiceFoundEvent():
+      print('Service found : ${event.service.toJson()}');
+      event.service!.resolve(discovery.serviceResolver); // Should be called when the user wants to connect to this service.
+      break;
+    case BonsoirDiscoveryServiceResolvedEvent():
+      print('Service resolved : ${event.service.toJson()}');
+      break;
+    case BonsoirDiscoveryServiceUpdatedEvent():
+      print('Service updated : ${event.service.toJson()}');
+      break;
+    case BonsoirDiscoveryServiceLostEvent():
+      print('Service lost : ${event.service.toJson()}');
+      break;
+    default:
+      print('Another event occurred : $event.');
+      break;
   }
 });
 

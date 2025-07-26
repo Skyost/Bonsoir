@@ -14,7 +14,7 @@ public class BonsoirPlugin : FlutterPlugin {
         /**
          * The plugin channel.
          */
-        const val channel: String = "fr.skyost.bonsoir"
+        const val CHANNEL: String = "fr.skyost.bonsoir"
     }
 
     /**
@@ -50,7 +50,7 @@ public class BonsoirPlugin : FlutterPlugin {
         multicastLock.setReferenceCounted(true)
 
         methodCallHandler = MethodCallHandler(applicationContext, multicastLock, messenger)
-        channel = MethodChannel(messenger, BonsoirPlugin.channel)
+        channel = MethodChannel(messenger, CHANNEL)
         channel.setMethodCallHandler(methodCallHandler)
     }
 

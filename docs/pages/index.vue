@@ -1,19 +1,51 @@
 <script setup lang="ts">
-import { siteMeta } from '~/meta'
+import { codeToHtml } from 'shiki'
+
 const theme = useTheme()
 
 const background = computed(() => theme.value === 'light' ? 'white' : 'dark')
 const button = computed(() => theme.value === 'light' ? 'dark' : 'light')
+
+const demoCode = `BonsoirService service = BonsoirService(
+  name: 'My wonderful service',
+  type: '_wonderful-service._tcp',
+  port: 3030,
+);
+
+BonsoirBroadcast broadcast = BonsoirBroadcast(service: service);
+await broadcast.initialize();
+await broadcast.start();`
+
+onMounted(async () => {
+  const shikiContainer = document.getElementById('demo-code')
+  if (shikiContainer) {
+    const html = await codeToHtml(
+      demoCode,
+      {
+        lang: 'dart',
+        themes: {
+          light: 'min-light',
+          dark: 'github-dark',
+        },
+      },
+    )
+    shikiContainer.classList.add('shiki-container')
+    shikiContainer.innerHTML = html
+    shikiContainer.classList.remove('opacity-0')
+  }
+})
+
+usePageHead()
+useShikiCopy()
 </script>
 
 <template>
   <div>
-    <page-head :title="siteMeta.title" title-suffix="" />
     <bonsoir-header />
     <div :class="`bg-${background}`">
-      <ski-container>
-        <ski-columns class="pt-5">
-          <ski-column
+      <b-container>
+        <b-row class="pt-5">
+          <b-col
             sm="12"
             md="6"
             class="d-flex align-items-center"
@@ -32,32 +64,34 @@ const button = computed(() => theme.value === 'light' ? 'dark' : 'light')
                 You can use Bonsoir on Android, iOS, macOS, Windows and Linux.
               </p>
             </div>
-          </ski-column>
-          <ski-column
+          </b-col>
+          <b-col
             sm="12"
             md="6"
           >
-            <shikiji-code
-              code="
-BonsoirService service = BonsoirService(
-  name: 'My wonderful service',
-  type: '_wonderful-service._tcp',
-  port: 3030,
-);
-
-BonsoirBroadcast broadcast = BonsoirBroadcast(service: service);
-await broadcast.ready;
-await broadcast.start();
-"
+            <div
+              id="demo-code"
+              class="opacity-0"
             />
-          </ski-column>
-        </ski-columns>
+          </b-col>
+        </b-row>
         <div class="text-center pt-5 pb-5">
-          <ski-button to="/docs" class="btn-lg ps-5 pe-5" :variant="button">
-            <ski-icon icon="code-slash" /> Get started
-          </ski-button>
+          <b-button
+            to="/docs"
+            size="lg"
+            class="ps-5 pe-5"
+            :variant="button"
+          >
+            <icon name="bi:code-slash" /> Get started
+          </b-button>
         </div>
-      </ski-container>
+      </b-container>
     </div>
   </div>
 </template>
+
+<style lang="scss" scoped>
+#demo-code {
+  transition: opacity 0.5s;
+}
+</style>

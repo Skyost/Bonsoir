@@ -1,20 +1,16 @@
-import 'package:bonsoir_platform_interface/src/service/resolved_service.dart';
 import 'package:bonsoir_platform_interface/src/service/service.dart';
 
 /// Represents a Bonsoir event.
-abstract class BonsoirEvent<T> {
-  /// The event type.
-  final T type;
+abstract class BonsoirEvent {
+  /// The event id.
+  final String? id;
 
-  /// The Bonsoir service (if any).
+  /// The service (if any).
   final BonsoirService? service;
 
-  /// Creates a new Bonsoir event instance.
+  /// The Bonsoir event type.
   const BonsoirEvent({
-    required this.type,
+    this.id,
     this.service,
   });
-
-  /// Returns whether the provided service is a resolved service.
-  bool get isServiceResolved => service is ResolvedBonsoirService;
 }

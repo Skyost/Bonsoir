@@ -1,5 +1,7 @@
 import 'package:bonsoir_example/models/app_service.dart';
-import 'package:bonsoir_example/pages/current_page.dart';
+import 'package:bonsoir_example/pages/broadcasts.dart';
+import 'package:bonsoir_example/pages/discoveries.dart';
+import 'package:bonsoir_example/pages/pages.dart';
 import 'package:bonsoir_example/widgets/add_icon.dart';
 import 'package:bonsoir_example/widgets/bottom_bar.dart';
 import 'package:bonsoir_example/widgets/eager_initialization.dart';
@@ -29,16 +31,62 @@ class BonsoirExampleMainWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => EagerInitialization(
-        child: MaterialApp(
-          home: Scaffold(
-            appBar: AppBar(
-              title: const Text('Bonsoir demo'),
-              actions: const [AddIcon()],
-              centerTitle: false,
-            ),
-            body: const CurrentPageWidget(),
-            bottomNavigationBar: const BottomBar(),
-          ),
+    child: MaterialApp(
+      home: _Scaffold(),
+    ),
+  );
+}
+
+/// The app main scaffold.
+class _Scaffold extends StatefulWidget {
+  @override
+  State<StatefulWidget> createState() => _ScaffoldState();
+}
+
+/// The scaffold state.
+class _ScaffoldState extends State<_Scaffold> {
+  /// The current page.
+  late int currentPageIndex = 1;
+
+  /// The page controller.
+  late final PageController pageController = PageController(
+    initialPage: currentPageIndex,
+  );
+
+  @override
+  Widget build(BuildContext context) => Scaffold(
+    appBar: AppBar(
+      title: const Text('Bonsoir demo'),
+      actions: [
+        AddIcon(
+          currentPage: AppPage.values[currentPageIndex],
         ),
-      );
+      ],
+      centerTitle: false,
+    ),
+    body: PageView(
+      controller: pageController,
+      children: const [
+        DiscoveriesPageWidget(),
+        BroadcastsPageWidget(),
+      ],
+    ),
+    bottomNavigationBar: BottomBar(
+      currentIndex: currentPageIndex,
+      onPageChange: (index) {
+        pageController.animateToPage(
+          index,
+          duration: const Duration(milliseconds: 200),
+          curve: Curves.easeInOut,
+        );
+        setState(() => currentPageIndex = index);
+      },
+    ),
+  );
+
+  @override
+  void dispose() {
+    pageController.dispose();
+    super.dispose();
+  }
 }

@@ -1,12 +1,16 @@
 import 'dart:convert';
 
-import 'package:bonsoir_platform_interface/src/actions/action.dart';
 import 'package:bonsoir_platform_interface/src/service/normalizer.dart';
-import 'package:bonsoir_platform_interface/src/service/resolved_service.dart';
-import 'package:flutter/foundation.dart';
+import 'package:bonsoir_platform_interface/src/utils/utils.dart';
 
 /// Represents a broadcastable network service.
 class BonsoirService {
+  /// The default attributes.
+  /// Non-empty, see : https://github.com/Skyost/Bonsoir/issues/83.
+  static const Map<String, String> defaultAttributes = {
+    'lib': 'bonsoir',
+  };
+
   /// The service name. Should represent what you want to advertise.
   /// This name is subject to change based on conflicts with other services advertised on the same network.
   ///
@@ -49,6 +53,11 @@ class BonsoirService {
   /// * Hyphens MUST NOT be adjacent to other hyphens.
   final String type;
 
+  /// The service host.
+  /// Your service should be reachable at the given host.
+  /// This field may be null if the service has not been resolved yet.
+  final String? host;
+
   /// The service port.
   /// Your service should be reachable at the given port using the protocol specified in [type].
   final int port;
@@ -70,11 +79,12 @@ class BonsoirService {
   BonsoirService({
     required String name,
     required String type,
+    this.host,
     required this.port,
-    Map<String, String> attributes = const {},
-  })  : name = BonsoirServiceNormalizer.normalizeName(name),
-        type = BonsoirServiceNormalizer.normalizeType(type),
-        attributes = BonsoirServiceNormalizer.normalizeAttributes(attributes);
+    Map<String, String> attributes = defaultAttributes,
+  }) : name = BonsoirServiceNormalizer.normalizeName(name),
+       type = BonsoirServiceNormalizer.normalizeType(type),
+       attributes = BonsoirServiceNormalizer.normalizeAttributes(attributes);
 
   /// Creates a new Bonsoir service instance ignoring the norms.
   /// [name], [type] and [attributes] will not be filtered.
@@ -83,36 +93,31 @@ class BonsoirService {
   const BonsoirService.ignoreNorms({
     required this.name,
     required this.type,
+    this.host,
     required this.port,
-    this.attributes = const {},
+    this.attributes = defaultAttributes,
   });
 
   /// Creates a new Bonsoir service instance from the given JSON map.
   factory BonsoirService.fromJson(
     Map<String, dynamic> json, {
     String prefix = 'service.',
-  }) {
-    if (json['${prefix}host'] != null) {
-      return ResolvedBonsoirService.fromJson(json, prefix: prefix);
-    }
-    return BonsoirService.ignoreNorms(
-      name: json['${prefix}name'],
-      type: json['${prefix}type'],
-      port: json['${prefix}port'],
-      attributes: Map<String, String>.from(json['${prefix}attributes']),
-    );
-  }
+  }) => BonsoirService.ignoreNorms(
+    name: json['${prefix}name'],
+    type: json['${prefix}type'],
+    host: json['${prefix}host'],
+    port: json['${prefix}port'],
+    attributes: Map<String, String>.from(json['${prefix}attributes']),
+  );
 
   /// Converts this JSON service to a JSON map.
   Map<String, dynamic> toJson({String prefix = 'service.'}) => {
-        '${prefix}name': name,
-        '${prefix}type': type,
-        '${prefix}port': port,
-        '${prefix}attributes': attributes,
-      };
-
-  /// Tries to resolve this service.
-  Future<void> resolve(ServiceResolver resolver) => resolver.resolveService(this);
+    '${prefix}name': name,
+    '${prefix}type': type,
+    if (host != null) '${prefix}host': host,
+    '${prefix}port': port,
+    '${prefix}attributes': attributes,
+  };
 
   /// Copies this service instance with the given parameters.
   BonsoirService copyWith({
@@ -121,21 +126,14 @@ class BonsoirService {
     int? port,
     String? host,
     Map<String, String>? attributes,
-  }) =>
-      host != null || this is ResolvedBonsoirService
-          ? ResolvedBonsoirService.ignoreNorms(
-              name: name ?? this.name,
-              type: type ?? this.type,
-              port: port ?? this.port,
-              host: host ?? (this is ResolvedBonsoirService ? (this as ResolvedBonsoirService).host : null),
-              attributes: attributes ?? this.attributes,
-            )
-          : BonsoirService.ignoreNorms(
-              name: name ?? this.name,
-              type: type ?? this.type,
-              port: port ?? this.port,
-              attributes: attributes ?? this.attributes,
-            );
+    bool forceUpdateHost = false,
+  }) => BonsoirService.ignoreNorms(
+    name: name ?? this.name,
+    type: type ?? this.type,
+    host: host ?? (forceUpdateHost ? null : this.host),
+    port: port ?? this.port,
+    attributes: attributes ?? this.attributes,
+  );
 
   @override
   bool operator ==(Object other) {

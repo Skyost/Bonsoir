@@ -110,29 +110,38 @@ namespace bonsoir_windows {
       }
       return;
     }
-    if (!servicePtr) {
-      std::shared_ptr<BonsoirService> newServicePtr = std::make_shared<BonsoirService>(name, type, 0, std::nullopt, std::map<std::string, std::string>());
-      PDNS_RECORD txtRecord = dnsRecord;
-      while (txtRecord != nullptr) {
-        if (txtRecord->wType == DNS_TYPE_TEXT) {
-          DNS_TXT_DATAW *pData = &txtRecord->Data.TXT;
-          for (DWORD s = 0; s < pData->dwStringCount; s++) {
-            std::string record = toUtf8(std::wstring(pData->pStringArray[s]));
-            std::string key = record;
-            std::string value = "";
-            int splitIndex = static_cast<int>(record.find("="));
-            if (splitIndex != std::string::npos) {
-              key = record.substr(0, splitIndex);
-              value = record.substr(splitIndex + 1, record.length());
-            }
-            if (key.rfind("=", 0) == std::string::npos && newServicePtr->attributes.find(key) == newServicePtr->attributes.end()) {
-              newServicePtr->attributes.insert({key, value});
-            }
+    std::shared_ptr<BonsoirService> newServicePtr = std::make_shared<BonsoirService>(name, type, 0, std::nullopt, std::map<std::string, std::string>());
+    PDNS_RECORD txtRecord = dnsRecord;
+    while (txtRecord != nullptr) {
+      if (txtRecord->wType == DNS_TYPE_TEXT) {
+        DNS_TXT_DATAW *pData = &txtRecord->Data.TXT;
+        for (DWORD s = 0; s < pData->dwStringCount; s++) {
+          std::string record = toUtf8(std::wstring(pData->pStringArray[s]));
+          std::string key = record;
+          std::string value = "";
+          int splitIndex = static_cast<int>(record.find("="));
+          if (splitIndex != std::string::npos) {
+            key = record.substr(0, splitIndex);
+            value = record.substr(splitIndex + 1, record.length());
+          }
+          if (key.rfind("=", 0) == std::string::npos && newServicePtr->attributes.find(key) == newServicePtr->attributes.end()) {
+            newServicePtr->attributes.insert({key, value});
           }
         }
-        txtRecord = txtRecord->pNext;
       }
-      discovery->services.push_back(newServicePtr);
+      txtRecord = txtRecord->pNext;
+    }
+    discovery->services.push_back(newServicePtr);
+    if (servicePtr) {
+      if (!newServicePtr->host && servicePtr->host) {
+        newServicePtr->host = servicePtr->host;
+      }
+      if (newServicePtr->port == 0 && servicePtr->port != 0) {
+        newServicePtr->port = servicePtr->port;
+      }
+      discovery->services.remove(servicePtr);
+      discovery->onSuccess(Generated::discoveryServiceUpdated, newServicePtr);
+    } else {
       discovery->onSuccess(Generated::discoveryServiceFound, newServicePtr);
     }
     DnsRecordListFree(dnsRecord, DnsFreeRecordList);
