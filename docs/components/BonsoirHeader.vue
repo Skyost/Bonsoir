@@ -46,10 +46,10 @@ const theme = useTheme()
       text-align: center;
 
       .hand {
-        @include wave-animation();
+        @include wave-animation;
       }
 
-      &:before {
+      &::before {
         animation: fade-in-animation;
         animation-delay: 1s;
         animation-duration: 1s;
@@ -64,7 +64,7 @@ const theme = useTheme()
         background-repeat: no-repeat;
       }
 
-      &.theme-dark:before {
+      &.theme-dark::before {
         filter: hue-rotate(225deg);
       }
     }
@@ -75,6 +75,7 @@ const theme = useTheme()
   0% {
     opacity: 0;
   }
+
   100% {
     opacity: 1;
   }

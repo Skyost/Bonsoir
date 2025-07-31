@@ -9,6 +9,7 @@ const theme = useTheme()
     v-b-color-mode="theme"
     class="navbar"
     :data-bs-theme="theme"
+    toggleable="lg"
   >
     <b-navbar-brand
       class="brand"
@@ -58,6 +59,7 @@ const theme = useTheme()
 </template>
 
 <style lang="scss" scoped>
+@import 'assets/bootstrap-mixins';
 @import 'assets/colors';
 @import 'assets/wave';
 
@@ -65,7 +67,7 @@ const theme = useTheme()
   &.navbar-dark {
     background-color: $body-dark !important;
 
-    .brand:before {
+    .brand::before {
       filter: hue-rotate(225deg);
     }
   }
@@ -81,7 +83,7 @@ const theme = useTheme()
       vertical-align: sub;
     }
 
-    &:before {
+    &::before {
       position: absolute;
       top: 0.62em;
       left: 0;
@@ -93,7 +95,11 @@ const theme = useTheme()
     }
 
     &:hover .logo {
-      @include wave-animation();
+      @include wave-animation;
+    }
+
+    @include media-breakpoint-down(lg) {
+      margin-right: 0;
     }
   }
 }
