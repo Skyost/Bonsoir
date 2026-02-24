@@ -323,8 +323,15 @@ class AvahiBonsoirDiscovery extends AvahiBonsoirAction<BonsoirDiscoveryEvent> wi
   Future<bool> get _isModernAvahi async {
     AvahiServer server = AvahiServer(DBusClient.system(), BonsoirLinux.avahi, DBusObjectPath('/'));
     String version = (await server.callGetVersionString()).split(' ').last;
-    int mayor = int.parse(version.split('.').first);
-    int minor = int.parse(version.split('.').last);
+    
+    String mayorString = version.split('.').first;
+    String minorString = version.split('.').last;
+
+    minorString = minorString.split('-').first;
+    mayorString = mayorString.split('-').first;
+
+    int mayor = int.parse(mayorString);
+    int minor = int.parse(minorString);
     return minor > 7 && mayor >= 0;
   }
 }
