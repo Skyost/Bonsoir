@@ -1,3 +1,7 @@
+## 6.0.2
+
+ - **FIX**(linux): remove -rc from string avahi versions. ([ef5df256](https://github.com/Skyost/Bonsoir/commit/ef5df256a0f874de9debdc0e8397cb7cc7a5475b))
+
 ## 6.0.1
 
  - **REFACTOR**: Finished renaming branch `master` into `main`. ([5c832e56](https://github.com/Skyost/Bonsoir/commit/5c832e56273eb90c19b502d1c53af71e1e9e085a))
