@@ -56,8 +56,8 @@ abstract class MethodChannelBonsoirAction<T extends BonsoirEvent> extends Bonsoi
   MethodChannelBonsoirAction({
     required String classType,
     this.printLogs = kDebugMode,
-  })  : _id = _createRandomId(),
-        _classType = classType;
+  }) : _id = _createRandomId(),
+       _classType = classType;
 
   @override
   Stream<T>? get eventStream => _eventStream;
@@ -97,19 +97,19 @@ If you have previously called "$runtimeType.stop()" on this instance, you have t
 
   @protected
   Map<String, dynamic> toJson() => {
-        'id': _id,
-        'printLogs': printLogs,
-      };
+    'id': _id,
+    'printLogs': printLogs,
+  };
 
   /// Invokes a method on the method channel.
   @protected
   Future<R?> invokeMethod<R>(String method, [Map<String, dynamic>? arguments]) => _channel.invokeMethod<R>(
-        '$_classType.$method',
-        {
-          ...toJson(),
-          if (arguments != null) ...arguments,
-        },
-      );
+    '$_classType.$method',
+    {
+      ...toJson(),
+      if (arguments != null) ...arguments,
+    },
+  );
 
   /// Allows to generate a random identifier.
   static int _createRandomId() => Random().nextInt(100000);

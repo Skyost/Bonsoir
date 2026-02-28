@@ -16,14 +16,14 @@ class BroadcastsPageWidget extends ConsumerWidget {
     List<BonsoirService> broadcasts = ref.watch(broadcastServiceListProvider);
     return Center(
       child: ListView(
-        padding: EdgeInsets.all(10),
+        padding: const EdgeInsets.all(10),
         shrinkWrap: broadcasts.isEmpty,
         children: [
           if (broadcasts.isEmpty)
-            Text(
+            const Text(
               'Currently not broadcasting any service.',
               textAlign: TextAlign.center,
-              style: const TextStyle(
+              style: TextStyle(
                 color: Colors.black54,
                 fontStyle: FontStyle.italic,
               ),
@@ -97,9 +97,9 @@ class _BroadcastServiceWidgetState extends ConsumerState<_BroadcastServiceWidget
         ServiceWidget(
           service: broadcastState.value?.service ?? widget.service,
           trailing: broadcastState.isLoading
-              ? CircularProgressIndicator()
+              ? const CircularProgressIndicator()
               : TextButton(
-                  child: Text('Stop'),
+                  child: const Text('Stop'),
                   onPressed: () => ref.read(broadcastServiceListProvider.notifier).remove(widget.service),
                 ),
         ),

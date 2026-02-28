@@ -8,7 +8,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 final broadcastServiceListProvider = NotifierProvider.autoDispose<BonsoirBroadcastServiceListNotifier, List<BonsoirService>>(BonsoirBroadcastServiceListNotifier.new);
 
 /// A model that allows to control the services to broadcast.
-class BonsoirBroadcastServiceListNotifier extends AutoDisposeNotifier<List<BonsoirService>> {
+class BonsoirBroadcastServiceListNotifier extends Notifier<List<BonsoirService>> {
   @override
   List<BonsoirService> build() {
     DefaultAppService.initialize().then((defaultAppService) => state = [DefaultAppService.service]);
@@ -36,9 +36,15 @@ class BonsoirBroadcastServiceListNotifier extends AutoDisposeNotifier<List<Bonso
 final broadcastServiceStateProvider = AsyncNotifierProvider.autoDispose.family<BonsoirBroadcastServiceStateNotifier, BonsoirBroadcastState, BonsoirService>(BonsoirBroadcastServiceStateNotifier.new);
 
 /// A model that allows report the broadcast state of a service.
-class BonsoirBroadcastServiceStateNotifier extends AutoDisposeFamilyAsyncNotifier<BonsoirBroadcastState, BonsoirService> {
+class BonsoirBroadcastServiceStateNotifier extends AsyncNotifier<BonsoirBroadcastState> {
+  /// The Bonsoir service.
+  final BonsoirService arg;
+
+  /// Creates a new Bonsoir broadcast service state notifier instance.
+  BonsoirBroadcastServiceStateNotifier(this.arg);
+
   @override
-  FutureOr<BonsoirBroadcastState> build(BonsoirService arg) async {
+  FutureOr<BonsoirBroadcastState> build() async {
     BonsoirBroadcast broadcast = BonsoirBroadcast(service: arg);
     await broadcast.initialize();
     broadcast.eventStream?.listen(_onEventOccurred);
@@ -49,6 +55,9 @@ class BonsoirBroadcastServiceStateNotifier extends AutoDisposeFamilyAsyncNotifie
 
   /// Handles the broadcast event.
   void _onEventOccurred(BonsoirBroadcastEvent event) {
+    if (!ref.mounted) {
+      return;
+    }
     switch (event) {
       case BonsoirBroadcastStartedEvent():
         state = AsyncData(

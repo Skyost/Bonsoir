@@ -16,14 +16,14 @@ class DiscoveriesPageWidget extends ConsumerWidget {
     List<String> discoveries = ref.watch(discoveryTypeListProvider);
     return Center(
       child: ListView(
-        padding: EdgeInsets.all(10),
+        padding: const EdgeInsets.all(10),
         shrinkWrap: discoveries.isEmpty,
         children: [
           if (discoveries.isEmpty)
-            Text(
+            const Text(
               'Currently not discovering any service.',
               textAlign: TextAlign.center,
-              style: const TextStyle(
+              style: TextStyle(
                 color: Colors.black54,
                 fontStyle: FontStyle.italic,
               ),
@@ -92,7 +92,7 @@ class _DiscoveryTypeWidgetState extends ConsumerState<_DiscoveryTypeWidget> with
           state: discoveryState.value,
         ),
         if (discoveryState.isLoading)
-          Padding(
+          const Padding(
             padding: EdgeInsets.all(10),
             child: CircularProgressIndicator(),
           )
@@ -112,7 +112,7 @@ class _DiscoveryTypeWidgetState extends ConsumerState<_DiscoveryTypeWidget> with
               service: service,
               trailing: service.host == null
                   ? TextButton(
-                      child: Text('Resolve'),
+                      child: const Text('Resolve'),
                       onPressed: () => service.resolve(discoveryState.value!.serviceResolver),
                     )
                   : null,
@@ -145,7 +145,7 @@ class _TypeHeaderWidget extends ConsumerWidget {
     ),
     subtitle: state == null ? null : Text('Discovery state : $discoveryStateText'),
     trailing: TextButton(
-      child: Text('Stop'),
+      child: const Text('Stop'),
       onPressed: () => ref.read(discoveryTypeListProvider.notifier).remove(type),
     ),
   );

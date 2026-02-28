@@ -58,7 +58,10 @@ class DefaultAppService {
       name: name,
       type: '_$type._$protocol',
       port: port,
-      attributes: {attributeOs: os, attributeUuid: const Uuid().v6(config: V6Options(null, null, null, null, name.codeUnits))},
+      attributes: {
+        attributeOs: os,
+        attributeUuid: const Uuid().v6(config: V6Options(null, null, null, null, name.codeUnits)),
+      },
     );
   }
 }

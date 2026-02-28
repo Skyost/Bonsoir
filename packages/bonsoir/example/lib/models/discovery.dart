@@ -8,7 +8,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 final discoveryTypeListProvider = NotifierProvider.autoDispose<BonsoirDiscoveryTypeListNotifier, List<String>>(BonsoirDiscoveryTypeListNotifier.new);
 
 /// The discovery service list notifier.
-class BonsoirDiscoveryTypeListNotifier extends AutoDisposeNotifier<List<String>> {
+class BonsoirDiscoveryTypeListNotifier extends Notifier<List<String>> {
   @override
   List<String> build() => [];
 
@@ -33,9 +33,15 @@ class BonsoirDiscoveryTypeListNotifier extends AutoDisposeNotifier<List<String>>
 final discoveryTypeStateProvider = AsyncNotifierProvider.autoDispose.family<BonsoirDiscoveryTypeStateNotifier, BonsoirDiscoveryState, String>(BonsoirDiscoveryTypeStateNotifier.new);
 
 /// The discovery service state notifier.
-class BonsoirDiscoveryTypeStateNotifier extends AutoDisposeFamilyAsyncNotifier<BonsoirDiscoveryState, String> {
+class BonsoirDiscoveryTypeStateNotifier extends AsyncNotifier<BonsoirDiscoveryState> {
+  /// The Bonsoir service type.
+  final String arg;
+
+  /// Creates a new Bonsoir discovery type state notifier instance.
+  BonsoirDiscoveryTypeStateNotifier(this.arg);
+
   @override
-  FutureOr<BonsoirDiscoveryState> build(String arg) async {
+  FutureOr<BonsoirDiscoveryState> build() async {
     BonsoirDiscovery discovery = BonsoirDiscovery(type: arg);
     await discovery.initialize();
     discovery.eventStream?.listen(_onEventOccurred);
@@ -50,6 +56,9 @@ class BonsoirDiscoveryTypeStateNotifier extends AutoDisposeFamilyAsyncNotifier<B
 
   /// Handles the discovery event.
   Future<void> _onEventOccurred(BonsoirDiscoveryEvent event) async {
+    if (!ref.mounted) {
+      return;
+    }
     BonsoirDiscoveryState state = await future;
     void onUpdate(BonsoirService updatedService) {
       List<BonsoirService> services = List.of(state.services);

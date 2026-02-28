@@ -32,15 +32,11 @@ class BonsoirDiscovery extends BonsoirActionHandler<BonsoirDiscoveryEvent> {
         print('Did you mean "$normalizedType" instead of "$type" ?');
       }
     }
-    BonsoirAction<BonsoirDiscoveryEvent> action = BonsoirPlatformInterface
-        .instance
-        .createDiscoveryAction(
-          type,
-          printLogs: printLogs,
-        );
-    serviceResolver ??= action is ServiceResolver
-        ? (action as ServiceResolver)
-        : _NoServiceResolver();
+    BonsoirAction<BonsoirDiscoveryEvent> action = BonsoirPlatformInterface.instance.createDiscoveryAction(
+      type,
+      printLogs: printLogs,
+    );
+    serviceResolver ??= action is ServiceResolver ? (action as ServiceResolver) : _NoServiceResolver();
     return BonsoirDiscovery._internal(
       type: type,
       serviceResolver: serviceResolver,

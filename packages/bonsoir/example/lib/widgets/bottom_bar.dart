@@ -19,14 +19,14 @@ class BottomBar extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) => BottomNavigationBar(
-      currentIndex: currentIndex,
-      items: [
-        for (AppPage page in AppPage.values)
-          BottomNavigationBarItem(
-            icon: Icon(page.icon),
-            label: page.label,
-          ),
-      ],
-      onTap: onPageChange,
-    );
+    currentIndex: currentIndex,
+    items: [
+      for (AppPage page in AppPage.values)
+        BottomNavigationBarItem(
+          icon: Icon(page.icon),
+          label: page.label,
+        ),
+    ],
+    onTap: onPageChange,
+  );
 }
