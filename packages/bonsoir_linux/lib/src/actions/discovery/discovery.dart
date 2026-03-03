@@ -198,7 +198,7 @@ class AvahiBonsoirDiscovery extends AvahiBonsoirAction<BonsoirDiscoveryEvent> wi
       host: event.address,
       port: event.port,
       attributes: Map.fromEntries(
-        event.txt.map((entry) {
+        event.txt.where((entry) => entry.contains('=')).map((entry) {
           int index = entry.indexOf('=');
           return MapEntry<String, String>(entry.substring(0, index), entry.substring(index + 1, entry.length));
         }),
