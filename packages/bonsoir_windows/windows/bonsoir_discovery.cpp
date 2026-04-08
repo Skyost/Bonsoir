@@ -180,8 +180,8 @@ namespace bonsoir_windows {
       servicePtr->port = serviceInstance->wPort;
       DnsServiceFreeInstance(serviceInstance);
     }
-    DNS_SERVICE_CANCEL* serviceCancelHandle = discovery->resolvingServices[servicePtr];
-    delete serviceCancelHandle; // Allocated in resolveService()
+    DNS_SERVICE_CANCEL* resolveCancelHandle = discovery->resolvingServices[servicePtr];
+    delete resolveCancelHandle; // Allocated in resolveService()
     discovery->resolvingServices.erase(servicePtr);
     discovery->onSuccess(Generated::discoveryServiceResolved, servicePtr);
   }
