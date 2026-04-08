@@ -57,15 +57,15 @@ namespace bonsoir_windows {
 
     auto queryName = toUtf16(servicePtr->name + "." + servicePtr->type + ".local");
     DNS_SERVICE_RESOLVE_REQUEST resolveRequest{};
-    DNS_SERVICE_CANCEL resolveCancelHandle{};
+    DNS_SERVICE_CANCEL* resolveCancelHandle = new DNS_SERVICE_CANCEL; // Dynamically allocate so it can be used during dispose()
     resolveRequest.Version = DNS_QUERY_REQUEST_VERSION1;
     resolveRequest.InterfaceIndex = 0;
     resolveRequest.QueryName = const_cast<PWSTR>(queryName.c_str());
     resolveRequest.pResolveCompletionCallback = resolveCallback;
     resolveRequest.pQueryContext = this;
-    DNS_STATUS status = DnsServiceResolve(&resolveRequest, &resolveCancelHandle);
+    DNS_STATUS status = DnsServiceResolve(&resolveRequest, resolveCancelHandle);
     if (status == DNS_REQUEST_PENDING) {
-      resolvingServices[servicePtr] = &resolveCancelHandle;
+      resolvingServices[servicePtr] = resolveCancelHandle;
     } else {
       onSuccess(Generated::discoveryServiceResolveFailed, servicePtr, std::list<std::string>{std::to_string(status)});
     }
@@ -76,6 +76,7 @@ namespace bonsoir_windows {
     onSuccess(Generated::discoveryStopped, nullptr, std::list<std::string>{type});
     for (auto const &[key, value] : resolvingServices) {
       DnsServiceResolveCancel(value);
+      delete value; // Allocated in resolveService()
     }
     resolvingServices.clear();
     services.clear();
@@ -179,6 +180,8 @@ namespace bonsoir_windows {
       servicePtr->port = serviceInstance->wPort;
       DnsServiceFreeInstance(serviceInstance);
     }
+    DNS_SERVICE_CANCEL* serviceCancelHandle = discovery->resolvingServices[servicePtr];
+    delete serviceCancelHandle; // Allocated in resolveService()
     discovery->resolvingServices.erase(servicePtr);
     discovery->onSuccess(Generated::discoveryServiceResolved, servicePtr);
   }
