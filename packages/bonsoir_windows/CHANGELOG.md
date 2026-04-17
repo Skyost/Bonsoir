@@ -1,6 +1,6 @@
 ## 6.0.2
 
- - fix: Properly clean up service resolve queries on Windows.
+ - **FIX**: Properly clean up service resolve queries on Windows. ([19c47050](https://github.com/Skyost/Bonsoir/commit/19c470503e64fcd971a276fa02c267a7eecdd7cc))
 
 ## 6.0.1
 
