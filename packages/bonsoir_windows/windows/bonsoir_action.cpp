@@ -9,6 +9,11 @@
 using namespace flutter;
 
 namespace bonsoir_windows {
+  namespace {
+    constexpr wchar_t kMessageWindowClassName[] = L"BonsoirWindowsEventMessageWindow";
+    std::once_flag gRegisterMessageWindowClassFlag;
+  }
+
   BonsoirAction::BonsoirAction(
     std::string _action,
     const std::map<std::string, std::string> _logMessages,
@@ -21,6 +26,22 @@ namespace bonsoir_windows {
       id(_id),
       eventChannel(std::make_unique<EventChannel<EncodableValue>>(_binaryMessenger, "fr.skyost.bonsoir." + _action + "." + std::to_string(id), &StandardMethodCodec::GetInstance())),
       printLogs(_printLogs) {
+    RegisterMessageWindowClass();
+    messageWindow = CreateWindowExW(
+      0,
+      kMessageWindowClassName,
+      L"",
+      0,
+      0,
+      0,
+      0,
+      0,
+      HWND_MESSAGE,
+      nullptr,
+      GetModuleHandle(nullptr),
+      this
+    );
+
     eventChannel->SetStreamHandler(
       std::make_unique<StreamHandlerFunctions<EncodableValue>>(
         [this](const EncodableValue *arguments, std::unique_ptr<EventSink<EncodableValue>> &&events)
@@ -53,6 +74,10 @@ namespace bonsoir_windows {
 
   void BonsoirAction::dispose() {
     stop();
+    if (messageWindow) {
+      DestroyWindow(messageWindow);
+      messageWindow = nullptr;
+    }
     if (eventChannel) {
       eventChannel->SetStreamHandler(nullptr);
       eventChannel = nullptr;
@@ -61,8 +86,13 @@ namespace bonsoir_windows {
 
   void BonsoirAction::onEvent(std::shared_ptr<EventObject> eventObjectPtr, std::list<std::string> parameters) {
     log(eventObjectPtr->message, parameters);
-    eventQueue.push(std::move(eventObjectPtr));
-    processEventQueue();
+    {
+      std::scoped_lock lock{mutex};
+      eventQueue.push(std::move(eventObjectPtr));
+    }
+    if (messageWindow) {
+      PostMessage(messageWindow, processEventQueueMessage, 0, 0);
+    }
   }
 
   void BonsoirAction::log(std::string message, std::list<std::string> parameters) {
@@ -91,6 +121,32 @@ namespace bonsoir_windows {
       eventQueue.front()->process(this);
       eventQueue.pop();
     }
+  }
+
+  void BonsoirAction::RegisterMessageWindowClass() {
+    std::call_once(gRegisterMessageWindowClassFlag, []() {
+      WNDCLASSW windowClass{};
+      windowClass.lpfnWndProc = BonsoirAction::MessageWindowProc;
+      windowClass.hInstance = GetModuleHandle(nullptr);
+      windowClass.lpszClassName = kMessageWindowClassName;
+      RegisterClassW(&windowClass);
+    });
+  }
+
+  LRESULT CALLBACK BonsoirAction::MessageWindowProc(HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam) {
+    if (message == WM_NCCREATE) {
+      const auto createStruct = reinterpret_cast<CREATESTRUCT*>(lparam);
+      SetWindowLongPtr(hwnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(createStruct->lpCreateParams));
+      return TRUE;
+    }
+
+    auto action = reinterpret_cast<BonsoirAction*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
+    if (message == processEventQueueMessage && action) {
+      action->processEventQueue();
+      return 0;
+    }
+
+    return DefWindowProc(hwnd, message, wparam, lparam);
   }
 
   EventObject::EventObject(std::string _message)
