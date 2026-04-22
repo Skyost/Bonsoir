@@ -4,6 +4,7 @@
 #include <windows.h>
 #include <windns.h>
 
+#include <atomic>
 #include <mutex>
 #include <queue>
 
@@ -104,10 +105,16 @@ namespace bonsoir_windows {
     DNS_SERVICE_CANCEL cancelHandle{};
 
    private:
+    static constexpr UINT processEventQueueMessage = WM_APP + 301;
+
+    static LRESULT CALLBACK MessageWindowProc(HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam);
+    static void RegisterMessageWindowClass();
+
     void onEvent(std::shared_ptr<EventObject> eventObjectPtr, std::list<std::string> parameters);
     std::string BonsoirAction::format(std::string message, std::list<std::string> parameters);
 
     bool printLogs;
+    HWND messageWindow = nullptr;
 
     std::mutex mutex;
     std::queue<std::shared_ptr<EventObject>> eventQueue;

@@ -1,0 +1,23 @@
+* text=auto eol=lf
+
+# Windows scripts.
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# Binary assets.
+*.gif binary
+*.ico binary
+*.jpg binary
+*.jpeg binary
+*.png binary
+*.webp binary
+*.a binary
+*.dll binary
+*.dylib binary
+*.exe binary
+*.framework binary
+*.jar binary
+*.keystore binary
+*.p12 binary
+*.so binary
+*.xcframework binary
