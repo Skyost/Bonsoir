@@ -13,7 +13,7 @@ A Zeroconf library that allows you to discover network services and to broadcast
   s.license          = { :file => '../LICENSE' }
   s.author           = { 'Skyost' => 'me@skyost.eu' }
   s.source           = { :path => '.' }
-  s.source_files = 'Classes/**/*'
+  s.source_files = 'bonsoir_darwin/Sources/bonsoir_darwin/**/*.swift'
   s.ios.dependency 'Flutter'
   s.osx.dependency 'FlutterMacOS'
   s.ios.deployment_target = '13.0'

@@ -20,9 +20,9 @@ EXTERNAL SOURCES:
     :path: Flutter/ephemeral
 
 SPEC CHECKSUMS:
-  bonsoir_darwin: e3b8526c42ca46a885142df84229131dfabea842
+  bonsoir_darwin: 722434d059e48f381a3af21440dd79d95cc41c78
   device_info_plus: 1b14eed9bf95428983aed283a8d51cce3d8c4215
-  FlutterMacOS: 8f6f14fa908a6fb3fba0cd85dbd81ec4b251fb24
+  FlutterMacOS: d0db08ddef1a9af05a5ec4b724367152bb0500b1
 
 PODFILE CHECKSUM: 0d3963a09fc94f580682bd88480486da345dc3f0
 

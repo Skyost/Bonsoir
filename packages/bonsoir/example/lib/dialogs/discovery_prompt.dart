@@ -20,14 +20,15 @@ class DiscoveryPromptDialog extends StatefulWidget {
 
 /// The dialog state.
 class _DiscoveryPromptDialogState extends State<DiscoveryPromptDialog> {
-  /// Corresponds to _<this>_._tcp.
+  /// Corresponds to `_<this>_._tcp`.
   TextEditingController type = TextEditingController(text: DefaultAppService.type);
 
-  /// Corresponds to _type_._<this>.
+  /// Corresponds to `_type_._<this>`.
   String protocol = DefaultAppService.protocol;
 
   @override
   Widget build(BuildContext context) => AlertDialog(
+<<<<<<< Updated upstream
     scrollable: true,
     content: SizedBox(
       width: MediaQuery.of(context).size.width,
@@ -45,6 +46,34 @@ class _DiscoveryPromptDialogState extends State<DiscoveryPromptDialog> {
                   value: protocol,
                   child: Text(protocol.toUpperCase()),
                 ),
+=======
+        content: SizedBox(
+          width: MediaQuery.of(context).size.width,
+          child: ListView(
+            shrinkWrap: true,
+            padding: const EdgeInsets.all(24).copyWith(top: 16),
+            children: [
+              TextField(
+                controller: type,
+                decoration: const InputDecoration(labelText: 'Type'),
+              ),
+              DropdownButtonFormField<String>(
+                initialValue: protocol,
+                items: [
+                  for (String protocol in ['tcp', 'udp'])
+                    DropdownMenuItem<String>(
+                      value: protocol,
+                      child: Text(protocol.toUpperCase()),
+                    ),
+                ],
+                onChanged: (newProtocol) {
+                  if (newProtocol != null) {
+                    setState(() => protocol = newProtocol);
+                  }
+                },
+                decoration: const InputDecoration(labelText: 'Protocol'),
+              ),
+>>>>>>> Stashed changes
             ],
             onChanged: (newProtocol) {
               if (newProtocol != null) {

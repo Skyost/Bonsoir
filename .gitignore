@@ -23,11 +23,13 @@
 # Flutter/Dart/Pub related
 **/doc/api/
 .dart_tool/
+.build/
 .flutter-plugins
 .flutter-plugins-dependencies
 .packages
 .pub-cache/
 .pub/
+.swiftpm/
 /build/
 pubspec.lock
 **/pubspec.lock

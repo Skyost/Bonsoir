@@ -78,7 +78,7 @@ class Generated {
 }
 ''';
   generateMessages(
-    file: '../${Implementation.darwin.packageName}/darwin/Classes/Generated.swift',
+    file: '../${Implementation.darwin.packageName}/darwin/${Implementation.darwin.packageName}/Sources/${Implementation.darwin.packageName}/Generated.swift',
     generateMapEntry: (entry) => '"${entry.key}": "${entry.value}"',
     generateVariable: (entry) => '''
   /// ${entry.key}
