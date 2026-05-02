@@ -40,8 +40,6 @@ class _BroadcastPromptDialogState extends State<BroadcastPromptDialog> {
 
   @override
   Widget build(BuildContext context) => AlertDialog(
-<<<<<<< Updated upstream
-    scrollable: true,
     content: SizedBox(
       width: MediaQuery.of(context).size.width,
       child: Column(
@@ -55,78 +53,12 @@ class _BroadcastPromptDialogState extends State<BroadcastPromptDialog> {
             decoration: const InputDecoration(labelText: 'Type'),
           ),
           DropdownButtonFormField<String>(
-            value: protocol,
+            initialValue: protocol,
             items: [
               for (String protocol in ['tcp', 'udp'])
                 DropdownMenuItem<String>(
                   value: protocol,
                   child: Text(protocol.toUpperCase()),
-=======
-        content: SizedBox(
-          width: MediaQuery.of(context).size.width,
-          child: ListView(
-            shrinkWrap: true,
-            padding: const EdgeInsets.all(24).copyWith(top: 16),
-            children: [
-              TextField(
-                controller: name,
-                decoration: const InputDecoration(labelText: 'Name'),
-              ),
-              TextField(
-                controller: type,
-                decoration: const InputDecoration(labelText: 'Type'),
-              ),
-              DropdownButtonFormField<String>(
-                initialValue: protocol,
-                items: [
-                  for (String protocol in ['tcp', 'udp'])
-                    DropdownMenuItem<String>(
-                      value: protocol,
-                      child: Text(protocol.toUpperCase()),
-                    ),
-                ],
-                onChanged: (newProtocol) {
-                  if (newProtocol != null) {
-                    setState(() => protocol = newProtocol);
-                  }
-                },
-                decoration: const InputDecoration(labelText: 'Protocol'),
-              ),
-              TextField(
-                controller: port,
-                decoration: const InputDecoration(labelText: 'Port'),
-                keyboardType: TextInputType.number,
-              ),
-              for (MapEntry<TextEditingController, TextEditingController> entry in attributes.entries)
-                Row(
-                  children: [
-                    Flexible(
-                      flex: 10,
-                      child: TextField(
-                        controller: entry.key,
-                        decoration: const InputDecoration(labelText: 'Key'),
-                      ),
-                    ),
-                    const Spacer(flex: 1),
-                    Flexible(
-                      flex: 10,
-                      child: TextField(
-                        controller: entry.value,
-                        decoration: const InputDecoration(labelText: 'Value'),
-                      ),
-                    ),
-                    IconButton(
-                      onPressed: () {
-                        setState(() {
-                          attributes.remove(entry.key);
-                          entry.key.dispose();
-                          entry.value.dispose();
-                        });
-                      },
-                      icon: const Icon(Icons.clear),
-                    ),
-                  ],
->>>>>>> Stashed changes
                 ),
             ],
             onChanged: (newProtocol) {

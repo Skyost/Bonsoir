@@ -28,52 +28,24 @@ class _DiscoveryPromptDialogState extends State<DiscoveryPromptDialog> {
 
   @override
   Widget build(BuildContext context) => AlertDialog(
-<<<<<<< Updated upstream
-    scrollable: true,
     content: SizedBox(
       width: MediaQuery.of(context).size.width,
-      child: Column(
+      child: ListView(
+        shrinkWrap: true,
+        padding: const EdgeInsets.all(24).copyWith(top: 16),
         children: [
           TextField(
             controller: type,
             decoration: const InputDecoration(labelText: 'Type'),
           ),
           DropdownButtonFormField<String>(
-            value: protocol,
+            initialValue: protocol,
             items: [
               for (String protocol in ['tcp', 'udp'])
                 DropdownMenuItem<String>(
                   value: protocol,
                   child: Text(protocol.toUpperCase()),
                 ),
-=======
-        content: SizedBox(
-          width: MediaQuery.of(context).size.width,
-          child: ListView(
-            shrinkWrap: true,
-            padding: const EdgeInsets.all(24).copyWith(top: 16),
-            children: [
-              TextField(
-                controller: type,
-                decoration: const InputDecoration(labelText: 'Type'),
-              ),
-              DropdownButtonFormField<String>(
-                initialValue: protocol,
-                items: [
-                  for (String protocol in ['tcp', 'udp'])
-                    DropdownMenuItem<String>(
-                      value: protocol,
-                      child: Text(protocol.toUpperCase()),
-                    ),
-                ],
-                onChanged: (newProtocol) {
-                  if (newProtocol != null) {
-                    setState(() => protocol = newProtocol);
-                  }
-                },
-                decoration: const InputDecoration(labelText: 'Protocol'),
-              ),
->>>>>>> Stashed changes
             ],
             onChanged: (newProtocol) {
               if (newProtocol != null) {
