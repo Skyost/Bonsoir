@@ -1,3 +1,7 @@
+## 6.1.0
+
+ - **FEAT**(darwin): Added support for Swift Package Manager. ([dffcc4ac](https://github.com/Skyost/Bonsoir/commit/dffcc4acdee43408abcae978e125a20f8666682d))
+
 ## 6.0.1
 
  - **REFACTOR**: Finished renaming branch `master` into `main`. ([5c832e56](https://github.com/Skyost/Bonsoir/commit/5c832e56273eb90c19b502d1c53af71e1e9e085a))

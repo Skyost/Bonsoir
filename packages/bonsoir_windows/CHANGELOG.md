@@ -1,3 +1,7 @@
+## 6.0.3
+
+ - Update a dependency to the latest release.
+
 ## 6.0.2
 
  - **FIX**: Properly clean up service resolve queries on Windows. ([19c47050](https://github.com/Skyost/Bonsoir/commit/19c470503e64fcd971a276fa02c267a7eecdd7cc))

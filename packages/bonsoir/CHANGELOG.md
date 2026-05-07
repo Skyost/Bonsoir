@@ -1,3 +1,8 @@
+## 6.1.0
+
+ - **FEAT**(darwin): Added support for Swift Package Manager. ([3c78a34e](https://github.com/Skyost/Bonsoir/commit/3c78a34e73da0dcbedb4ade373a137ec13222127))
+ - **FEAT**(darwin): Added support for Swift Package Manager. ([dffcc4ac](https://github.com/Skyost/Bonsoir/commit/dffcc4acdee43408abcae978e125a20f8666682d))
+
 ## 6.0.3
 
 - Update a dependency to the latest release.

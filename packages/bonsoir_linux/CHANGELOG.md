@@ -1,3 +1,7 @@
+## 6.0.3
+
+ - Update a dependency to the latest release.
+
 ## 6.0.2
 
  - **FIX**(linux): remove -rc from string avahi versions. ([ef5df256](https://github.com/Skyost/Bonsoir/commit/ef5df256a0f874de9debdc0e8397cb7cc7a5475b))
