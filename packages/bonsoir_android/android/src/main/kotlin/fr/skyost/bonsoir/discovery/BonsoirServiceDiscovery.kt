@@ -183,13 +183,20 @@ class BonsoirServiceDiscovery(
      * @param txtRecord The TXT record data instance.
      */
     private fun onServiceTxtRecordFound(service: BonsoirService, txtRecord: TxtRecordData) {
-        if (service.attributes != txtRecord.dictionary) {
-            log(
-                logMessages[Generated.discoveryTxtResolved]!!,
-                listOf(service, txtRecord.dictionary)
-            )
-            service.attributes = txtRecord.dictionary
-            onSuccess(Generated.discoveryServiceUpdated, service)
+        // Text record should be applied to the service specified by txtRecord.fqdn, not the service that sent the message
+        val txtRecordServiceName: String? = txtRecord.fqdn?.split(".", limit = 2)?.get(0)
+        if(txtRecordServiceName == null) {
+            return;
+        }
+        services.forEach {
+            if(it.name == txtRecordServiceName && it.attributes != txtRecord.dictionary) {
+                log(
+                    logMessages[Generated.discoveryTxtResolved]!!,
+                    listOf(it, txtRecord.dictionary)
+                )
+                it.attributes = txtRecord.dictionary
+                onSuccess(Generated.discoveryServiceUpdated, it)
+            }
         }
     }
 
