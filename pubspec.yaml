@@ -14,30 +14,4 @@ workspace:
   - packages/bonsoir/example
 
 dev_dependencies:
-  melos: ^7.5.1
-
-melos:
-  repository: https://github.com/Skyost/Bonsoir
-  categories:
-    packages:
-      - packages/bonsoir
-      - packages/bonsoir_android
-      - packages/bonsoir_darwin
-      - packages/bonsoir_linux
-      - packages/bonsoir_platform_interface
-      - packages/bonsoir_windows
-    apps:
-      - packages/bonsoir/example
-  ide:
-    moduleNamePrefix: ''
-  command:
-    version:
-      linkToCommits: true
-      branch: main
-      workspaceChangelog: false
-      hooks:
-        pre: dart format "packages/bonsoir/lib" && cd "packages/bonsoir_platform_interface" && dart run "bonsoir_platform_interface:generate" && cd "../../"
-      message: |
-        chore(release): Publish packages.
-
-        {new_package_versions}
+  melos: ^7.7.0

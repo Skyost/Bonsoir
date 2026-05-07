@@ -1,0 +1,33 @@
+name: bonsoir
+repository: https://github.com/Skyost/Bonsoir
+
+packages:
+  - packages/**
+  - packages/bonsoir/example
+
+categories:
+  packages:
+    - packages/bonsoir
+    - packages/bonsoir_android
+    - packages/bonsoir_darwin
+    - packages/bonsoir_linux
+    - packages/bonsoir_platform_interface
+    - packages/bonsoir_windows
+  apps:
+    - packages/bonsoir/example
+
+command:
+  version:
+    linkToCommits: true
+    branch: main
+    workspaceChangelog: false
+    hooks:
+      pre: dart format "packages/bonsoir/lib" && cd "packages/bonsoir_platform_interface" && dart run "bonsoir_platform_interface:generate" && cd "../../"
+    message: |
+      chore(release): Publish packages.
+
+      {new_package_versions}
+
+scripts:
+  analyze:
+    exec: dart analyze .
