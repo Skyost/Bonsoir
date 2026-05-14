@@ -1,4 +1,5 @@
 import Network
+import Foundation
 
 /// Represents a Bonsoir service.
 @available(iOS 13.0, macOS 10.15, *)
