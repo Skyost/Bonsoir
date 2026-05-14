@@ -32,17 +32,17 @@ flutter pub get
 ### iOS
 
 If you want to use this plugin on iOS, you must update your deployment target to _at least_ 13.0.
-At the top of `ios/Podfile`, add the following :
+To do so, open your iOS project in Xcode and select Runner, Targets → Runner and then the "General"
+tab. Under the "Minimum Deployments" section, update the iOS version to 13.0 or higher.
+
+If you use Cocoapods, at the top of `ios/Podfile`, add the following :
 
 ```shell [ios/Podfile]
 platform :ios, '13.0'
 ```
 
-Also, open your iOS project in Xcode and select Runner, Targets -> Runner and then the "General" tab.
-Under the "Minimum Deployments" section, update the iOS version to 13.0 or higher.
-
-If you're building your app for iOS 14 or higher, you have to edit your `Info.plist` file. Just add
-the following lines :
+Finally, if you're building your app for iOS 14 or higher, you have to edit your `Info.plist` file.
+Just add the following lines :
 
 ```xml [ios/Info.plist]
 <key>NSLocalNetworkUsageDescription</key>
@@ -67,7 +67,7 @@ At the top of `macos/Podfile`, add the following :
 platform :ios, '10.15'
 ```
 
-Also, open your macOS project in Xcode and select Runner, Targets -> Runner and then the "General" tab.
+Also, open your macOS project in Xcode and select Runner, Targets → Runner and then the "General" tab.
 Under the "Minimum Deployments" section, update the macOS version to 10.15 or higher.
 
 ### Linux
@@ -77,6 +77,8 @@ If you don't have Avahi installed on your system, just install it using :
 ```shell
 sudo apt install -y avahi-daemon avahi-discover avahi-utils libnss-mdns mdns-scan
 ```
+
+(Assuming your package manager is APT.)
 
 # Getting started
 
