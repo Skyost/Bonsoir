@@ -196,6 +196,7 @@ class AvahiBonsoirDiscovery extends AvahiBonsoirAction<BonsoirDiscoveryEvent> wi
       name: event.serviceName,
       type: event.type,
       host: event.address,
+      hostname: event.host,
       port: event.port,
       attributes: Map.fromEntries(
         event.txt.map((entry) {
@@ -323,7 +324,7 @@ class AvahiBonsoirDiscovery extends AvahiBonsoirAction<BonsoirDiscoveryEvent> wi
   Future<bool> get _isModernAvahi async {
     AvahiServer server = AvahiServer(DBusClient.system(), BonsoirLinux.avahi, DBusObjectPath('/'));
     String version = (await server.callGetVersionString()).split(' ').last;
-    
+
     String mayorString = version.split('.').first;
     String minorString = version.split('.').last;
 

@@ -51,10 +51,20 @@ class BonsoirService {
   /// * Hyphens MUST NOT be adjacent to other hyphens.
   final String type;
 
-  /// The service host.
+  /// The service host address.
+  ///
   /// Your service should be reachable at the given host.
+  /// This should be an IP address when the platform provides one.
   /// This field may be null if the service has not been resolved yet.
   final String? host;
+
+  /// The service mDNS hostname.
+  ///
+  /// This is the SRV target hostname, usually ending with `.local`. On Android,
+  /// this field is only available when the platform exposes
+  /// `NsdServiceInfo.hostname`; older Android versions may leave it null.
+  /// This field may be null if the service has not been resolved yet.
+  final String? hostname;
 
   /// The service port.
   /// Your service should be reachable at the given port using the protocol specified in [type].
@@ -78,6 +88,7 @@ class BonsoirService {
     required String name,
     required String type,
     this.host,
+    this.hostname,
     required this.port,
     Map<String, String> attributes = defaultAttributes,
   }) : name = BonsoirServiceNormalizer.normalizeName(name),
@@ -92,6 +103,7 @@ class BonsoirService {
     required this.name,
     required this.type,
     this.host,
+    this.hostname,
     required this.port,
     this.attributes = defaultAttributes,
   });
@@ -104,6 +116,7 @@ class BonsoirService {
     name: json['${prefix}name'],
     type: json['${prefix}type'],
     host: json['${prefix}host'],
+    hostname: json['${prefix}hostname'],
     port: json['${prefix}port'],
     attributes: Map<String, String>.from(json['${prefix}attributes']),
   );
@@ -113,6 +126,7 @@ class BonsoirService {
     '${prefix}name': name,
     '${prefix}type': type,
     if (host != null) '${prefix}host': host,
+    if (hostname != null) '${prefix}hostname': hostname,
     '${prefix}port': port,
     '${prefix}attributes': attributes,
   };
@@ -123,14 +137,39 @@ class BonsoirService {
     String? type,
     int? port,
     String? host,
+    String? hostname,
     Map<String, String>? attributes,
-    bool forceUpdateHost = false,
   }) => BonsoirService.ignoreNorms(
     name: name ?? this.name,
     type: type ?? this.type,
-    host: host ?? (forceUpdateHost ? null : this.host),
+    host: host ?? this.host,
+    hostname: hostname ?? this.hostname,
     port: port ?? this.port,
     attributes: attributes ?? this.attributes,
+  );
+
+  /// Overwrites the service host.
+  BonsoirService overwriteHost({
+    String? host,
+  }) => BonsoirService.ignoreNorms(
+    name: name,
+    type: type,
+    host: host,
+    hostname: hostname,
+    port: port,
+    attributes: attributes,
+  );
+
+  /// Overwrites the service hostname.
+  BonsoirService overwriteHostname({
+    String? hostname,
+  }) => BonsoirService.ignoreNorms(
+    name: name,
+    type: type,
+    host: host,
+    hostname: hostname,
+    port: port,
+    attributes: attributes,
   );
 
   @override
@@ -138,7 +177,8 @@ class BonsoirService {
     if (other is! BonsoirService) {
       return false;
     }
-    return identical(this, other) || (name == other.name && type == other.type && port == other.port && mapEquals<String, String>(attributes, other.attributes));
+    return identical(this, other) ||
+        (name == other.name && type == other.type && host == other.host && hostname == other.hostname && port == other.port && mapEquals<String, String>(attributes, other.attributes));
   }
 
   @override

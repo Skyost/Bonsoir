@@ -34,6 +34,9 @@ class ServiceWidget extends ConsumerWidget {
     if (service.host != null) {
       subtitle += '\nHost : ${service.host}, port : ${service.port}';
     }
+    if (service.hostname != null) {
+      subtitle += '\nHostname : ${service.hostname}';
+    }
 
     return Card(
       child: ListTile(

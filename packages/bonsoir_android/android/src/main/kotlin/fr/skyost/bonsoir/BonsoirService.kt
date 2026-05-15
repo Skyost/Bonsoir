@@ -1,8 +1,23 @@
 package fr.skyost.bonsoir
 
+import android.annotation.SuppressLint
 import android.net.nsd.NsdServiceInfo
+import android.os.Build
+import android.os.ext.SdkExtensions
 import org.json.JSONObject
 import java.net.InetAddress
+
+@SuppressLint("NewApi")
+private fun NsdServiceInfo.getHostnameCompat(): String? {
+    return if (
+        Build.VERSION.SDK_INT >= 36 ||
+        (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && SdkExtensions.getExtensionVersion(Build.VERSION_CODES.TIRAMISU) >= 17)
+    ) {
+        return if (hostname == null || hostname!!.endsWith(".local") || hostname!!.endsWith(".local.")) hostname else "${hostname!!}.local"
+    } else {
+        null
+    }
+}
 
 /**
  * Represents a Bonsoir service.
@@ -11,6 +26,7 @@ import java.net.InetAddress
  * @param type The service type.
  * @param port The service port.
  * @param host The service host.
+ * @param hostname The service mDNS hostname.
  * @param attributes The service attributes.
  */
 data class BonsoirService(
@@ -18,6 +34,7 @@ data class BonsoirService(
     val type: String,
     var port: Int,
     var host: String?,
+    var hostname: String?,
     var attributes: MutableMap<String, String>
 ) {
     /**
@@ -30,6 +47,7 @@ data class BonsoirService(
         if (service.serviceType.endsWith(".")) service.serviceType.substring(0, service.serviceType.length - 1) else service.serviceType,
         service.port,
         service.host?.hostAddress,
+        service.getHostnameCompat(),
         hashMapOf(),
     ) {
         for (attribute in service.attributes.entries) {
@@ -50,6 +68,7 @@ data class BonsoirService(
             "${prefix}type" to type,
             "${prefix}port" to port,
             "${prefix}host" to host,
+            "${prefix}hostname" to hostname,
             "${prefix}attributes" to attributes,
         )
     }

@@ -50,7 +50,7 @@ target_compile_definitions(${PLUGIN_NAME} PRIVATE FLUTTER_PLUGIN_IMPL)
 # dependencies here.
 target_include_directories(${PLUGIN_NAME} INTERFACE "${CMAKE_CURRENT_SOURCE_DIR}/include")
 
-target_link_libraries(${PLUGIN_NAME} PRIVATE dnsapi)
+target_link_libraries(${PLUGIN_NAME} PRIVATE dnsapi ws2_32)
 
 if(MSVC)
     add_compile_options(

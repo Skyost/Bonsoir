@@ -46,11 +46,19 @@ namespace bonsoir_windows {
       } else {
         host = std::get<std::string>(hostValue->second);
       }
+      auto hostnameValue = arguments->find(EncodableValue("service.hostname"));
+      std::optional<std::string> hostname;
+      if (hostnameValue == arguments->end() || hostnameValue->second.IsNull()) {
+        hostname = std::optional<std::string>();
+      } else {
+        hostname = std::get<std::string>(hostnameValue->second);
+      }
       std::unique_ptr<BonsoirService> servicePtr = std::make_unique<BonsoirService>(
         std::get<std::string>(arguments->find(EncodableValue("service.name"))->second),
         std::get<std::string>(arguments->find(EncodableValue("service.type"))->second),
         std::get<int>(arguments->find(EncodableValue("service.port"))->second),
         host,
+        hostname,
         attributes
       );
       broadcasts[id] = std::make_unique<BonsoirBroadcast>(

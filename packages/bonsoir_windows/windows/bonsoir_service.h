@@ -13,6 +13,7 @@ namespace bonsoir_windows {
     std::string type;
     int port;
     std::optional<std::string> host;
+    std::optional<std::string> hostname;
     std::map<std::string, std::string> attributes;
 
     BonsoirService(
@@ -20,6 +21,7 @@ namespace bonsoir_windows {
       std::string _type,
       int _port,
       std::optional<std::string> host,
+      std::optional<std::string> hostname,
       std::map<std::string, std::string> _attributes
     );
 

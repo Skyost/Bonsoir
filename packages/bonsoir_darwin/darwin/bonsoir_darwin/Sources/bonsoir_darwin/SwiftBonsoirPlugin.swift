@@ -45,6 +45,9 @@ public class SwiftBonsoirPlugin: NSObject, FlutterPlugin {
             if let host = arguments["service.host"] as? String? {
                 service.host = host
             }
+            if let hostname = arguments["service.hostname"] as? String? {
+                service.hostname = hostname
+            }
             broadcasts[id] = BonsoirServiceBroadcast(id: id, printLogs: arguments["printLogs"] as! Bool, onDispose: {
                 self.broadcasts.removeValue(forKey: id)
             }, messenger: messenger, service: service)
