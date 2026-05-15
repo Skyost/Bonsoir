@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:bonsoir_platform_interface/src/service/normalizer.dart';
 import 'package:bonsoir_platform_interface/src/utils/utils.dart';
 
@@ -147,5 +145,5 @@ class BonsoirService {
   int get hashCode => name.hashCode + type.hashCode + port;
 
   @override
-  String toString() => jsonEncode(toJson());
+  String toString() => toJson(prefix: '').toString();
 }
