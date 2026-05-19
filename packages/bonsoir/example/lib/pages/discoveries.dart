@@ -110,7 +110,7 @@ class _DiscoveryTypeWidgetState extends ConsumerState<_DiscoveryTypeWidget> with
           for (BonsoirService service in discoveryState.value!.services)
             ServiceWidget(
               service: service,
-              trailing: service.hostAddress == null
+              trailing: service.hostAddresses.isEmpty
                   ? TextButton(
                       child: const Text('Resolve'),
                       onPressed: () => service.resolve(discoveryState.value!.serviceResolver),

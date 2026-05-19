@@ -39,12 +39,13 @@ namespace bonsoir_windows {
       for (auto const &[key, value] : encodedAttributes) {
         attributes.insert({std::get<std::string>(key), std::get<std::string>(value)});
       }
-      auto hostValue = arguments->find(EncodableValue("service.hostAddress"));
-      std::optional<std::string> host;
-      if (hostValue == arguments->end() || hostValue->second.IsNull()) {
-        host = std::optional<std::string>();
-      } else {
-        host = std::get<std::string>(hostValue->second);
+      std::vector<std::string> hostAddresses = std::vector<std::string>();
+      auto hostAddressesValue = arguments->find(EncodableValue("service.hostAddresses"));
+      if (hostAddressesValue != arguments->end() && !hostAddressesValue->second.IsNull()) {
+        EncodableList encodedHostAddresses = std::get<EncodableList>(hostAddressesValue->second);
+        for (auto const &address : encodedHostAddresses) {
+          hostAddresses.push_back(std::get<std::string>(address));
+        }
       }
       auto hostnameValue = arguments->find(EncodableValue("service.hostname"));
       std::optional<std::string> hostname;
@@ -57,7 +58,7 @@ namespace bonsoir_windows {
         std::get<std::string>(arguments->find(EncodableValue("service.name"))->second),
         std::get<std::string>(arguments->find(EncodableValue("service.type"))->second),
         std::get<int>(arguments->find(EncodableValue("service.port"))->second),
-        host,
+        hostAddresses,
         hostname,
         attributes
       );

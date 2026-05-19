@@ -236,7 +236,7 @@ class BonsoirServiceDiscovery(
             },
             { resolvedService: NsdServiceInfo ->
                 val resolvedBonsoirService = BonsoirService(resolvedService)
-                bonsoirService.hostAddress = resolvedBonsoirService.hostAddress
+                bonsoirService.hostAddresses = resolvedBonsoirService.hostAddresses
                 bonsoirService.hostname = resolvedBonsoirService.hostname
                 bonsoirService.port = resolvedBonsoirService.port
                 bonsoirService.attributes = resolvedBonsoirService.attributes
@@ -259,7 +259,7 @@ class BonsoirServiceDiscovery(
 
                         override fun onServiceUpdated(service: NsdServiceInfo) {
                             val updatedBonsoirService = BonsoirService(service)
-                            bonsoirService.hostAddress = updatedBonsoirService.hostAddress
+                            bonsoirService.hostAddresses = updatedBonsoirService.hostAddresses
                             bonsoirService.hostname = updatedBonsoirService.hostname
                             bonsoirService.port = updatedBonsoirService.port
                             bonsoirService.attributes = updatedBonsoirService.attributes

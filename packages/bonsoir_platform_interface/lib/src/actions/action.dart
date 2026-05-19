@@ -107,7 +107,7 @@ If you have previously called "$runtimeType.stop()" on this instance, you have t
     '$_classType.$method',
     {
       ...toJson(),
-      if (arguments != null) ...arguments,
+      ...?arguments,
     },
   );
 
@@ -128,7 +128,7 @@ mixin ServiceResolver {
 extension Resolve on BonsoirService {
   /// Tries to resolve this service.
   Future<void> resolve(ServiceResolver resolver) async {
-    if (hostAddress == null) {
+    if (hostAddresses.isEmpty) {
       await resolver.resolveService(this);
     }
   }

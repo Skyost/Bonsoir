@@ -137,8 +137,8 @@ namespace bonsoir_windows {
     }
     discovery->services.push_back(newServicePtr);
     if (servicePtr) {
-      if (!newServicePtr->hostAddress && servicePtr->hostAddress) {
-        newServicePtr->hostAddress = servicePtr->hostAddress;
+      if (newServicePtr->hostAddresses.empty() && !servicePtr->hostAddresses.empty()) {
+        newServicePtr->hostAddresses = servicePtr->hostAddresses;
       }
       if (!newServicePtr->hostname && servicePtr->hostname) {
         newServicePtr->hostname = servicePtr->hostname;
@@ -154,24 +154,25 @@ namespace bonsoir_windows {
     DnsRecordListFree(dnsRecord, DnsFreeRecordList);
   }
 
-  std::optional<std::string> serviceInstanceIpAddress(PDNS_SERVICE_INSTANCE serviceInstance) {
+  std::vector<std::string> serviceInstanceIpAddresses(PDNS_SERVICE_INSTANCE serviceInstance) {
+    std::vector<std::string> hostAddresses;
     char buffer[INET6_ADDRSTRLEN] = {};
 
     if (serviceInstance->ip4Address != nullptr) {
       IN_ADDR address{};
       address.S_un.S_addr = *serviceInstance->ip4Address;
       if (InetNtopA(AF_INET, &address, buffer, INET_ADDRSTRLEN) != nullptr) {
-        return std::string(buffer);
+        hostAddresses.push_back(std::string(buffer));
       }
     }
 
     if (serviceInstance->ip6Address != nullptr) {
       if (InetNtopA(AF_INET6, serviceInstance->ip6Address, buffer, INET6_ADDRSTRLEN) != nullptr) {
-        return std::string(buffer);
+        hostAddresses.push_back(std::string(buffer));
       }
     }
 
-    return std::nullopt;
+    return hostAddresses;
   }
 
   void resolveCallback(DWORD status, PVOID context, PDNS_SERVICE_INSTANCE serviceInstance) {
@@ -202,7 +203,7 @@ namespace bonsoir_windows {
       return;
     }
     if (serviceInstance) {
-      servicePtr->hostAddress = serviceInstanceIpAddress(serviceInstance);
+      servicePtr->hostAddresses = serviceInstanceIpAddresses(serviceInstance);
       if (serviceInstance->pszHostName != nullptr) {
         servicePtr->hostname = toUtf8(serviceInstance->pszHostName);
       }

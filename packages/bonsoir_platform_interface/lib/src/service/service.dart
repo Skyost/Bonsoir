@@ -51,12 +51,12 @@ class BonsoirService {
   /// * Hyphens MUST NOT be adjacent to other hyphens.
   final String type;
 
-  /// The service host address.
+  /// The service host addresses.
   ///
-  /// Your service should be reachable at the given host address.
-  /// This should be an IP address when the platform provides one.
-  /// This field may be null if the service has not been resolved yet.
-  final String? hostAddress;
+  /// Your service should be reachable at the given host addresses.
+  /// These should be IP addresses when the platform provides them.
+  /// This field may be empty if the service has not been resolved yet.
+  final List<String> hostAddresses;
 
   /// The service mDNS hostname.
   ///
@@ -87,7 +87,7 @@ class BonsoirService {
   BonsoirService({
     required String name,
     required String type,
-    this.hostAddress,
+    this.hostAddresses = const [],
     this.hostname,
     required this.port,
     Map<String, String> attributes = defaultAttributes,
@@ -102,7 +102,7 @@ class BonsoirService {
   const BonsoirService.ignoreNorms({
     required this.name,
     required this.type,
-    this.hostAddress,
+    this.hostAddresses = const [],
     this.hostname,
     required this.port,
     this.attributes = defaultAttributes,
@@ -115,7 +115,7 @@ class BonsoirService {
   }) => BonsoirService.ignoreNorms(
     name: json['${prefix}name'],
     type: json['${prefix}type'],
-    hostAddress: json['${prefix}hostAddress'],
+    hostAddresses: List<String>.from(json['${prefix}hostAddresses'] ?? const []),
     hostname: json['${prefix}hostname'],
     port: json['${prefix}port'],
     attributes: Map<String, String>.from(json['${prefix}attributes']),
@@ -125,36 +125,41 @@ class BonsoirService {
   Map<String, dynamic> toJson({String prefix = 'service.'}) => {
     '${prefix}name': name,
     '${prefix}type': type,
-    if (hostAddress != null) '${prefix}hostAddress': hostAddress,
+    if (hostAddresses.isNotEmpty) '${prefix}hostAddresses': hostAddresses,
     if (hostname != null) '${prefix}hostname': hostname,
     '${prefix}port': port,
     '${prefix}attributes': attributes,
   };
+
+  /// The first service host address.
+  ///
+  /// This field may be null if the service has not been resolved yet.
+  String? get hostAddress => hostAddresses.firstOrNull;
 
   /// Copies this service instance with the given parameters.
   BonsoirService copyWith({
     String? name,
     String? type,
     int? port,
-    String? hostAddress,
+    List<String>? hostAddresses,
     String? hostname,
     Map<String, String>? attributes,
   }) => BonsoirService.ignoreNorms(
     name: name ?? this.name,
     type: type ?? this.type,
-    hostAddress: hostAddress ?? this.hostAddress,
+    hostAddresses: hostAddresses ?? this.hostAddresses,
     hostname: hostname ?? this.hostname,
     port: port ?? this.port,
     attributes: attributes ?? this.attributes,
   );
 
-  /// Overwrites the service host address.
-  BonsoirService overwriteHostAddress({
-    String? hostAddress,
+  /// Overwrites the service host addresses.
+  BonsoirService overwriteHostAddresses({
+    List<String> hostAddresses = const [],
   }) => BonsoirService.ignoreNorms(
     name: name,
     type: type,
-    hostAddress: hostAddress,
+    hostAddresses: hostAddresses,
     hostname: hostname,
     port: port,
     attributes: attributes,
@@ -166,7 +171,7 @@ class BonsoirService {
   }) => BonsoirService.ignoreNorms(
     name: name,
     type: type,
-    hostAddress: hostAddress,
+    hostAddresses: hostAddresses,
     hostname: hostname,
     port: port,
     attributes: attributes,
@@ -178,7 +183,7 @@ class BonsoirService {
       return false;
     }
     return identical(this, other) ||
-        (name == other.name && type == other.type && hostAddress == other.hostAddress && hostname == other.hostname && port == other.port && mapEquals<String, String>(attributes, other.attributes));
+        (name == other.name && type == other.type && listEquals(hostAddresses, other.hostAddresses) && hostname == other.hostname && port == other.port && mapEquals(attributes, other.attributes));
   }
 
   @override

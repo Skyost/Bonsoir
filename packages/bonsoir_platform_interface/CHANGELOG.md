@@ -54,7 +54,7 @@
 
 ## 4.0.0
 
-* `service.ip` is now `service.hostAddress`.
+* `service.ip` is now `service.hostAddresses`.
 
 ## 3.0.0
 

@@ -74,7 +74,7 @@ class BonsoirServiceDiscovery: BonsoirAction {
                     if service != nil {
                         break
                     }
-                    service = BonsoirService(name: name, type: type, port: 0, hostAddress: nil, attributes: [:])
+                    service = BonsoirService(name: name, type: type, port: 0, hostAddresses: [], attributes: [:])
                     if case .bonjour(let records) = result.metadata {
                         service!.attributes = records.dictionary
                     }
@@ -180,7 +180,7 @@ class BonsoirServiceDiscovery: BonsoirAction {
     /// Resolves the IP address for the given service hostname.
     private func resolveAddress(for service: BonsoirService, hostname: String) -> Bool {
         var sdRef: DNSServiceRef? = nil
-        let error = DNSServiceGetAddrInfo(&sdRef, 0, 0, kDNSServiceProtocol_IPv4 | kDNSServiceProtocol_IPv6, hostname, BonsoirServiceDiscovery.addressResolveCallback, Unmanaged.passUnretained(self).toOpaque())
+        let error = DNSServiceGetAddrInfo(&sdRef, 0, 0, DNSServiceProtocol(kDNSServiceProtocol_IPv4 | kDNSServiceProtocol_IPv6), hostname, BonsoirServiceDiscovery.addressResolveCallback, Unmanaged.passUnretained(self).toOpaque())
         if error != kDNSServiceErr_NoError {
             onSuccess(eventId: Generated.discoveryServiceResolveFailed, service: service, parameters: [error])
             stopResolution(sdRef: sdRef, remove: false)
@@ -309,8 +309,10 @@ class BonsoirServiceDiscovery: BonsoirAction {
                 return
             }
 
-            if errorCode == kDNSServiceErr_NoError, address != nil, let hostAddress = BonsoirServiceDiscovery.ipAddress(from: address!) {
-                service.hostAddress = hostAddress
+            if errorCode == kDNSServiceErr_NoError, address != nil, let resolvedAddress = BonsoirServiceDiscovery.ipAddress(from: address!) {
+                if !service.hostAddresses.contains(resolvedAddress) {
+                    service.hostAddresses.append(resolvedAddress)
+                }
                 discovery.onSuccess(eventId: Generated.discoveryServiceResolved, service: service)
             } else {
                 discovery.onSuccess(eventId: Generated.discoveryServiceResolveFailed, service: service, parameters: [errorCode])
