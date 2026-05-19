@@ -61,8 +61,8 @@ class BonsoirService {
   /// The service mDNS hostname.
   ///
   /// This is the SRV target hostname, usually ending with `.local`. On Android,
-  /// this field is only available when the platform exposes
-  /// `NsdServiceInfo.hostname`; older Android versions may leave it null.
+  /// this field is only available when the OS exposes `NsdServiceInfo.hostname`;
+  /// older Android versions may leave it null.
   /// This field may be null if the service has not been resolved yet.
   final String? hostname;
 
