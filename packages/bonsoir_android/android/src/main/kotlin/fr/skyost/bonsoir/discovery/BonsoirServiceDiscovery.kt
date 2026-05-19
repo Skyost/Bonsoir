@@ -14,8 +14,7 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentLinkedQueue
-import java.util.concurrent.ExecutorService
-import java.util.concurrent.Executors
+import java.util.concurrent.Executor
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.coroutines.CoroutineContext
 
@@ -60,6 +59,8 @@ class BonsoirServiceDiscovery(
 
     private val scopeJob = SupervisorJob()
 
+    private val isDisposed = AtomicBoolean(false)
+
     override val coroutineContext: CoroutineContext
         get() = Dispatchers.IO + scopeJob
 
@@ -76,13 +77,18 @@ class BonsoirServiceDiscovery(
     /**
      * Executor used by service info callbacks.
      */
-    private val serviceInfoCallbackExecutor: ExecutorService = Executors.newSingleThreadExecutor()
+    private val serviceInfoCallbackExecutor = Executor { command ->
+        if (!isDisposed.get()) {
+            command.run()
+        }
+    }
 
     /**
      * Starts the discovery.
      */
     fun start() {
         if (!isActive) {
+            isDisposed.set(false)
             nsdManager.discoverServices(type, NsdManager.PROTOCOL_DNS_SD, this)
         }
     }
@@ -262,6 +268,9 @@ class BonsoirServiceDiscovery(
                         }
 
                         override fun onServiceUpdated(service: NsdServiceInfo) {
+                            if (isDisposed.get()) {
+                                return
+                            }
                             val updatedBonsoirService = BonsoirService(service)
                             bonsoirService.hostAddresses = updatedBonsoirService.hostAddresses
                             bonsoirService.hostname = updatedBonsoirService.hostname
@@ -337,6 +346,7 @@ class BonsoirServiceDiscovery(
     }
 
     override fun dispose(notify: Boolean) {
+        isDisposed.set(true)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && SdkExtensions.getExtensionVersion(Build.VERSION_CODES.TIRAMISU) >= 7) {
             for (value in activeCallbacks.values) {
                 try {
@@ -347,7 +357,6 @@ class BonsoirServiceDiscovery(
             }
         }
         activeCallbacks.clear()
-        serviceInfoCallbackExecutor.shutdownNow()
         val iterator = resolveQueue.iterator()
         while (iterator.hasNext()) {
             if (iterator.next().second.discoveryId == id) {
