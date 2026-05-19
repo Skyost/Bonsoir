@@ -112,6 +112,8 @@ namespace bonsoir_windows {
         std::get<std::string>(arguments->find(EncodableValue("type"))->second)
       );
       result->Success(EncodableValue(true));
+    } else if (method.compare("discovery.supportsMdnsHostname") == 0) {
+      result->Success(EncodableValue(true));
     } else if (method.compare("discovery.stop") == 0) {
       auto iterator = discoveries.find(id);
       if (iterator == discoveries.end()) {

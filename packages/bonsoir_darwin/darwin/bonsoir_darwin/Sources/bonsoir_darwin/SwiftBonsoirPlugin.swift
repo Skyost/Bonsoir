@@ -69,6 +69,8 @@ public class SwiftBonsoirPlugin: NSObject, FlutterPlugin {
         case "discovery.resolveService":
             let resolveStarted: Bool = discoveries[id]?.resolveService(name: arguments["name"] as! String, type: arguments["type"] as! String) ?? false
             result(resolveStarted)
+        case "discovery.supportsMdnsHostname":
+            result(true)
         case "discovery.stop":
             discoveries[id]?.dispose()
             result(discoveries[id] != nil)

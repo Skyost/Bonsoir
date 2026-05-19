@@ -48,9 +48,12 @@ class BonsoirDiscovery extends BonsoirActionHandler<BonsoirDiscoveryEvent> {
 /// Created and used as a service resolver if none is provided.
 class _NoServiceResolver with ServiceResolver {
   @override
-  Future<void> resolveService(BonsoirService service) {
+  void resolveService(BonsoirService service) {
     throw UnimplementedError(
       'No service resolver provided. Please ensure either you or your current platform interface provide one !',
     );
   }
+
+  @override
+  bool supportsMdnsHostname() => false;
 }

@@ -148,7 +148,7 @@ await discovery.start();
 await discovery.stop();
 ```
 
-When a discovered service is resolved, `BonsoirService.host` contains the  network address exposed
+When a discovered service is resolved, `BonsoirService.host` contains the network address exposed
 by the platform, while `BonsoirService.hostname` contains the mDNS/SRV target hostname when the
 platform provides one.
 

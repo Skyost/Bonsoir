@@ -88,7 +88,7 @@ class AvahiBonsoirBroadcast extends AvahiBonsoirAction<BonsoirBroadcastEvent> {
       name: service.name,
       type: service.type,
       domain: '',
-      host: service.hostname ?? service.host ?? '',
+      host: service.hostname ?? service.hostAddress ?? '',
       port: service.port,
       txt: service.txtRecord,
     );

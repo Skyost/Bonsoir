@@ -119,8 +119,11 @@ class AvahiBonsoirDiscovery extends AvahiBonsoirAction<BonsoirDiscoveryEvent> wi
       );
       return;
     }
-    _avahiHandler!.resolveService(this, serviceInstance, _foundServices[serviceInstance]!);
+    await _avahiHandler!.resolveService(this, serviceInstance, _foundServices[serviceInstance]!);
   }
+
+  @override
+  bool supportsMdnsHostname() => true;
 
   @override
   Future<void> stop() async {
@@ -149,7 +152,7 @@ class AvahiBonsoirDiscovery extends AvahiBonsoirAction<BonsoirDiscoveryEvent> wi
   /// Triggered when a service has been found.
   Future<void> _onServiceFound(DBusSignal signal) async {
     AvahiServiceBrowserItemNew event = AvahiServiceBrowserItemNew(signal);
-    if (event.type != this.type && !isMetaQuery) {
+    if (event.type != type && !isMetaQuery) {
       return;
     }
     BonsoirService? service = _findService(event.serviceName, event.type);
@@ -195,7 +198,7 @@ class AvahiBonsoirDiscovery extends AvahiBonsoirAction<BonsoirDiscoveryEvent> wi
     BonsoirService service = BonsoirService(
       name: event.serviceName,
       type: event.type,
-      host: event.address,
+      hostAddress: event.address,
       hostname: event.host,
       port: event.port,
       attributes: Map.fromEntries(

@@ -31,8 +31,8 @@ class ServiceWidget extends ConsumerWidget {
       subtitle += ', $key : ${entry.value}';
     }
 
-    if (service.host != null) {
-      subtitle += '\nHost : ${service.host}, port : ${service.port}';
+    if (service.hostAddress != null) {
+      subtitle += '\nHost : ${service.hostAddress}, port : ${service.port}';
     }
     if (service.hostname != null) {
       subtitle += '\nHostname : ${service.hostname}';

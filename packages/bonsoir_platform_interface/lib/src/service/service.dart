@@ -56,7 +56,7 @@ class BonsoirService {
   /// Your service should be reachable at the given host.
   /// This should be an IP address when the platform provides one.
   /// This field may be null if the service has not been resolved yet.
-  final String? host;
+  final String? hostAddress;
 
   /// The service mDNS hostname.
   ///
@@ -87,7 +87,7 @@ class BonsoirService {
   BonsoirService({
     required String name,
     required String type,
-    this.host,
+    this.hostAddress,
     this.hostname,
     required this.port,
     Map<String, String> attributes = defaultAttributes,
@@ -102,7 +102,7 @@ class BonsoirService {
   const BonsoirService.ignoreNorms({
     required this.name,
     required this.type,
-    this.host,
+    this.hostAddress,
     this.hostname,
     required this.port,
     this.attributes = defaultAttributes,
@@ -115,7 +115,7 @@ class BonsoirService {
   }) => BonsoirService.ignoreNorms(
     name: json['${prefix}name'],
     type: json['${prefix}type'],
-    host: json['${prefix}host'],
+    hostAddress: json['${prefix}host'],
     hostname: json['${prefix}hostname'],
     port: json['${prefix}port'],
     attributes: Map<String, String>.from(json['${prefix}attributes']),
@@ -125,7 +125,7 @@ class BonsoirService {
   Map<String, dynamic> toJson({String prefix = 'service.'}) => {
     '${prefix}name': name,
     '${prefix}type': type,
-    if (host != null) '${prefix}host': host,
+    if (hostAddress != null) '${prefix}host': hostAddress,
     if (hostname != null) '${prefix}hostname': hostname,
     '${prefix}port': port,
     '${prefix}attributes': attributes,
@@ -142,7 +142,7 @@ class BonsoirService {
   }) => BonsoirService.ignoreNorms(
     name: name ?? this.name,
     type: type ?? this.type,
-    host: host ?? this.host,
+    hostAddress: host ?? this.hostAddress,
     hostname: hostname ?? this.hostname,
     port: port ?? this.port,
     attributes: attributes ?? this.attributes,
@@ -154,7 +154,7 @@ class BonsoirService {
   }) => BonsoirService.ignoreNorms(
     name: name,
     type: type,
-    host: host,
+    hostAddress: host,
     hostname: hostname,
     port: port,
     attributes: attributes,
@@ -166,7 +166,7 @@ class BonsoirService {
   }) => BonsoirService.ignoreNorms(
     name: name,
     type: type,
-    host: host,
+    hostAddress: hostAddress,
     hostname: hostname,
     port: port,
     attributes: attributes,
@@ -178,7 +178,7 @@ class BonsoirService {
       return false;
     }
     return identical(this, other) ||
-        (name == other.name && type == other.type && host == other.host && hostname == other.hostname && port == other.port && mapEquals<String, String>(attributes, other.attributes));
+        (name == other.name && type == other.type && hostAddress == other.hostAddress && hostname == other.hostname && port == other.port && mapEquals<String, String>(attributes, other.attributes));
   }
 
   @override

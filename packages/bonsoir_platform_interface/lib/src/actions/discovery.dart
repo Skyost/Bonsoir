@@ -29,4 +29,7 @@ class MethodChannelBonsoirDiscoveryAction extends MethodChannelBonsoirAction<Bon
 
   @override
   Future<void> resolveService(BonsoirService service) => invokeMethod('resolveService', service.toJson(prefix: ''));
+
+  @override
+  Future<bool> supportsMdnsHostname() async => (await invokeMethod<bool>('supportsMdnsHostname')) == true;
 }
