@@ -165,9 +165,6 @@ class BonsoirServiceDiscovery: BonsoirAction {
                 if foundIndex != nil {
                     self.pendingDispatchSources.remove(at: foundIndex!)
                 }
-                
-                self.onSuccess(eventId: Generated.discoveryServiceResolveFailed, service: service, parameters: [])
-                self.stopResolution(sdRef: sdRef, remove: false)
             }
         })
 
@@ -224,8 +221,6 @@ class BonsoirServiceDiscovery: BonsoirAction {
                 }
 
                 self.pendingAddressResolution.removeValue(forKey: BonsoirServiceDiscovery.resolutionKey(for: sdRef))
-                self.onSuccess(eventId: Generated.discoveryServiceResolveFailed, service: service, parameters: [])
-                self.stopResolution(sdRef: sdRef, remove: true)
             }
         })
 
@@ -299,7 +294,7 @@ class BonsoirServiceDiscovery: BonsoirAction {
     }
 
     /// Callback triggered by `DNSServiceGetAddrInfo`.
-    private static let addressResolveCallback: DNSServiceGetAddrInfoReply = { sdRef, _, _, errorCode, _, address, _, context in
+    private static let addressResolveCallback: DNSServiceGetAddrInfoReply = { sdRef, flags, _, errorCode, _, address, _, context in
         let discovery = Unmanaged<BonsoirServiceDiscovery>.fromOpaque(context!).takeUnretainedValue()
 
         DispatchQueue.main.async {
@@ -309,17 +304,22 @@ class BonsoirServiceDiscovery: BonsoirAction {
                 return
             }
 
+            let hasMoreResults = (flags & DNSServiceFlags(kDNSServiceFlagsMoreComing)) != 0
             if errorCode == kDNSServiceErr_NoError, address != nil, let resolvedAddress = BonsoirServiceDiscovery.ipAddress(from: address!) {
                 if !service.hostAddresses.contains(resolvedAddress) {
                     service.hostAddresses.append(resolvedAddress)
                 }
-                discovery.onSuccess(eventId: Generated.discoveryServiceResolved, service: service)
-            } else {
+            } else if service.hostAddresses.isEmpty && !hasMoreResults {
                 discovery.onSuccess(eventId: Generated.discoveryServiceResolveFailed, service: service, parameters: [errorCode])
             }
 
-            discovery.pendingAddressResolution.removeValue(forKey: resolutionKey)
-            discovery.stopResolution(sdRef: sdRef, remove: sdRef != nil)
+            if !hasMoreResults {
+                if !service.hostAddresses.isEmpty {
+                    discovery.onSuccess(eventId: Generated.discoveryServiceResolved, service: service)
+                }
+                discovery.pendingAddressResolution.removeValue(forKey: resolutionKey)
+                discovery.stopResolution(sdRef: sdRef, remove: sdRef != nil)
+            }
         }
     }
 
