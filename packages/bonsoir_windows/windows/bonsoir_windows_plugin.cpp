@@ -39,7 +39,7 @@ namespace bonsoir_windows {
       for (auto const &[key, value] : encodedAttributes) {
         attributes.insert({std::get<std::string>(key), std::get<std::string>(value)});
       }
-      auto hostValue = arguments->find(EncodableValue("service.host"));
+      auto hostValue = arguments->find(EncodableValue("service.hostAddress"));
       std::optional<std::string> host;
       if (hostValue == arguments->end() || hostValue->second.IsNull()) {
         host = std::optional<std::string>();

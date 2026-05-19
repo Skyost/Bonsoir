@@ -35,7 +35,7 @@ namespace bonsoir_windows {
     propertyKeys.push_back(nullptr);
     propertyValues.push_back(nullptr);
 
-    std::wstring host = servicePtr->hostname.has_value() ? toUtf16(servicePtr->hostname.value()) : (servicePtr->host.has_value() ? toUtf16(servicePtr->host.value()) : (getComputerName() + L".local"));
+    std::wstring host = servicePtr->hostname.has_value() ? toUtf16(servicePtr->hostname.value()) : (servicePtr->hostAddress.has_value() ? toUtf16(servicePtr->hostAddress.value()) : (getComputerName() + L".local"));
     PDNS_SERVICE_INSTANCE serviceInstance = DnsServiceConstructInstance(
       toUtf16(servicePtr->name + "." + servicePtr->type + ".local").c_str(),
       host.c_str(),

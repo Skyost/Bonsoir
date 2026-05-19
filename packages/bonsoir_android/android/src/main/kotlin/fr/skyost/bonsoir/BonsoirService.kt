@@ -25,7 +25,7 @@ private fun NsdServiceInfo.getHostnameCompat(): String? {
  * @param name The service name.
  * @param type The service type.
  * @param port The service port.
- * @param host The service host.
+ * @param hostAddress The service host address.
  * @param hostname The service mDNS hostname.
  * @param attributes The service attributes.
  */
@@ -33,7 +33,7 @@ data class BonsoirService(
     var name: String,
     val type: String,
     var port: Int,
-    var host: String?,
+    var hostAddress: String?,
     var hostname: String?,
     var attributes: MutableMap<String, String>
 ) {
@@ -67,7 +67,7 @@ data class BonsoirService(
             "${prefix}name" to name,
             "${prefix}type" to type,
             "${prefix}port" to port,
-            "${prefix}host" to host,
+            "${prefix}hostAddress" to hostAddress,
             "${prefix}hostname" to hostname,
             "${prefix}attributes" to attributes,
         )
@@ -84,8 +84,8 @@ data class BonsoirService(
             serviceType = type
             port = this@BonsoirService.port
         }
-        if (host != null) {
-            service.host = InetAddress.getByName(host)
+        if (hostAddress != null) {
+            service.host = InetAddress.getByName(hostAddress)
         }
         for (entry in attributes.entries) {
             service.setAttribute(entry.key, entry.value)

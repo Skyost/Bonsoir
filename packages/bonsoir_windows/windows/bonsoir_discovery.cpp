@@ -137,8 +137,8 @@ namespace bonsoir_windows {
     }
     discovery->services.push_back(newServicePtr);
     if (servicePtr) {
-      if (!newServicePtr->host && servicePtr->host) {
-        newServicePtr->host = servicePtr->host;
+      if (!newServicePtr->hostAddress && servicePtr->hostAddress) {
+        newServicePtr->hostAddress = servicePtr->hostAddress;
       }
       if (!newServicePtr->hostname && servicePtr->hostname) {
         newServicePtr->hostname = servicePtr->hostname;
@@ -202,7 +202,7 @@ namespace bonsoir_windows {
       return;
     }
     if (serviceInstance) {
-      servicePtr->host = serviceInstanceIpAddress(serviceInstance);
+      servicePtr->hostAddress = serviceInstanceIpAddress(serviceInstance);
       if (serviceInstance->pszHostName != nullptr) {
         servicePtr->hostname = toUtf8(serviceInstance->pszHostName);
       }

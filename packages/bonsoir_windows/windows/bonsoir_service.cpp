@@ -9,11 +9,11 @@ namespace bonsoir_windows {
     std::string _name,
     std::string _type,
     int _port,
-    std::optional<std::string> _host,
+    std::optional<std::string> _hostAddress,
     std::optional<std::string> _hostname,
     std::map<std::string, std::string> _attributes
   )
-    : name(_name), type(_type), port(_port), host(_host), hostname(_hostname), attributes(_attributes) {}
+    : name(_name), type(_type), port(_port), hostAddress(_hostAddress), hostname(_hostname), attributes(_attributes) {}
 
   EncodableMap BonsoirService::toEncodable() {
     auto encodableAttributes = EncodableMap{};
@@ -26,9 +26,9 @@ namespace bonsoir_windows {
       {EncodableValue("service.port"), EncodableValue(port)},
       {EncodableValue("service.attributes"), encodableAttributes},
     };
-    if (host.has_value()) {
+    if (hostAddress.has_value()) {
       result.insert(
-        {EncodableValue("service.host"), EncodableValue(host.value())}
+        {EncodableValue("service.hostAddress"), EncodableValue(hostAddress.value())}
       );
     }
     if (hostname.has_value()) {
@@ -48,11 +48,11 @@ namespace bonsoir_windows {
       attributes_string = attributes_string.substr(0, attributes_string.length() - 2);
     }
     attributes_string += "}";
-    return "{name=" + name + ", type=" + type + ", port=" + std::to_string(port) + ", host=" + host.value_or("NULL") + ", hostname=" + hostname.value_or("NULL") + ", attributes=" + attributes_string + "}";
+    return "{name=" + name + ", type=" + type + ", port=" + std::to_string(port) + ", hostAddress=" + hostAddress.value_or("NULL") + ", hostname=" + hostname.value_or("NULL") + ", attributes=" + attributes_string + "}";
   }
 
   bool BonsoirService::operator==(const BonsoirService &other) const {
-    if (name != other.name || type != other.type || port != other.port || host != other.host || hostname != other.hostname) {
+    if (name != other.name || type != other.type || port != other.port || hostAddress != other.hostAddress || hostname != other.hostname) {
       return false;
     }
     return attributes.size() == other.attributes.size() && std::equal(attributes.begin(), attributes.end(), other.attributes.begin());

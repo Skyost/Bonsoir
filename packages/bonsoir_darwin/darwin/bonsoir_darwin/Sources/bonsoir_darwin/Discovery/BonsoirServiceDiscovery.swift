@@ -74,7 +74,7 @@ class BonsoirServiceDiscovery: BonsoirAction {
                     if service != nil {
                         break
                     }
-                    service = BonsoirService(name: name, type: type, port: 0, host: nil, attributes: [:])
+                    service = BonsoirService(name: name, type: type, port: 0, hostAddress: nil, attributes: [:])
                     if case .bonjour(let records) = result.metadata {
                         service!.attributes = records.dictionary
                     }
@@ -309,8 +309,8 @@ class BonsoirServiceDiscovery: BonsoirAction {
                 return
             }
 
-            if errorCode == kDNSServiceErr_NoError, address != nil, let host = BonsoirServiceDiscovery.ipAddress(from: address!) {
-                service.host = host
+            if errorCode == kDNSServiceErr_NoError, address != nil, let hostAddress = BonsoirServiceDiscovery.ipAddress(from: address!) {
+                service.hostAddress = hostAddress
                 discovery.onSuccess(eventId: Generated.discoveryServiceResolved, service: service)
             } else {
                 discovery.onSuccess(eventId: Generated.discoveryServiceResolveFailed, service: service, parameters: [errorCode])

@@ -42,7 +42,7 @@ class MethodCallHandler(
                     call.argument<String>("service.name")!!,
                     call.argument<String>("service.type")!!,
                     call.argument<Int>("service.port")!!,
-                    call.argument<String>("service.host"),
+                    call.argument<String>("service.hostAddress"),
                     call.argument<String>("service.hostname"),
                     call.argument<MutableMap<String, String>>("service.attributes")!!,
                 )

@@ -53,7 +53,7 @@ class BonsoirService {
 
   /// The service host address.
   ///
-  /// Your service should be reachable at the given host.
+  /// Your service should be reachable at the given host address.
   /// This should be an IP address when the platform provides one.
   /// This field may be null if the service has not been resolved yet.
   final String? hostAddress;
@@ -115,7 +115,7 @@ class BonsoirService {
   }) => BonsoirService.ignoreNorms(
     name: json['${prefix}name'],
     type: json['${prefix}type'],
-    hostAddress: json['${prefix}host'],
+    hostAddress: json['${prefix}hostAddress'],
     hostname: json['${prefix}hostname'],
     port: json['${prefix}port'],
     attributes: Map<String, String>.from(json['${prefix}attributes']),
@@ -125,7 +125,7 @@ class BonsoirService {
   Map<String, dynamic> toJson({String prefix = 'service.'}) => {
     '${prefix}name': name,
     '${prefix}type': type,
-    if (hostAddress != null) '${prefix}host': hostAddress,
+    if (hostAddress != null) '${prefix}hostAddress': hostAddress,
     if (hostname != null) '${prefix}hostname': hostname,
     '${prefix}port': port,
     '${prefix}attributes': attributes,
@@ -136,25 +136,25 @@ class BonsoirService {
     String? name,
     String? type,
     int? port,
-    String? host,
+    String? hostAddress,
     String? hostname,
     Map<String, String>? attributes,
   }) => BonsoirService.ignoreNorms(
     name: name ?? this.name,
     type: type ?? this.type,
-    hostAddress: host ?? this.hostAddress,
+    hostAddress: hostAddress ?? this.hostAddress,
     hostname: hostname ?? this.hostname,
     port: port ?? this.port,
     attributes: attributes ?? this.attributes,
   );
 
-  /// Overwrites the service host.
-  BonsoirService overwriteHost({
-    String? host,
+  /// Overwrites the service host address.
+  BonsoirService overwriteHostAddress({
+    String? hostAddress,
   }) => BonsoirService.ignoreNorms(
     name: name,
     type: type,
-    hostAddress: host,
+    hostAddress: hostAddress,
     hostname: hostname,
     port: port,
     attributes: attributes,

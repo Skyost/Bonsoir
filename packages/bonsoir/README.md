@@ -88,9 +88,11 @@ await discovery.stop();
 If you want a <q>full</q> example, don't hesitate to check [this one](https://github.com/Skyost/Bonsoir/tree/main/packages/bonsoir/example) on Github.
 
 > [!NOTE]
-> When a discovered service is resolved, `BonsoirService.host` contains the
+> When a discovered service is resolved, `BonsoirService.hostAddress` contains the
 network address exposed by the platform, while `BonsoirService.hostname`
 contains the mDNS/SRV target hostname when the platform provides one.
+> You can check whether your platform supports mDNS/SRV hostname resolution
+by checking the `BonsoirDiscovery.supportsMdnsHostname` property.
 
 ## Contributions
 
