@@ -114,7 +114,14 @@ namespace bonsoir_windows {
       }
       return;
     }
-    std::shared_ptr<BonsoirService> newServicePtr = std::make_shared<BonsoirService>(name, type, 0, std::nullopt, std::nullopt, std::map<std::string, std::string>());
+    std::shared_ptr<BonsoirService> newServicePtr = std::make_shared<BonsoirService>(
+      name,
+      type,
+      0,
+      std::vector<std::string>(),
+      std::nullopt,
+      std::map<std::string, std::string>()
+    );
     PDNS_RECORD txtRecord = dnsRecord;
     while (txtRecord != nullptr) {
       if (txtRecord->wType == DNS_TYPE_TEXT) {
