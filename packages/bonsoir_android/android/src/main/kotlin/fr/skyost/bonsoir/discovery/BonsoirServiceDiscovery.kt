@@ -10,10 +10,11 @@ import fr.skyost.bonsoir.Generated
 import io.flutter.plugin.common.BinaryMessenger
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.cancel
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentLinkedQueue
+import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.coroutines.CoroutineContext
@@ -57,8 +58,10 @@ class BonsoirServiceDiscovery(
         private val resolveQueue = ConcurrentLinkedQueue<Pair<BonsoirService, BonsoirDiscoveryResolveListener>>()
     }
 
+    private val scopeJob = SupervisorJob()
+
     override val coroutineContext: CoroutineContext
-        get() = Dispatchers.IO
+        get() = Dispatchers.IO + scopeJob
 
     /**
      * Contains all discovered services.
@@ -69,6 +72,11 @@ class BonsoirServiceDiscovery(
      * Contains all active callbacks.
      */
     private val activeCallbacks = ConcurrentHashMap<String, NsdManager.ServiceInfoCallback>()
+
+    /**
+     * Executor used by service info callbacks.
+     */
+    private val serviceInfoCallbackExecutor: ExecutorService = Executors.newSingleThreadExecutor()
 
     /**
      * Starts the discovery.
@@ -132,14 +140,15 @@ class BonsoirServiceDiscovery(
         val bonsoirService = findService(service)
         if (bonsoirService != null) {
             services.remove(bonsoirService)
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && SdkExtensions.getExtensionVersion(Build.VERSION_CODES.TIRAMISU) >= 7 && activeCallbacks.containsKey(bonsoirService.name)) {
-                val callback = activeCallbacks[bonsoirService.name]!!
+            val callbackKey = callbackKey(bonsoirService)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && SdkExtensions.getExtensionVersion(Build.VERSION_CODES.TIRAMISU) >= 7 && activeCallbacks.containsKey(callbackKey)) {
+                val callback = activeCallbacks[callbackKey]!!
                 try {
                     nsdManager.unregisterServiceInfoCallback(callback)
                 } catch (ex: Exception) {
                     ex.printStackTrace()
                 }
-                activeCallbacks.remove(bonsoirService.name)
+                activeCallbacks.remove(callbackKey)
             }
             onSuccess(Generated.discoveryServiceLost, bonsoirService)
         }
@@ -183,20 +192,14 @@ class BonsoirServiceDiscovery(
      * @param txtRecord The TXT record data instance.
      */
     private fun onServiceTxtRecordFound(service: BonsoirService, txtRecord: TxtRecordData) {
-        // Text record should be applied to the service specified by txtRecord.fqdn, not the service that sent the message
-        val txtRecordServiceName: String? = txtRecord.fqdn?.split(".", limit = 2)?.get(0)
-        if(txtRecordServiceName == null) {
-            return;
-        }
-        services.forEach {
-            if(it.name == txtRecordServiceName && it.attributes != txtRecord.dictionary) {
-                log(
-                    logMessages[Generated.discoveryTxtResolved]!!,
-                    listOf(it, txtRecord.dictionary)
-                )
-                it.attributes = txtRecord.dictionary
-                onSuccess(Generated.discoveryServiceUpdated, it)
-            }
+        val currentService = findService(service.name, service.type) ?: return
+        if (currentService.attributes != txtRecord.dictionary) {
+            log(
+                logMessages[Generated.discoveryTxtResolved]!!,
+                listOf(currentService, txtRecord.dictionary)
+            )
+            currentService.attributes = txtRecord.dictionary
+            onSuccess(Generated.discoveryServiceUpdated, currentService)
         }
     }
 
@@ -242,19 +245,20 @@ class BonsoirServiceDiscovery(
                 bonsoirService.attributes = resolvedBonsoirService.attributes
                 onSuccess(Generated.discoveryServiceResolved, bonsoirService)
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && SdkExtensions.getExtensionVersion(Build.VERSION_CODES.TIRAMISU) >= 7) {
-                    if (activeCallbacks.containsKey(bonsoirService.name)) {
-                        val callback = activeCallbacks[bonsoirService.name]!!
+                    val callbackKey = callbackKey(bonsoirService)
+                    if (activeCallbacks.containsKey(callbackKey)) {
+                        val callback = activeCallbacks[callbackKey]!!
                         try {
                             nsdManager.unregisterServiceInfoCallback(callback)
                         } catch (ex: Exception) {
                             ex.printStackTrace()
                         }
-                        activeCallbacks.remove(bonsoirService.name)
+                        activeCallbacks.remove(callbackKey)
                     }
                     val serviceInfoCallback = object : NsdManager.ServiceInfoCallback {
                         override fun onServiceInfoCallbackRegistrationFailed(error: Int) {
                             onError("Failed to register service info callback (error $error).", listOf(error))
-                            activeCallbacks.remove(bonsoirService.name)
+                            activeCallbacks.remove(callbackKey)
                         }
 
                         override fun onServiceUpdated(service: NsdServiceInfo) {
@@ -271,16 +275,16 @@ class BonsoirServiceDiscovery(
                         }
 
                         override fun onServiceInfoCallbackUnregistered() {
-                            activeCallbacks.remove(bonsoirService.name)
+                            activeCallbacks.remove(callbackKey)
                         }
                     }
-                    activeCallbacks[bonsoirService.name] = serviceInfoCallback
+                    activeCallbacks[callbackKey] = serviceInfoCallback
                     nsdManager.registerServiceInfoCallback(
                         NsdServiceInfo().apply {
                             serviceName = bonsoirService.name
                             serviceType = bonsoirService.type
                         },
-                        Executors.newSingleThreadExecutor(),
+                        serviceInfoCallbackExecutor,
                         serviceInfoCallback,
                     )
                 }
@@ -323,8 +327,12 @@ class BonsoirServiceDiscovery(
         }, listener)
     }
 
+    private fun callbackKey(service: BonsoirService): String {
+        return "${service.name}.${service.type}"
+    }
+
     override fun stop() {
-        coroutineContext.cancel()
+        scopeJob.cancel()
         nsdManager.stopServiceDiscovery(this)
     }
 
@@ -339,6 +347,7 @@ class BonsoirServiceDiscovery(
             }
         }
         activeCallbacks.clear()
+        serviceInfoCallbackExecutor.shutdownNow()
         val iterator = resolveQueue.iterator()
         while (iterator.hasNext()) {
             if (iterator.next().second.discoveryId == id) {
