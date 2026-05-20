@@ -5,7 +5,6 @@ import 'package:bonsoir_linux/src/actions/discovery/discovery.dart';
 import 'package:bonsoir_linux/src/avahi/constants.dart';
 import 'package:bonsoir_linux/src/avahi/record_browser.dart';
 import 'package:bonsoir_linux/src/avahi/server.dart';
-import 'package:bonsoir_linux/src/avahi/service_browser.dart';
 import 'package:bonsoir_linux/src/service.dart';
 import 'package:bonsoir_platform_interface/bonsoir_platform_interface.dart';
 import 'package:dbus/dbus.dart';
@@ -48,13 +47,13 @@ class AvahiDiscoveryLegacy extends AvahiHandler {
   }
 
   @override
-  Future<void> resolveService(AvahiBonsoirDiscovery discovery, BonsoirService service, AvahiServiceBrowserItemNew event) async {
+  Future<void> resolveService(AvahiBonsoirDiscovery discovery, BonsoirService service, ServiceNetworkInfo network) async {
     await _server.callServiceResolverNew(
-      interface: event.interfaceValue,
-      protocol: event.protocol,
-      name: event.serviceName,
-      type: event.type,
-      domain: event.domain,
+      interface: network.interface,
+      protocol: network.protocol,
+      name: service.name,
+      type: service.type,
+      domain: network.domain,
       aprotocol: AvahiProtocolUnspecified,
       flags: 0,
     );

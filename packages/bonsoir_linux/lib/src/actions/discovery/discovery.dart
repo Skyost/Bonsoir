@@ -29,7 +29,7 @@ class AvahiBonsoirDiscovery extends AvahiBonsoirAction<BonsoirDiscoveryEvent> wi
   AvahiHandler? _avahiHandler;
 
   /// Contains all found services.
-  final Map<BonsoirService, AvahiServiceBrowserItemNew> _foundServices = {};
+  final Map<BonsoirService, ServiceNetworkInfo> _foundServices = {};
 
   /// Contains all record browsers.
   final List<AvahiRecordBrowser> _recordBrowsers = [];
@@ -141,9 +141,9 @@ class AvahiBonsoirDiscovery extends AvahiBonsoirAction<BonsoirDiscoveryEvent> wi
 
   /// Finds a service amongst found services.
   BonsoirService? _findService(String name, [String? type]) {
-    for (MapEntry<BonsoirService, AvahiServiceBrowserItemNew> entry in _foundServices.entries) {
-      if (entry.key.name == name && (type == null || entry.key.type == type)) {
-        return entry.key;
+    for (BonsoirService service in _foundServices.keys) {
+      if (service.name == name && (type == null || service.type == type)) {
+        return service;
       }
     }
     return null;
@@ -165,7 +165,7 @@ class AvahiBonsoirDiscovery extends AvahiBonsoirAction<BonsoirDiscoveryEvent> wi
       );
       isNew = true;
     }
-    _foundServices[service] = event;
+    _foundServices[service] = ServiceNetworkInfo.fromAvahiServiceBrowserItemNew(event);
     if (isNew) {
       onEvent(
         BonsoirDiscoveryServiceFoundEvent(service: service),
@@ -208,6 +208,10 @@ class AvahiBonsoirDiscovery extends AvahiBonsoirAction<BonsoirDiscoveryEvent> wi
         }),
       ),
     );
+    BonsoirService? currentService = _findService(event.serviceName, event.type);
+    if (currentService != null) {
+      _foundServices[service] = ServiceNetworkInfo.fromAvahiServiceResolverFound(event);
+    }
     onEvent(
       BonsoirDiscoveryServiceResolvedEvent(service: service),
       parameters: [service.description],
@@ -226,8 +230,8 @@ class AvahiBonsoirDiscovery extends AvahiBonsoirAction<BonsoirDiscoveryEvent> wi
   /// Triggered when a Bonsoir service TXT record has been found.
   void _onServiceTXTRecordFound(DBusSignal signal) {
     AvahiRecordBrowserItemNew event = AvahiRecordBrowserItemNew(signal);
-    (String, String)? serviceData = _parseBonjourFqdn(_unescapeAscii(event.recordName));
-    BonsoirService? service = serviceData == null ? null : _findService(serviceData.$1, serviceData.$2);
+    ({String name, String type})? serviceData = _parseBonjourFqdn(_unescapeAscii(event.recordName));
+    BonsoirService? service = serviceData == null ? null : _findService(serviceData.name, serviceData.type);
     if (service == null) {
       return;
     }
@@ -235,10 +239,10 @@ class AvahiBonsoirDiscovery extends AvahiBonsoirAction<BonsoirDiscoveryEvent> wi
     Map<String, String> attributes = _parseTXTRecordData(event.rdata);
     if (!mapEquals(service.attributes, attributes)) {
       log(logMessages['discoveryTxtResolved']!, parameters: [service.description, attributes]);
-      AvahiServiceBrowserItemNew serviceEvent = _foundServices[service]!;
+      ServiceNetworkInfo networkInfo = _foundServices[service]!;
       _foundServices.remove(service);
       service = service.copyWith(attributes: attributes);
-      _foundServices[service] = serviceEvent;
+      _foundServices[service] = networkInfo;
       onEvent(
         BonsoirDiscoveryServiceUpdatedEvent(service: service),
         parameters: [service.description],
@@ -281,7 +285,7 @@ class AvahiBonsoirDiscovery extends AvahiBonsoirAction<BonsoirDiscoveryEvent> wi
   }
 
   /// Parses a Bonjour FQDN.
-  (String, String)? _parseBonjourFqdn(String fqdn) {
+  ({String name, String type})? _parseBonjourFqdn(String fqdn) {
     final RegExp regex = RegExp(r'^(.*?)\._(.*?)\.?(?:local)?\.?$');
     final Match? match = regex.firstMatch(fqdn);
 
@@ -289,7 +293,7 @@ class AvahiBonsoirDiscovery extends AvahiBonsoirAction<BonsoirDiscoveryEvent> wi
       final serviceName = match.group(1)?.trim() ?? '';
       final serviceType = '_${match.group(2)}';
 
-      return (serviceName, serviceType);
+      return (name: serviceName, type: serviceType);
     }
 
     return null;
@@ -363,5 +367,40 @@ abstract class AvahiHandler {
   Future<AvahiRecordBrowser> createAvahiRecordBrowser(AvahiBonsoirDiscovery discovery, BonsoirService service);
 
   /// Resolves a service using its event.
-  Future<void> resolveService(AvahiBonsoirDiscovery discovery, BonsoirService service, AvahiServiceBrowserItemNew event);
+  Future<void> resolveService(AvahiBonsoirDiscovery discovery, BonsoirService service, ServiceNetworkInfo network);
+}
+
+/// Contains network info about a Bonsoir service.
+class ServiceNetworkInfo {
+  /// The interface.
+  final int interface;
+
+  /// The protocol.
+  final int protocol;
+
+  /// The domain.
+  final String domain;
+
+  /// Creates a new Bonsoir service resolution data.
+  const ServiceNetworkInfo({
+    required this.interface,
+    required this.protocol,
+    required this.domain,
+  });
+
+  /// Creates a Bonsoir service resolution data from an Avahi service browser item new event.
+  ServiceNetworkInfo.fromAvahiServiceBrowserItemNew(AvahiServiceBrowserItemNew event)
+    : this(
+        interface: event.interfaceValue,
+        protocol: event.protocol,
+        domain: event.domain,
+      );
+
+  /// Creates a Bonsoir service resolution data from an Avahi service resolver found event.
+  ServiceNetworkInfo.fromAvahiServiceResolverFound(AvahiServiceResolverFound event)
+    : this(
+        interface: event.interfaceValue,
+        protocol: event.protocol,
+        domain: event.domain,
+      );
 }
