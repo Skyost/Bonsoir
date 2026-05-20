@@ -110,7 +110,7 @@ class _BroadcastPromptDialogState extends State<BroadcastPromptDialog> {
               onPressed: () {
                 setState(() => attributes[TextEditingController()] = TextEditingController());
               },
-              label: Text('Add new attribute'),
+              label: const Text('Add new attribute'),
             ),
           ),
         ],
@@ -119,7 +119,7 @@ class _BroadcastPromptDialogState extends State<BroadcastPromptDialog> {
     actions: [
       TextButton(
         onPressed: () => Navigator.pop(context),
-        child: Text('Cancel'),
+        child: const Text('Cancel'),
       ),
       TextButton(
         onPressed: () => Navigator.pop(
@@ -131,7 +131,7 @@ class _BroadcastPromptDialogState extends State<BroadcastPromptDialog> {
             attributes: attributes.map((key, value) => MapEntry(key.text, value.text)),
           ),
         ),
-        child: Text('Ok'),
+        child: const Text('Ok'),
       ),
     ],
   );
