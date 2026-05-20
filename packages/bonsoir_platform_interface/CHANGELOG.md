@@ -4,7 +4,7 @@
 
  - **FEAT**: Support multiple host addresses for services. ([abb9d22f](https://github.com/Skyost/Bonsoir/commit/abb9d22fd512e637482c958e46938af2af3bde5d))
  - **FEAT**: Added `hostname` property to `BonsoirService`. ([8e43270b](https://github.com/Skyost/Bonsoir/commit/8e43270b862bef8527da9e436bfeed8d333cda35))
- - **DOCS**: Clarify hostname documentation in `BonsoirService`. ([ad23d072](https://github.com/Skyost/Bonsoir/commit/ad23d072db5cdd928751632b7f9e0f506dba2317))
+ - **DOCS**: Clarified hostname documentation in `BonsoirService`. ([ad23d072](https://github.com/Skyost/Bonsoir/commit/ad23d072db5cdd928751632b7f9e0f506dba2317))
  - **BREAKING** **REFACTOR**: Renamed `host` into `hostAddress` in remaining implementations. ([45776c9b](https://github.com/Skyost/Bonsoir/commit/45776c9bda71bd6c9002ee31ee5e63d3980df097))
  - **BREAKING** **FEAT**: Added mDNS hostname support check and renamed service host field. ([b374678b](https://github.com/Skyost/Bonsoir/commit/b374678bdc1578cf7bbfae1055251cff5a3a24c3))
 

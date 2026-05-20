@@ -7,8 +7,8 @@
  - **FEAT**: Support multiple host addresses for services. ([abb9d22f](https://github.com/Skyost/Bonsoir/commit/abb9d22fd512e637482c958e46938af2af3bde5d))
  - **FEAT**: Added `hostname` property to `BonsoirService`. ([8e43270b](https://github.com/Skyost/Bonsoir/commit/8e43270b862bef8527da9e436bfeed8d333cda35))
  - **DOCS**(readme): Added timetout in example code snippet. ([b8a1f39b](https://github.com/Skyost/Bonsoir/commit/b8a1f39b2635388d2a8da61b3f1138cbc73fd79c))
- - **DOCS**: Clarify hostname resolution and usage in documentation. ([ac484c9e](https://github.com/Skyost/Bonsoir/commit/ac484c9e51c8f99cfe98c7a2c6b4fab104f12c56))
- - **DOCS**(readme): add timetout in example code snippet. ([1e0bf381](https://github.com/Skyost/Bonsoir/commit/1e0bf38197e3f615f31ce608d96df8f9b43dac41))
+ - **DOCS**: Clarified hostname resolution and usage in documentation. ([ac484c9e](https://github.com/Skyost/Bonsoir/commit/ac484c9e51c8f99cfe98c7a2c6b4fab104f12c56))
+ - **DOCS**(readme): Added timetout in example code snippet. ([1e0bf381](https://github.com/Skyost/Bonsoir/commit/1e0bf38197e3f615f31ce608d96df8f9b43dac41))
  - **BREAKING** **REFACTOR**: Renamed `host` into `hostAddress` in remaining implementations. ([45776c9b](https://github.com/Skyost/Bonsoir/commit/45776c9bda71bd6c9002ee31ee5e63d3980df097))
  - **BREAKING** **FEAT**: Added mDNS hostname support check and renamed service host field. ([b374678b](https://github.com/Skyost/Bonsoir/commit/b374678bdc1578cf7bbfae1055251cff5a3a24c3))
 
