@@ -66,7 +66,7 @@
 ## 4.0.0
 
 * Removed the dependence on the native `NetService` library.
-* `service.ip` is now `service.host`.
+* `service.ip` is now `service.hostAddresses`.
 
 ## 3.0.0
 

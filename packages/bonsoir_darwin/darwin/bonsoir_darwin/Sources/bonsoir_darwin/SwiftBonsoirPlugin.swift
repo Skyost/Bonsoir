@@ -41,9 +41,12 @@ public class SwiftBonsoirPlugin: NSObject, FlutterPlugin {
         let id = arguments["id"] as! Int
         switch call.method {
         case "broadcast.initialize":
-            let service = BonsoirService(name: arguments["service.name"] as! String, type: arguments["service.type"] as! String, port: arguments["service.port"] as! Int, host: nil, attributes: arguments["service.attributes"] as! [String: String])
-            if let host = arguments["service.host"] as? String? {
-                service.host = host
+            let service = BonsoirService(name: arguments["service.name"] as! String, type: arguments["service.type"] as! String, port: arguments["service.port"] as! Int, hostAddresses: [], attributes: arguments["service.attributes"] as! [String: String])
+            if let hostAddresses = arguments["service.hostAddresses"] as? [String] {
+                service.hostAddresses = hostAddresses
+            }
+            if let hostname = arguments["service.hostname"] as? String? {
+                service.hostname = hostname
             }
             broadcasts[id] = BonsoirServiceBroadcast(id: id, printLogs: arguments["printLogs"] as! Bool, onDispose: {
                 self.broadcasts.removeValue(forKey: id)
@@ -66,6 +69,8 @@ public class SwiftBonsoirPlugin: NSObject, FlutterPlugin {
         case "discovery.resolveService":
             let resolveStarted: Bool = discoveries[id]?.resolveService(name: arguments["name"] as! String, type: arguments["type"] as! String) ?? false
             result(resolveStarted)
+        case "discovery.supportsMdnsHostname":
+            result(true)
         case "discovery.stop":
             discoveries[id]?.dispose()
             result(discoveries[id] != nil)

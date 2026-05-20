@@ -39,18 +39,27 @@ namespace bonsoir_windows {
       for (auto const &[key, value] : encodedAttributes) {
         attributes.insert({std::get<std::string>(key), std::get<std::string>(value)});
       }
-      auto hostValue = arguments->find(EncodableValue("service.host"));
-      std::optional<std::string> host;
-      if (hostValue == arguments->end() || hostValue->second.IsNull()) {
-        host = std::optional<std::string>();
+      std::vector<std::string> hostAddresses = std::vector<std::string>();
+      auto hostAddressesValue = arguments->find(EncodableValue("service.hostAddresses"));
+      if (hostAddressesValue != arguments->end() && !hostAddressesValue->second.IsNull()) {
+        EncodableList encodedHostAddresses = std::get<EncodableList>(hostAddressesValue->second);
+        for (auto const &address : encodedHostAddresses) {
+          hostAddresses.push_back(std::get<std::string>(address));
+        }
+      }
+      auto hostnameValue = arguments->find(EncodableValue("service.hostname"));
+      std::optional<std::string> hostname;
+      if (hostnameValue == arguments->end() || hostnameValue->second.IsNull()) {
+        hostname = std::optional<std::string>();
       } else {
-        host = std::get<std::string>(hostValue->second);
+        hostname = std::get<std::string>(hostnameValue->second);
       }
       std::unique_ptr<BonsoirService> servicePtr = std::make_unique<BonsoirService>(
         std::get<std::string>(arguments->find(EncodableValue("service.name"))->second),
         std::get<std::string>(arguments->find(EncodableValue("service.type"))->second),
         std::get<int>(arguments->find(EncodableValue("service.port"))->second),
-        host,
+        hostAddresses,
+        hostname,
         attributes
       );
       broadcasts[id] = std::make_unique<BonsoirBroadcast>(
@@ -74,8 +83,10 @@ namespace bonsoir_windows {
         result->Success(EncodableValue(false));
         return;
       }
-      broadcasts.erase(id);
-      // iterator->second->dispose();
+      iterator->second->stop();
+      iterator->second->disposeAfterStreamCancel([this](int stoppedId) {
+        broadcasts.erase(stoppedId);
+      });
       result->Success(EncodableValue(true));
     } else if (method.compare("discovery.initialize") == 0) {
       discoveries[id] = std::make_unique<BonsoirDiscovery>(
@@ -104,14 +115,18 @@ namespace bonsoir_windows {
         std::get<std::string>(arguments->find(EncodableValue("type"))->second)
       );
       result->Success(EncodableValue(true));
+    } else if (method.compare("discovery.supportsMdnsHostname") == 0) {
+      result->Success(EncodableValue(true));
     } else if (method.compare("discovery.stop") == 0) {
       auto iterator = discoveries.find(id);
       if (iterator == discoveries.end()) {
         result->Success(EncodableValue(false));
         return;
       }
-      discoveries.erase(id);
-      // iterator->second->dispose();
+      iterator->second->stop();
+      iterator->second->disposeAfterStreamCancel([this](int stoppedId) {
+        discoveries.erase(stoppedId);
+      });
       result->Success(EncodableValue(true));
     } else {
       result->NotImplemented();

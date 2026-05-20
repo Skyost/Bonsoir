@@ -13,18 +13,22 @@ class BonsoirService: NSObject {
     /// The response service port.
     var port: Int
     
-    /// The response service name.
-    var host: String?
+    /// The response service host addresses.
+    var hostAddresses: [String]
+    
+    /// The response service mDNS hostname.
+    var hostname: String?
     
     /// The response service name.
     var attributes: [String: String]
     
     /// Creates a new service instance.
-    public init(name: String, type: String, port: Int, host: String?, attributes: [String: String]) {
+    public init(name: String, type: String, port: Int, hostAddresses: [String] = [], hostname: String? = nil, attributes: [String: String]) {
         self.name = name
         self.type = type
         self.port = port
-        self.host = host
+        self.hostAddresses = hostAddresses
+        self.hostname = hostname
         self.attributes = attributes
     }
 
@@ -34,7 +38,8 @@ class BonsoirService: NSObject {
             "\(prefix)name": name,
             "\(prefix)type": type,
             "\(prefix)port": port,
-            "\(prefix)host": host,
+            "\(prefix)hostAddresses": hostAddresses,
+            "\(prefix)hostname": hostname,
             "\(prefix)attributes": attributes
         ]
     }

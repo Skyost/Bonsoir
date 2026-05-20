@@ -5,7 +5,6 @@ import 'package:bonsoir_linux/src/actions/discovery/discovery.dart';
 import 'package:bonsoir_linux/src/avahi/constants.dart';
 import 'package:bonsoir_linux/src/avahi/record_browser.dart';
 import 'package:bonsoir_linux/src/avahi/server2.dart';
-import 'package:bonsoir_linux/src/avahi/service_browser.dart';
 import 'package:bonsoir_linux/src/avahi/service_resolver.dart';
 import 'package:bonsoir_linux/src/service.dart';
 import 'package:bonsoir_platform_interface/bonsoir_platform_interface.dart';
@@ -28,8 +27,8 @@ class AvahiDiscoveryV2 extends AvahiHandler {
 
   @override
   Future<String> getAvahiServiceBrowserPath(String serviceType) => _server.callServiceBrowserPrepare(
-    AvahiIfIndexUnspecified,
-    AvahiProtocolUnspecified,
+    avahiIfIndexUnspecified,
+    avahiProtocolUnspecified,
     serviceType,
     '',
     0,
@@ -38,8 +37,8 @@ class AvahiDiscoveryV2 extends AvahiHandler {
   @override
   Future<AvahiRecordBrowser> createAvahiRecordBrowser(AvahiBonsoirDiscovery discovery, BonsoirService service) async {
     String recordBrowserPath = await _server.callRecordBrowserPrepare(
-      AvahiIfIndexUnspecified,
-      AvahiProtocolUnspecified,
+      avahiIfIndexUnspecified,
+      avahiProtocolUnspecified,
       service.fqdn,
       0x01,
       0x10,
@@ -49,14 +48,14 @@ class AvahiDiscoveryV2 extends AvahiHandler {
   }
 
   @override
-  Future<void> resolveService(AvahiBonsoirDiscovery discovery, BonsoirService service, AvahiServiceBrowserItemNew event) async {
+  Future<void> resolveService(AvahiBonsoirDiscovery discovery, BonsoirService service, ServiceNetworkInfo network) async {
     String serviceResolverPath = await _server.callServiceResolverPrepare(
-      event.interfaceValue,
-      event.protocol,
-      event.serviceName,
-      event.type,
-      event.domain,
-      AvahiProtocolUnspecified,
+      network.interface,
+      network.protocol,
+      service.name,
+      service.type,
+      network.domain,
+      avahiProtocolUnspecified,
       0,
     );
     AvahiServiceResolver resolver = AvahiServiceResolver(busClient, BonsoirLinux.avahi, DBusObjectPath(serviceResolverPath));

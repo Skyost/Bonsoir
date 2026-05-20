@@ -25,37 +25,18 @@ class AvahiServiceResolverFound extends DBusSignal {
 
   int get port => (values[8] as DBusUint16).value;
 
-  List<String> get txt => (values[9] as DBusArray)
-      .children
-      .map((child) => (child as DBusArray)
-          .children
-          .map((child) => (child as DBusByte).value)
-          .toList())
-      .map((e) => utf8.decode(e))
-      .toList();
+  List<String> get txt => (values[9] as DBusArray).children.map((child) => (child as DBusArray).children.map((child) => (child as DBusByte).value).toList()).map((e) => utf8.decode(e)).toList();
 
   int get flags => (values[10] as DBusUint32).value;
 
-  AvahiServiceResolverFound(DBusSignal signal)
-      : super(
-            sender: signal.sender,
-            path: signal.path,
-            interface: signal.interface,
-            name: signal.name,
-            values: signal.values);
+  AvahiServiceResolverFound(DBusSignal signal) : super(sender: signal.sender, path: signal.path, interface: signal.interface, name: signal.name, values: signal.values);
 }
 
 /// Signal data for org.freedesktop.Avahi.ServiceResolver.Failure.
 class AvahiServiceResolverFailure extends DBusSignal {
   String get error => (values[0] as DBusString).value;
 
-  AvahiServiceResolverFailure(DBusSignal signal)
-      : super(
-            sender: signal.sender,
-            path: signal.path,
-            interface: signal.interface,
-            name: signal.name,
-            values: signal.values);
+  AvahiServiceResolverFailure(DBusSignal signal) : super(sender: signal.sender, path: signal.path, interface: signal.interface, name: signal.name, values: signal.values);
 }
 
 class AvahiServiceResolver extends DBusRemoteObject {
@@ -65,56 +46,50 @@ class AvahiServiceResolver extends DBusRemoteObject {
   /// Stream of org.freedesktop.Avahi.ServiceResolver.Failure signals.
   late final Stream<AvahiServiceResolverFailure> failure;
 
-  AvahiServiceResolver(
-      DBusClient client, String destination, DBusObjectPath path)
-      : super(client, name: destination, path: path) {
+  AvahiServiceResolver(super.client, String destination, DBusObjectPath path) : super(name: destination, path: path) {
     found = DBusRemoteObjectSignalStream(
-            object: this,
-            interface: 'org.freedesktop.Avahi.ServiceResolver',
-            name: 'Found',
-            signature: DBusSignature('iissssisqaayu'))
-        .asBroadcastStream()
-        .map((signal) => AvahiServiceResolverFound(signal));
+      object: this,
+      interface: 'org.freedesktop.Avahi.ServiceResolver',
+      name: 'Found',
+      signature: DBusSignature('iissssisqaayu'),
+    ).asBroadcastStream().map(AvahiServiceResolverFound.new);
 
     failure = DBusRemoteObjectSignalStream(
-            object: this,
-            interface: 'org.freedesktop.Avahi.ServiceResolver',
-            name: 'Failure',
-            signature: DBusSignature('s'))
-        .asBroadcastStream()
-        .map((signal) => AvahiServiceResolverFailure(signal));
+      object: this,
+      interface: 'org.freedesktop.Avahi.ServiceResolver',
+      name: 'Failure',
+      signature: DBusSignature('s'),
+    ).asBroadcastStream().map(AvahiServiceResolverFailure.new);
   }
 
   /// Invokes org.freedesktop.DBus.Introspectable.Introspect()
-  Future<String> callIntrospect(
-      {bool noAutoStart = false,
-      bool allowInteractiveAuthorization = false}) async {
+  Future<String> callIntrospect({bool noAutoStart = false, bool allowInteractiveAuthorization = false}) async {
     var result = await callMethod(
-        'org.freedesktop.DBus.Introspectable', 'Introspect', [],
-        replySignature: DBusSignature('s'),
-        noAutoStart: noAutoStart,
-        allowInteractiveAuthorization: allowInteractiveAuthorization);
+      'org.freedesktop.DBus.Introspectable',
+      'Introspect',
+      [],
+      replySignature: DBusSignature('s'),
+      noAutoStart: noAutoStart,
+      allowInteractiveAuthorization: allowInteractiveAuthorization,
+    );
     return (result.returnValues[0] as DBusString).value;
   }
 
   /// Invokes org.freedesktop.Avahi.ServiceResolver.Free()
-  Future<void> callFree(
-      {bool noAutoStart = false,
-      bool allowInteractiveAuthorization = false}) async {
-    await callMethod('org.freedesktop.Avahi.ServiceResolver', 'Free', [],
-        replySignature: DBusSignature(''),
-        noAutoStart: noAutoStart,
-        allowInteractiveAuthorization: allowInteractiveAuthorization);
+  Future<void> callFree({bool noAutoStart = false, bool allowInteractiveAuthorization = false}) async {
+    await callMethod('org.freedesktop.Avahi.ServiceResolver', 'Free', [], replySignature: DBusSignature(''), noAutoStart: noAutoStart, allowInteractiveAuthorization: allowInteractiveAuthorization);
   }
 
   /// Invokes org.freedesktop.Avahi.ServiceResolver.Start()
-  Future<void> callStart(
-      {bool noAutoStart = false,
-      bool allowInteractiveAuthorization = false}) async {
-    await callMethod('org.freedesktop.Avahi.ServiceResolver', 'Start', [],
-        replySignature: DBusSignature(''),
-        noAutoStart: noAutoStart,
-        allowInteractiveAuthorization: allowInteractiveAuthorization,
-        noReplyExpected: true);
+  Future<void> callStart({bool noAutoStart = false, bool allowInteractiveAuthorization = false}) async {
+    await callMethod(
+      'org.freedesktop.Avahi.ServiceResolver',
+      'Start',
+      [],
+      replySignature: DBusSignature(''),
+      noAutoStart: noAutoStart,
+      allowInteractiveAuthorization: allowInteractiveAuthorization,
+      noReplyExpected: true,
+    );
   }
 }

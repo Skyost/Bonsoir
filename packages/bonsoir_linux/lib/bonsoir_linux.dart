@@ -1,5 +1,3 @@
-library bonsoir_linux;
-
 import 'package:bonsoir_linux/src/actions/broadcast.dart';
 import 'package:bonsoir_linux/src/actions/discovery/discovery.dart';
 import 'package:bonsoir_platform_interface/bonsoir_platform_interface.dart';
@@ -15,13 +13,13 @@ class BonsoirLinux extends BonsoirPlatformInterface {
 
   @override
   AvahiBonsoirBroadcast createBroadcastAction(BonsoirService service, {bool printLogs = kDebugMode}) => AvahiBonsoirBroadcast(
-        service: service,
-        printLogs: printLogs,
-      );
+    service: service,
+    printLogs: printLogs,
+  );
 
   @override
   AvahiBonsoirDiscovery createDiscoveryAction(String type, {bool printLogs = kDebugMode}) => AvahiBonsoirDiscovery(
-        type: type,
-        printLogs: printLogs,
-      );
+    type: type,
+    printLogs: printLogs,
+  );
 }

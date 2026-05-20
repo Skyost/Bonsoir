@@ -1,10 +1,16 @@
 #pragma once
 
 #include <flutter/event_channel.h>
+
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+
 #include <windows.h>
 #include <windns.h>
 
 #include <atomic>
+#include <functional>
 #include <mutex>
 #include <queue>
 
@@ -66,9 +72,11 @@ namespace bonsoir_windows {
 
     bool isRunning();
 
-    void stop();
+    virtual void stop();
 
     virtual void dispose();
+
+    void disposeAfterStreamCancel(std::function<void(int)> callback);
 
     void onSuccess(std::string eventId, std::list<std::string> parameters = std::list<std::string>(), std::optional<std::string> message = std::nullopt) {
       onSuccess(eventId, nullptr, parameters, message);
@@ -106,6 +114,7 @@ namespace bonsoir_windows {
 
    private:
     static constexpr UINT processEventQueueMessage = WM_APP + 301;
+    static constexpr UINT disposeAfterStreamCancelMessage = WM_APP + 302;
 
     static LRESULT CALLBACK MessageWindowProc(HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam);
     static void RegisterMessageWindowClass();
@@ -115,6 +124,8 @@ namespace bonsoir_windows {
 
     bool printLogs;
     HWND messageWindow = nullptr;
+    bool shouldDisposeAfterStreamCancel = false;
+    std::function<void(int)> disposeAfterStreamCancelCallback = nullptr;
 
     std::mutex mutex;
     std::queue<std::shared_ptr<EventObject>> eventQueue;

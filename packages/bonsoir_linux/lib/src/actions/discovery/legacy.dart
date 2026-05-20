@@ -5,7 +5,6 @@ import 'package:bonsoir_linux/src/actions/discovery/discovery.dart';
 import 'package:bonsoir_linux/src/avahi/constants.dart';
 import 'package:bonsoir_linux/src/avahi/record_browser.dart';
 import 'package:bonsoir_linux/src/avahi/server.dart';
-import 'package:bonsoir_linux/src/avahi/service_browser.dart';
 import 'package:bonsoir_linux/src/service.dart';
 import 'package:bonsoir_platform_interface/bonsoir_platform_interface.dart';
 import 'package:dbus/dbus.dart';
@@ -27,8 +26,8 @@ class AvahiDiscoveryLegacy extends AvahiHandler {
 
   @override
   Future<String> getAvahiServiceBrowserPath(String serviceType) => _server.callServiceBrowserNew(
-    interface: AvahiIfIndexUnspecified,
-    protocol: AvahiProtocolUnspecified,
+    interface: avahiIfIndexUnspecified,
+    protocol: avahiProtocolUnspecified,
     type: serviceType,
     domain: '',
     flags: 0,
@@ -37,8 +36,8 @@ class AvahiDiscoveryLegacy extends AvahiHandler {
   @override
   Future<AvahiRecordBrowser> createAvahiRecordBrowser(AvahiBonsoirDiscovery discovery, BonsoirService service) async {
     String recordBrowserPath = await _server.callRecordBrowserNew(
-      AvahiIfIndexUnspecified,
-      AvahiProtocolUnspecified,
+      avahiIfIndexUnspecified,
+      avahiProtocolUnspecified,
       service.fqdn,
       0x01,
       0x10,
@@ -48,14 +47,14 @@ class AvahiDiscoveryLegacy extends AvahiHandler {
   }
 
   @override
-  Future<void> resolveService(AvahiBonsoirDiscovery discovery, BonsoirService service, AvahiServiceBrowserItemNew event) async {
+  Future<void> resolveService(AvahiBonsoirDiscovery discovery, BonsoirService service, ServiceNetworkInfo network) async {
     await _server.callServiceResolverNew(
-      interface: event.interfaceValue,
-      protocol: event.protocol,
-      name: event.serviceName,
-      type: event.type,
-      domain: event.domain,
-      aprotocol: AvahiProtocolUnspecified,
+      interface: network.interface,
+      protocol: network.protocol,
+      name: service.name,
+      type: service.type,
+      domain: network.domain,
+      aprotocol: avahiProtocolUnspecified,
       flags: 0,
     );
   }

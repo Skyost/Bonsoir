@@ -13,7 +13,7 @@ class BonsoirLinuxError implements Exception {
   String toString() {
     String string = 'BonsoirLinuxError';
     if (details != null) {
-      string += '(${details})';
+      string += '($details)';
     }
     string += ' : $message';
     return string;

@@ -9,7 +9,7 @@ import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
 /// A Bonsoir class that allows to either broadcast a service or to discover services on the network.
 abstract class BonsoirPlatformInterface extends PlatformInterface {
-  /// This object is needed to check if the platform instance registering is actually extending the platform interface (this class)
+  /// This object is needed to check if the platform instance registering is actually extending the platform interface (this class).
   static final Object _token = Object();
 
   /// Setting a default platform instance implementation.

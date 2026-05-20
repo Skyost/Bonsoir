@@ -24,6 +24,8 @@ namespace bonsoir_windows {
 
     void start() override;
 
+    void stop() override;
+
     void dispose() override;
 
    private:

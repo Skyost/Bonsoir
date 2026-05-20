@@ -51,10 +51,20 @@ class BonsoirService {
   /// * Hyphens MUST NOT be adjacent to other hyphens.
   final String type;
 
-  /// The service host.
-  /// Your service should be reachable at the given host.
+  /// The service host addresses.
+  ///
+  /// Your service should be reachable at the given host addresses.
+  /// These should be IP addresses when the platform provides them.
+  /// This field may be empty if the service has not been resolved yet.
+  final List<String> hostAddresses;
+
+  /// The service mDNS hostname.
+  ///
+  /// This is the SRV target hostname, usually ending with `.local`. On Android,
+  /// this field is only available when the OS exposes `NsdServiceInfo.hostname`;
+  /// older Android versions may leave it null.
   /// This field may be null if the service has not been resolved yet.
-  final String? host;
+  final String? hostname;
 
   /// The service port.
   /// Your service should be reachable at the given port using the protocol specified in [type].
@@ -77,7 +87,8 @@ class BonsoirService {
   BonsoirService({
     required String name,
     required String type,
-    this.host,
+    this.hostAddresses = const [],
+    this.hostname,
     required this.port,
     Map<String, String> attributes = defaultAttributes,
   }) : name = BonsoirServiceNormalizer.normalizeName(name),
@@ -91,7 +102,8 @@ class BonsoirService {
   const BonsoirService.ignoreNorms({
     required this.name,
     required this.type,
-    this.host,
+    this.hostAddresses = const [],
+    this.hostname,
     required this.port,
     this.attributes = defaultAttributes,
   });
@@ -103,7 +115,8 @@ class BonsoirService {
   }) => BonsoirService.ignoreNorms(
     name: json['${prefix}name'],
     type: json['${prefix}type'],
-    host: json['${prefix}host'],
+    hostAddresses: List<String>.from(json['${prefix}hostAddresses'] ?? const []),
+    hostname: json['${prefix}hostname'],
     port: json['${prefix}port'],
     attributes: Map<String, String>.from(json['${prefix}attributes']),
   );
@@ -112,25 +125,56 @@ class BonsoirService {
   Map<String, dynamic> toJson({String prefix = 'service.'}) => {
     '${prefix}name': name,
     '${prefix}type': type,
-    if (host != null) '${prefix}host': host,
+    if (hostAddresses.isNotEmpty) '${prefix}hostAddresses': hostAddresses,
+    if (hostname != null) '${prefix}hostname': hostname,
     '${prefix}port': port,
     '${prefix}attributes': attributes,
   };
+
+  /// The first service host address.
+  ///
+  /// This field may be null if the service has not been resolved yet.
+  String? get hostAddress => hostAddresses.firstOrNull;
 
   /// Copies this service instance with the given parameters.
   BonsoirService copyWith({
     String? name,
     String? type,
     int? port,
-    String? host,
+    List<String>? hostAddresses,
+    String? hostname,
     Map<String, String>? attributes,
-    bool forceUpdateHost = false,
   }) => BonsoirService.ignoreNorms(
     name: name ?? this.name,
     type: type ?? this.type,
-    host: host ?? (forceUpdateHost ? null : this.host),
+    hostAddresses: hostAddresses ?? this.hostAddresses,
+    hostname: hostname ?? this.hostname,
     port: port ?? this.port,
     attributes: attributes ?? this.attributes,
+  );
+
+  /// Overwrites the service host addresses.
+  BonsoirService overwriteHostAddresses({
+    List<String> hostAddresses = const [],
+  }) => BonsoirService.ignoreNorms(
+    name: name,
+    type: type,
+    hostAddresses: hostAddresses,
+    hostname: hostname,
+    port: port,
+    attributes: attributes,
+  );
+
+  /// Overwrites the service hostname.
+  BonsoirService overwriteHostname({
+    String? hostname,
+  }) => BonsoirService.ignoreNorms(
+    name: name,
+    type: type,
+    hostAddresses: hostAddresses,
+    hostname: hostname,
+    port: port,
+    attributes: attributes,
   );
 
   @override
@@ -138,7 +182,8 @@ class BonsoirService {
     if (other is! BonsoirService) {
       return false;
     }
-    return identical(this, other) || (name == other.name && type == other.type && port == other.port && mapEquals<String, String>(attributes, other.attributes));
+    return identical(this, other) ||
+        (name == other.name && type == other.type && listEquals(hostAddresses, other.hostAddresses) && hostname == other.hostname && port == other.port && mapEquals(attributes, other.attributes));
   }
 
   @override

@@ -107,7 +107,7 @@ If you have previously called "$runtimeType.stop()" on this instance, you have t
     '$_classType.$method',
     {
       ...toJson(),
-      if (arguments != null) ...arguments,
+      ...?arguments,
     },
   );
 
@@ -118,14 +118,17 @@ If you have previously called "$runtimeType.stop()" on this instance, you have t
 /// An action that is capable of resolving a service.
 mixin ServiceResolver {
   /// Allows to resolve a service.
-  Future<void> resolveService(BonsoirService service);
+  FutureOr<void> resolveService(BonsoirService service);
+
+  /// Checks if the resolver supports populating [BonsoirService.hostname].
+  FutureOr<bool> supportsMdnsHostname();
 }
 
 /// Allows to resolve a service.
 extension Resolve on BonsoirService {
   /// Tries to resolve this service.
   Future<void> resolve(ServiceResolver resolver) async {
-    if (host == null) {
+    if (hostAddresses.isEmpty) {
       await resolver.resolveService(this);
     }
   }

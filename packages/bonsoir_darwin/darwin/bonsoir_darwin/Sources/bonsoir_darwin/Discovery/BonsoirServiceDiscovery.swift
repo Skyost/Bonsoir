@@ -4,6 +4,7 @@
 #if canImport(FlutterMacOS)
     import FlutterMacOS
 #endif
+import Darwin
 import Network
 
 /// Allows to find net services on local network.
@@ -20,6 +21,9 @@ class BonsoirServiceDiscovery: BonsoirAction {
     
     /// Contains all services we're currently resolving.
     private var pendingResolution: [DNSServiceRef] = []
+
+    /// Contains all services whose hostnames are currently resolving.
+    private var pendingAddressResolution: [String: BonsoirService] = [:]
 
     /// Contains all dispatch sources.
     private var pendingDispatchSources: [DispatchSourceRead] = []
@@ -70,7 +74,7 @@ class BonsoirServiceDiscovery: BonsoirAction {
                     if service != nil {
                         break
                     }
-                    service = BonsoirService(name: name, type: type, port: 0, host: nil, attributes: [:])
+                    service = BonsoirService(name: name, type: type, port: 0, hostAddresses: [], attributes: [:])
                     if case .bonjour(let records) = result.metadata {
                         service!.attributes = records.dictionary
                     }
@@ -161,14 +165,67 @@ class BonsoirServiceDiscovery: BonsoirAction {
                 if foundIndex != nil {
                     self.pendingDispatchSources.remove(at: foundIndex!)
                 }
-                
-                self.onSuccess(eventId: Generated.discoveryServiceResolveFailed, service: service, parameters: [])
-                self.stopResolution(sdRef: sdRef, remove: false)
             }
         })
 
         dispatchSource.activate()
         
+        pendingDispatchSources.append(dispatchSource)
+        return true
+    }
+
+    /// Resolves the IP address for the given service hostname.
+    private func resolveAddress(for service: BonsoirService, hostname: String) -> Bool {
+        var sdRef: DNSServiceRef? = nil
+        let error = DNSServiceGetAddrInfo(&sdRef, 0, 0, DNSServiceProtocol(kDNSServiceProtocol_IPv4 | kDNSServiceProtocol_IPv6), hostname, BonsoirServiceDiscovery.addressResolveCallback, Unmanaged.passUnretained(self).toOpaque())
+        if error != kDNSServiceErr_NoError {
+            onSuccess(eventId: Generated.discoveryServiceResolveFailed, service: service, parameters: [error])
+            stopResolution(sdRef: sdRef, remove: false)
+            return false
+        }
+
+        pendingResolution.append(sdRef!)
+        pendingAddressResolution[BonsoirServiceDiscovery.resolutionKey(for: sdRef)] = service
+
+        let socket = DNSServiceRefSockFD(sdRef)
+        if socket == -1 {
+            onSuccess(eventId: Generated.discoveryServiceResolveFailed, service: service, parameters: [])
+            pendingAddressResolution.removeValue(forKey: BonsoirServiceDiscovery.resolutionKey(for: sdRef))
+            stopResolution(sdRef: sdRef, remove: true)
+            return false
+        }
+
+        let dispatchSource = DispatchSource.makeReadSource(fileDescriptor: socket, queue: DispatchQueue.global(qos: .userInitiated))
+        dispatchSource.setEventHandler(handler: {
+            DNSServiceProcessResult(sdRef)
+
+            DispatchQueue.main.async {
+                let foundIndex = self.pendingDispatchSources.firstIndex(where: {
+                    $0.isEqual(dispatchSource)
+                })
+
+                if foundIndex != nil {
+                    self.pendingDispatchSources.remove(at: foundIndex!)
+                }
+            }
+        })
+
+        dispatchSource.setCancelHandler(handler: {
+            DispatchQueue.main.async {
+                let foundIndex = self.pendingDispatchSources.firstIndex(where: {
+                    $0.isEqual(dispatchSource)
+                })
+
+                if foundIndex != nil {
+                    self.pendingDispatchSources.remove(at: foundIndex!)
+                }
+
+                self.pendingAddressResolution.removeValue(forKey: BonsoirServiceDiscovery.resolutionKey(for: sdRef))
+            }
+        })
+
+        dispatchSource.activate()
+
         pendingDispatchSources.append(dispatchSource)
         return true
     }
@@ -191,6 +248,7 @@ class BonsoirServiceDiscovery: BonsoirAction {
             stopResolution(sdRef: sdRef, remove: false)
         }
         pendingResolution.removeAll()
+        pendingAddressResolution.removeAll()
         services.removeAll()
         if [.setup, .ready].contains(browser.state) {
             browser.cancel()
@@ -207,12 +265,16 @@ class BonsoirServiceDiscovery: BonsoirAction {
         }
         if service != nil && errorCode == kDNSServiceErr_NoError {
             if hosttarget != nil {
-                service!.host = String(cString: hosttarget!)
+                service!.hostname = String(cString: hosttarget!)
             }
             service!.port = Int(CFSwapInt16BigToHost(port))
 
             DispatchQueue.main.async {
-                discovery.onSuccess(eventId: Generated.discoveryServiceResolved, service: service)
+                if service!.hostname == nil {
+                    discovery.onSuccess(eventId: Generated.discoveryServiceResolveFailed, service: service, parameters: [errorCode])
+                } else {
+                    discovery.resolveAddress(for: service!, hostname: service!.hostname!)
+                }
             }
         } else {
             if service == nil {
@@ -229,6 +291,51 @@ class BonsoirServiceDiscovery: BonsoirAction {
         DispatchQueue.main.async {
             discovery.stopResolution(sdRef: sdRef, remove: sdRef != nil)
         }
+    }
+
+    /// Callback triggered by `DNSServiceGetAddrInfo`.
+    private static let addressResolveCallback: DNSServiceGetAddrInfoReply = { sdRef, flags, _, errorCode, _, address, _, context in
+        let discovery = Unmanaged<BonsoirServiceDiscovery>.fromOpaque(context!).takeUnretainedValue()
+
+        DispatchQueue.main.async {
+            let resolutionKey = BonsoirServiceDiscovery.resolutionKey(for: sdRef)
+            guard let service = discovery.pendingAddressResolution[resolutionKey] else {
+                discovery.stopResolution(sdRef: sdRef, remove: sdRef != nil)
+                return
+            }
+
+            let hasMoreResults = (flags & DNSServiceFlags(kDNSServiceFlagsMoreComing)) != 0
+            if errorCode == kDNSServiceErr_NoError, address != nil, let resolvedAddress = BonsoirServiceDiscovery.ipAddress(from: address!) {
+                if !service.hostAddresses.contains(resolvedAddress) {
+                    service.hostAddresses.append(resolvedAddress)
+                }
+            } else if service.hostAddresses.isEmpty && !hasMoreResults {
+                discovery.onSuccess(eventId: Generated.discoveryServiceResolveFailed, service: service, parameters: [errorCode])
+            }
+
+            if !hasMoreResults {
+                if !service.hostAddresses.isEmpty {
+                    discovery.onSuccess(eventId: Generated.discoveryServiceResolved, service: service)
+                }
+                discovery.pendingAddressResolution.removeValue(forKey: resolutionKey)
+                discovery.stopResolution(sdRef: sdRef, remove: sdRef != nil)
+            }
+        }
+    }
+
+    /// Returns a stable key for a DNS service reference.
+    private static func resolutionKey(for sdRef: DNSServiceRef?) -> String {
+        guard let sdRef else {
+            return "nil"
+        }
+        return String(describing: sdRef)
+    }
+
+    /// Converts a socket address to a numeric IP address string.
+    private static func ipAddress(from address: UnsafePointer<sockaddr>) -> String? {
+        var host = [CChar](repeating: 0, count: Int(NI_MAXHOST))
+        let result = getnameinfo(address, socklen_t(address.pointee.sa_len), &host, socklen_t(host.count), nil, 0, NI_NUMERICHOST)
+        return result == 0 ? String(cString: host) : nil
     }
     
     /// Allows to unescape services FQDN.

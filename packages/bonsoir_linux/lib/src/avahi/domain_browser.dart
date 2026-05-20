@@ -13,13 +13,7 @@ class AvahiDomainBrowserItemNew extends DBusSignal {
 
   int get flags => (values[3] as DBusUint32).value;
 
-  AvahiDomainBrowserItemNew(DBusSignal signal)
-      : super(
-            sender: signal.sender,
-            path: signal.path,
-            interface: signal.interface,
-            name: signal.name,
-            values: signal.values);
+  AvahiDomainBrowserItemNew(DBusSignal signal) : super(sender: signal.sender, path: signal.path, interface: signal.interface, name: signal.name, values: signal.values);
 }
 
 /// Signal data for org.freedesktop.Avahi.DomainBrowser.ItemRemove.
@@ -32,48 +26,24 @@ class AvahiDomainBrowserItemRemove extends DBusSignal {
 
   int get flags => (values[3] as DBusUint32).value;
 
-  AvahiDomainBrowserItemRemove(DBusSignal signal)
-      : super(
-            sender: signal.sender,
-            path: signal.path,
-            interface: signal.interface,
-            name: signal.name,
-            values: signal.values);
+  AvahiDomainBrowserItemRemove(DBusSignal signal) : super(sender: signal.sender, path: signal.path, interface: signal.interface, name: signal.name, values: signal.values);
 }
 
 /// Signal data for org.freedesktop.Avahi.DomainBrowser.Failure.
 class AvahiDomainBrowserFailure extends DBusSignal {
   String get error => (values[0] as DBusString).value;
 
-  AvahiDomainBrowserFailure(DBusSignal signal)
-      : super(
-            sender: signal.sender,
-            path: signal.path,
-            interface: signal.interface,
-            name: signal.name,
-            values: signal.values);
+  AvahiDomainBrowserFailure(DBusSignal signal) : super(sender: signal.sender, path: signal.path, interface: signal.interface, name: signal.name, values: signal.values);
 }
 
 /// Signal data for org.freedesktop.Avahi.DomainBrowser.AllForNow.
 class AvahiDomainBrowserAllForNow extends DBusSignal {
-  AvahiDomainBrowserAllForNow(DBusSignal signal)
-      : super(
-            sender: signal.sender,
-            path: signal.path,
-            interface: signal.interface,
-            name: signal.name,
-            values: signal.values);
+  AvahiDomainBrowserAllForNow(DBusSignal signal) : super(sender: signal.sender, path: signal.path, interface: signal.interface, name: signal.name, values: signal.values);
 }
 
 /// Signal data for org.freedesktop.Avahi.DomainBrowser.CacheExhausted.
 class AvahiDomainBrowserCacheExhausted extends DBusSignal {
-  AvahiDomainBrowserCacheExhausted(DBusSignal signal)
-      : super(
-            sender: signal.sender,
-            path: signal.path,
-            interface: signal.interface,
-            name: signal.name,
-            values: signal.values);
+  AvahiDomainBrowserCacheExhausted(DBusSignal signal) : super(sender: signal.sender, path: signal.path, interface: signal.interface, name: signal.name, values: signal.values);
 }
 
 class AvahiDomainBrowser extends DBusRemoteObject {
@@ -92,78 +62,63 @@ class AvahiDomainBrowser extends DBusRemoteObject {
   /// Stream of org.freedesktop.Avahi.DomainBrowser.CacheExhausted signals.
   late final Stream<AvahiDomainBrowserCacheExhausted> cacheExhausted;
 
-  AvahiDomainBrowser(DBusClient client, String destination, DBusObjectPath path)
-      : super(client, name: destination, path: path) {
+  AvahiDomainBrowser(super.client, String destination, DBusObjectPath path) : super(name: destination, path: path) {
     itemNew = DBusRemoteObjectSignalStream(
-            object: this,
-            interface: 'org.freedesktop.Avahi.DomainBrowser',
-            name: 'ItemNew',
-            signature: DBusSignature('iisu'))
-        .asBroadcastStream()
-        .map((signal) => AvahiDomainBrowserItemNew(signal));
+      object: this,
+      interface: 'org.freedesktop.Avahi.DomainBrowser',
+      name: 'ItemNew',
+      signature: DBusSignature('iisu'),
+    ).asBroadcastStream().map(AvahiDomainBrowserItemNew.new);
 
     itemRemove = DBusRemoteObjectSignalStream(
-            object: this,
-            interface: 'org.freedesktop.Avahi.DomainBrowser',
-            name: 'ItemRemove',
-            signature: DBusSignature('iisu'))
-        .asBroadcastStream()
-        .map((signal) => AvahiDomainBrowserItemRemove(signal));
+      object: this,
+      interface: 'org.freedesktop.Avahi.DomainBrowser',
+      name: 'ItemRemove',
+      signature: DBusSignature('iisu'),
+    ).asBroadcastStream().map(AvahiDomainBrowserItemRemove.new);
 
     failure = DBusRemoteObjectSignalStream(
-            object: this,
-            interface: 'org.freedesktop.Avahi.DomainBrowser',
-            name: 'Failure',
-            signature: DBusSignature('s'))
-        .asBroadcastStream()
-        .map((signal) => AvahiDomainBrowserFailure(signal));
+      object: this,
+      interface: 'org.freedesktop.Avahi.DomainBrowser',
+      name: 'Failure',
+      signature: DBusSignature('s'),
+    ).asBroadcastStream().map(AvahiDomainBrowserFailure.new);
 
     allForNow = DBusRemoteObjectSignalStream(
-            object: this,
-            interface: 'org.freedesktop.Avahi.DomainBrowser',
-            name: 'AllForNow',
-            signature: DBusSignature(''))
-        .asBroadcastStream()
-        .map((signal) => AvahiDomainBrowserAllForNow(signal));
+      object: this,
+      interface: 'org.freedesktop.Avahi.DomainBrowser',
+      name: 'AllForNow',
+      signature: DBusSignature(''),
+    ).asBroadcastStream().map(AvahiDomainBrowserAllForNow.new);
 
     cacheExhausted = DBusRemoteObjectSignalStream(
-            object: this,
-            interface: 'org.freedesktop.Avahi.DomainBrowser',
-            name: 'CacheExhausted',
-            signature: DBusSignature(''))
-        .asBroadcastStream()
-        .map((signal) => AvahiDomainBrowserCacheExhausted(signal));
+      object: this,
+      interface: 'org.freedesktop.Avahi.DomainBrowser',
+      name: 'CacheExhausted',
+      signature: DBusSignature(''),
+    ).asBroadcastStream().map(AvahiDomainBrowserCacheExhausted.new);
   }
 
   /// Invokes org.freedesktop.DBus.Introspectable.Introspect()
-  Future<String> callIntrospect(
-      {bool noAutoStart = false,
-      bool allowInteractiveAuthorization = false}) async {
+  Future<String> callIntrospect({bool noAutoStart = false, bool allowInteractiveAuthorization = false}) async {
     var result = await callMethod(
-        'org.freedesktop.DBus.Introspectable', 'Introspect', [],
-        replySignature: DBusSignature('s'),
-        noAutoStart: noAutoStart,
-        allowInteractiveAuthorization: allowInteractiveAuthorization);
+      'org.freedesktop.DBus.Introspectable',
+      'Introspect',
+      [],
+      replySignature: DBusSignature('s'),
+      noAutoStart: noAutoStart,
+      allowInteractiveAuthorization: allowInteractiveAuthorization,
+    );
     return (result.returnValues[0] as DBusString).value;
   }
 
   /// Invokes org.freedesktop.Avahi.DomainBrowser.Free()
-  Future<void> callFree(
-      {bool noAutoStart = false,
-      bool allowInteractiveAuthorization = false}) async {
-    await callMethod('org.freedesktop.Avahi.DomainBrowser', 'Free', [],
-        replySignature: DBusSignature(''),
-        noAutoStart: noAutoStart,
-        allowInteractiveAuthorization: allowInteractiveAuthorization);
+  Future<void> callFree({bool noAutoStart = false, bool allowInteractiveAuthorization = false}) async {
+    await callMethod('org.freedesktop.Avahi.DomainBrowser', 'Free', [], replySignature: DBusSignature(''), noAutoStart: noAutoStart, allowInteractiveAuthorization: allowInteractiveAuthorization);
   }
 
   /// Invokes org.freedesktop.Avahi.DomainBrowser.Start()
-  Future<void> callStart(
-      {bool noAutoStart = false,
-      bool allowInteractiveAuthorization = false}) async {
-    await callMethod('org.freedesktop.Avahi.DomainBrowser', 'Start', [],
-        replySignature: DBusSignature(''),
-        noAutoStart: noAutoStart,
-        allowInteractiveAuthorization: allowInteractiveAuthorization);
+  Future<void> callStart({bool noAutoStart = false, bool allowInteractiveAuthorization = false}) async {
+    await callMethod('org.freedesktop.Avahi.DomainBrowser', 'Start', [], replySignature: DBusSignature(''), noAutoStart: noAutoStart, allowInteractiveAuthorization: allowInteractiveAuthorization);
   }
 }

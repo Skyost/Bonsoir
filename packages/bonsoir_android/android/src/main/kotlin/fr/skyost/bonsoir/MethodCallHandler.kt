@@ -3,6 +3,8 @@ package fr.skyost.bonsoir
 import android.content.Context
 import android.net.nsd.NsdManager
 import android.net.wifi.WifiManager
+import android.os.Build
+import android.os.ext.SdkExtensions
 import fr.skyost.bonsoir.broadcast.BonsoirServiceBroadcast
 import fr.skyost.bonsoir.discovery.BonsoirServiceDiscovery
 import io.flutter.plugin.common.BinaryMessenger
@@ -40,7 +42,8 @@ class MethodCallHandler(
                     call.argument<String>("service.name")!!,
                     call.argument<String>("service.type")!!,
                     call.argument<Int>("service.port")!!,
-                    call.argument<String>("service.host"),
+                    call.argument<List<String>>("service.hostAddresses") ?: emptyList(),
+                    call.argument<String>("service.hostname"),
                     call.argument<MutableMap<String, String>>("service.attributes")!!,
                 )
                 broadcasts[id] =
@@ -97,6 +100,10 @@ class MethodCallHandler(
                     call.argument<String>("type")!!
                 )
                 result.success(discoveries[id] != null)
+            }
+
+            "discovery.supportsMdnsHostname" -> {
+                result.success(Build.VERSION.SDK_INT >= 36 || (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && SdkExtensions.getExtensionVersion(Build.VERSION_CODES.TIRAMISU) >= 17))
             }
 
             "discovery.stop" -> {

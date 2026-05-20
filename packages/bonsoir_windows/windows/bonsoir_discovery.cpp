@@ -5,6 +5,9 @@
 #include "generated.h"
 #include "utilities.h"
 
+#include <optional>
+#include <ws2tcpip.h>
+
 using namespace flutter;
 
 namespace bonsoir_windows {
@@ -37,6 +40,21 @@ namespace bonsoir_windows {
       onError(EncodableValue(std::to_string(status)), std::list<std::string>{std::to_string(status)});
       dispose();
     }
+  }
+
+  void BonsoirDiscovery::stop() {
+    if (!isRunning()) {
+      return;
+    }
+    BonsoirAction::stop();
+    onSuccess(Generated::discoveryStopped, nullptr, std::list<std::string>{type});
+    for (auto const &[key, value] : resolvingServices) {
+      DnsServiceResolveCancel(value);
+      delete value; // Allocated in resolveService()
+    }
+    resolvingServices.clear();
+    services.clear();
+    DnsServiceBrowseCancel(&cancelHandle);
   }
 
   std::shared_ptr<BonsoirService> BonsoirDiscovery::findService(std::string serviceName, std::string serviceType) {
@@ -72,15 +90,7 @@ namespace bonsoir_windows {
   }
 
   void BonsoirDiscovery::dispose() {
-    BonsoirAction::stop();
-    onSuccess(Generated::discoveryStopped, nullptr, std::list<std::string>{type});
-    for (auto const &[key, value] : resolvingServices) {
-      DnsServiceResolveCancel(value);
-      delete value; // Allocated in resolveService()
-    }
-    resolvingServices.clear();
-    services.clear();
-    DnsServiceBrowseCancel(&cancelHandle);
+    stop();
     BonsoirAction::dispose();
   }
 
@@ -111,7 +121,14 @@ namespace bonsoir_windows {
       }
       return;
     }
-    std::shared_ptr<BonsoirService> newServicePtr = std::make_shared<BonsoirService>(name, type, 0, std::nullopt, std::map<std::string, std::string>());
+    std::shared_ptr<BonsoirService> newServicePtr = std::make_shared<BonsoirService>(
+      name,
+      type,
+      0,
+      std::vector<std::string>(),
+      std::nullopt,
+      std::map<std::string, std::string>()
+    );
     PDNS_RECORD txtRecord = dnsRecord;
     while (txtRecord != nullptr) {
       if (txtRecord->wType == DNS_TYPE_TEXT) {
@@ -134,8 +151,11 @@ namespace bonsoir_windows {
     }
     discovery->services.push_back(newServicePtr);
     if (servicePtr) {
-      if (!newServicePtr->host && servicePtr->host) {
-        newServicePtr->host = servicePtr->host;
+      if (newServicePtr->hostAddresses.empty() && !servicePtr->hostAddresses.empty()) {
+        newServicePtr->hostAddresses = servicePtr->hostAddresses;
+      }
+      if (!newServicePtr->hostname && servicePtr->hostname) {
+        newServicePtr->hostname = servicePtr->hostname;
       }
       if (newServicePtr->port == 0 && servicePtr->port != 0) {
         newServicePtr->port = servicePtr->port;
@@ -146,6 +166,27 @@ namespace bonsoir_windows {
       discovery->onSuccess(Generated::discoveryServiceFound, newServicePtr);
     }
     DnsRecordListFree(dnsRecord, DnsFreeRecordList);
+  }
+
+  std::vector<std::string> serviceInstanceIpAddresses(PDNS_SERVICE_INSTANCE serviceInstance) {
+    std::vector<std::string> hostAddresses;
+    char buffer[INET6_ADDRSTRLEN] = {};
+
+    if (serviceInstance->ip4Address != nullptr) {
+      IN_ADDR address{};
+      address.S_un.S_addr = *serviceInstance->ip4Address;
+      if (InetNtopA(AF_INET, &address, buffer, INET_ADDRSTRLEN) != nullptr) {
+        hostAddresses.push_back(std::string(buffer));
+      }
+    }
+
+    if (serviceInstance->ip6Address != nullptr) {
+      if (InetNtopA(AF_INET6, serviceInstance->ip6Address, buffer, INET6_ADDRSTRLEN) != nullptr) {
+        hostAddresses.push_back(std::string(buffer));
+      }
+    }
+
+    return hostAddresses;
   }
 
   void resolveCallback(DWORD status, PVOID context, PDNS_SERVICE_INSTANCE serviceInstance) {
@@ -176,7 +217,10 @@ namespace bonsoir_windows {
       return;
     }
     if (serviceInstance) {
-      servicePtr->host = toUtf8(serviceInstance->pszHostName);
+      servicePtr->hostAddresses = serviceInstanceIpAddresses(serviceInstance);
+      if (serviceInstance->pszHostName != nullptr) {
+        servicePtr->hostname = toUtf8(serviceInstance->pszHostName);
+      }
       servicePtr->port = serviceInstance->wPort;
       DnsServiceFreeInstance(serviceInstance);
     }

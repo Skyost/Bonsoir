@@ -82,13 +82,13 @@ class AvahiBonsoirBroadcast extends AvahiBonsoirAction<BonsoirBroadcastEvent> {
   /// Sends the current service to Avahi.
   Future<void> _sendServiceToAvahi() async {
     await _entryGroup!.callAddService(
-      interface: AvahiIfIndexUnspecified,
-      protocol: AvahiProtocolUnspecified,
+      interface: avahiIfIndexUnspecified,
+      protocol: avahiProtocolUnspecified,
       flags: 0,
       name: service.name,
       type: service.type,
       domain: '',
-      host: service.host ?? '',
+      host: service.hostname ?? service.hostAddresses.firstOrNull ?? '',
       port: service.port,
       txt: service.txtRecord,
     );

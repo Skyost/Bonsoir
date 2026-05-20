@@ -1,8 +1,32 @@
 package fr.skyost.bonsoir
 
+import android.annotation.SuppressLint
 import android.net.nsd.NsdServiceInfo
+import android.os.Build
+import android.os.ext.SdkExtensions
 import org.json.JSONObject
 import java.net.InetAddress
+
+@SuppressLint("NewApi")
+private fun NsdServiceInfo.getHostnameCompat(): String? {
+    return if (
+        Build.VERSION.SDK_INT >= 36 ||
+        (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && SdkExtensions.getExtensionVersion(Build.VERSION_CODES.TIRAMISU) >= 17)
+    ) {
+        return if (hostname == null || hostname!!.endsWith(".local") || hostname!!.endsWith(".local.")) hostname else "${hostname!!}.local"
+    } else {
+        null
+    }
+}
+
+@SuppressLint("NewApi")
+private fun NsdServiceInfo.getHostAddressesCompat(): List<String> {
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+        hostAddresses.map { it.hostAddress }
+    } else {
+        listOfNotNull(host?.hostAddress)
+    }
+}
 
 /**
  * Represents a Bonsoir service.
@@ -10,14 +34,16 @@ import java.net.InetAddress
  * @param name The service name.
  * @param type The service type.
  * @param port The service port.
- * @param host The service host.
+ * @param hostAddresses The service host addresses.
+ * @param hostname The service mDNS hostname.
  * @param attributes The service attributes.
  */
 data class BonsoirService(
     var name: String,
     val type: String,
     var port: Int,
-    var host: String?,
+    var hostAddresses: List<String>,
+    var hostname: String?,
     var attributes: MutableMap<String, String>
 ) {
     /**
@@ -29,7 +55,8 @@ data class BonsoirService(
         service.serviceName,
         if (service.serviceType.endsWith(".")) service.serviceType.substring(0, service.serviceType.length - 1) else service.serviceType,
         service.port,
-        service.host?.hostAddress,
+        service.getHostAddressesCompat(),
+        service.getHostnameCompat(),
         hashMapOf(),
     ) {
         for (attribute in service.attributes.entries) {
@@ -49,7 +76,8 @@ data class BonsoirService(
             "${prefix}name" to name,
             "${prefix}type" to type,
             "${prefix}port" to port,
-            "${prefix}host" to host,
+            "${prefix}hostAddresses" to hostAddresses,
+            "${prefix}hostname" to hostname,
             "${prefix}attributes" to attributes,
         )
     }
@@ -65,8 +93,12 @@ data class BonsoirService(
             serviceType = type
             port = this@BonsoirService.port
         }
-        if (host != null) {
-            service.host = InetAddress.getByName(host)
+        if (hostAddresses.isNotEmpty()) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                service.hostAddresses = hostAddresses.map { InetAddress.getByName(it) }
+            } else {
+                service.host = InetAddress.getByName(hostAddresses.first())
+            }
         }
         for (entry in attributes.entries) {
             service.setAttribute(entry.key, entry.value)
