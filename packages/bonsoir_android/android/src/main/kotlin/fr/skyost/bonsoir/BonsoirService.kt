@@ -7,12 +7,14 @@ import android.os.ext.SdkExtensions
 import org.json.JSONObject
 import java.net.InetAddress
 
+private fun supportsHostnameCompat(): Boolean {
+    return Build.VERSION.SDK_INT >= 36 ||
+            (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && SdkExtensions.getExtensionVersion(Build.VERSION_CODES.TIRAMISU) >= 17)
+}
+
 @SuppressLint("NewApi")
 private fun NsdServiceInfo.getHostnameCompat(): String? {
-    return if (
-        Build.VERSION.SDK_INT >= 36 ||
-        (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && SdkExtensions.getExtensionVersion(Build.VERSION_CODES.TIRAMISU) >= 17)
-    ) {
+    return if (supportsHostnameCompat()) {
         return if (hostname == null || hostname!!.endsWith(".local") || hostname!!.endsWith(".local.")) hostname else "${hostname!!}.local"
     } else {
         null
@@ -93,11 +95,12 @@ data class BonsoirService(
             serviceType = type
             port = this@BonsoirService.port
         }
-        if (hostAddresses.isNotEmpty()) {
+        val resolvedHostAddresses = if (hostAddresses.isNotEmpty()) hostAddresses else listOfNotNull(hostname)
+        if (resolvedHostAddresses.isNotEmpty()) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-                service.hostAddresses = hostAddresses.map { InetAddress.getByName(it) }
+                service.hostAddresses = resolvedHostAddresses.map { InetAddress.getByName(it) }
             } else {
-                service.host = InetAddress.getByName(hostAddresses.first())
+                service.host = InetAddress.getByName(resolvedHostAddresses.first())
             }
         }
         for (entry in attributes.entries) {

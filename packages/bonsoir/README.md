@@ -81,7 +81,7 @@ discovery.eventStream!.listen((event) { // `eventStream` is not null as the disc
 // Start the discovery **after** listening to discovery events :
 await discovery.start();
 
-// Timeout
+// Timeout :
 await Future<void>.delayed(Duration(seconds: 5));
 
 // Then if you want to stop the discovery :
