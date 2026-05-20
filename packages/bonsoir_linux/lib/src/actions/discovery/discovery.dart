@@ -239,7 +239,10 @@ class AvahiBonsoirDiscovery extends AvahiBonsoirAction<BonsoirDiscoveryEvent> wi
       _foundServices.remove(service);
       service = service.copyWith(attributes: attributes);
       _foundServices[service] = serviceEvent;
-      onEvent(BonsoirDiscoveryServiceUpdatedEvent(service: service));
+      onEvent(
+        BonsoirDiscoveryServiceUpdatedEvent(service: service),
+        parameters: [service.description],
+      );
     }
   }
 

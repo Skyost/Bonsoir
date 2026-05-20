@@ -47,7 +47,15 @@ abstract class AvahiBonsoirAction<T extends BonsoirEvent> extends BonsoirAction<
 
   /// Triggered when an event occurs.
   void onEvent(T event, {String? message, List parameters = const []}) {
-    message ??= logMessages[event.runtimeType.toString()];
+    String key = event.runtimeType.toString();
+    if (key.startsWith('Bonsoir')) {
+      key = key.substring('Bonsoir'.length);
+    }
+    if (key.endsWith('Event')) {
+      key = key.substring(0, key.length - 'Event'.length);
+    }
+    key = key.length <= 1 ? key.toLowerCase() : key[0].toLowerCase() + key.substring(1);
+    message ??= logMessages[key];
     if (message != null) {
       log(message, parameters: parameters);
     }
