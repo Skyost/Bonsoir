@@ -1,3 +1,14 @@
+## 7.0.0
+
+> Note: This release has breaking changes.
+
+ - **FIX**(windows): Implemented safe asynchronous disposal for broadcast and discovery. ([97555473](https://github.com/Skyost/Bonsoir/commit/97555473ba18546c37fa41cf23ce4ec0370b0aa9))
+ - **FIX**(windows): Fixed a compilation error on Windows. ([21d3e827](https://github.com/Skyost/Bonsoir/commit/21d3e827af96614c9fd3ded8ceddf442d68a5e83))
+ - **FEAT**: Support multiple host addresses for services. ([abb9d22f](https://github.com/Skyost/Bonsoir/commit/abb9d22fd512e637482c958e46938af2af3bde5d))
+ - **FEAT**: Added `hostname` property to `BonsoirService`. ([8e43270b](https://github.com/Skyost/Bonsoir/commit/8e43270b862bef8527da9e436bfeed8d333cda35))
+ - **BREAKING** **REFACTOR**: Renamed `host` into `hostAddress` in remaining implementations. ([45776c9b](https://github.com/Skyost/Bonsoir/commit/45776c9bda71bd6c9002ee31ee5e63d3980df097))
+ - **BREAKING** **FEAT**: Added mDNS hostname support check and renamed service host field. ([b374678b](https://github.com/Skyost/Bonsoir/commit/b374678bdc1578cf7bbfae1055251cff5a3a24c3))
+
 ## 6.0.3
 
  - Update a dependency to the latest release.

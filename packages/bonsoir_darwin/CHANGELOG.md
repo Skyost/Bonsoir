@@ -1,3 +1,14 @@
+## 7.0.0
+
+> Note: This release has breaking changes.
+
+ - **FIX**(darwin): Fixed a `resolveService` problem. ([24c94f53](https://github.com/Skyost/Bonsoir/commit/24c94f53ee075c59ecfed2ad7c3fa4b185fef9bf))
+ - **FIX**(darwin): add missing Foundation import to access JSONSerialization class. ([ce155549](https://github.com/Skyost/Bonsoir/commit/ce155549130e0337ed3fd9a34a4cffafe70797f5))
+ - **FEAT**: Support multiple host addresses for services. ([abb9d22f](https://github.com/Skyost/Bonsoir/commit/abb9d22fd512e637482c958e46938af2af3bde5d))
+ - **FEAT**: Added `hostname` property to `BonsoirService`. ([8e43270b](https://github.com/Skyost/Bonsoir/commit/8e43270b862bef8527da9e436bfeed8d333cda35))
+ - **BREAKING** **REFACTOR**: Renamed `host` into `hostAddress` in remaining implementations. ([45776c9b](https://github.com/Skyost/Bonsoir/commit/45776c9bda71bd6c9002ee31ee5e63d3980df097))
+ - **BREAKING** **FEAT**: Added mDNS hostname support check and renamed service host field. ([b374678b](https://github.com/Skyost/Bonsoir/commit/b374678bdc1578cf7bbfae1055251cff5a3a24c3))
+
 ## 6.1.0
 
  - **FEAT**(darwin): Added support for Swift Package Manager. ([dffcc4ac](https://github.com/Skyost/Bonsoir/commit/dffcc4acdee43408abcae978e125a20f8666682d))

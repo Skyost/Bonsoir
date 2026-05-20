@@ -1,3 +1,15 @@
+## 7.0.0
+
+> Note: This release has breaking changes.
+
+ - **REFACTOR**(linux): Apply modern Dart syntax and naming conventions. ([ee5e8b36](https://github.com/Skyost/Bonsoir/commit/ee5e8b36c7545859d8859dbfbb5bcc736022f153))
+ - **REFACTOR**(linux): Improve service network info handling in discovery. ([a1c54437](https://github.com/Skyost/Bonsoir/commit/a1c54437d84010e303cd6905aaac92076413f928))
+ - **FIX**(linux): Handle TXT record entries without values. ([9b0ba28f](https://github.com/Skyost/Bonsoir/commit/9b0ba28f2caea019dc23fd5f7406025408edc91e))
+ - **FIX**(linux): Fixed log message resolution and discovery logging. ([77787e27](https://github.com/Skyost/Bonsoir/commit/77787e278c020749612162bfd29c26c4f6b1be69))
+ - **FEAT**: Support multiple host addresses for services. ([abb9d22f](https://github.com/Skyost/Bonsoir/commit/abb9d22fd512e637482c958e46938af2af3bde5d))
+ - **FEAT**: Added `hostname` property to `BonsoirService`. ([8e43270b](https://github.com/Skyost/Bonsoir/commit/8e43270b862bef8527da9e436bfeed8d333cda35))
+ - **BREAKING** **FEAT**: Added mDNS hostname support check and renamed service host field. ([b374678b](https://github.com/Skyost/Bonsoir/commit/b374678bdc1578cf7bbfae1055251cff5a3a24c3))
+
 ## 6.0.3
 
  - Update a dependency to the latest release.

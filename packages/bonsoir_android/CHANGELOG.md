@@ -1,3 +1,14 @@
+## 7.0.0
+
+> Note: This release has breaking changes.
+
+ - **FIX**(android): Prevented service info callbacks after disposal. ([3f4cf230](https://github.com/Skyost/Bonsoir/commit/3f4cf230c1b477757c56dc667620289c43f9e3fb))
+ - **FIX**(android): Fixed a problem with TXT records discovery. ([d8737e91](https://github.com/Skyost/Bonsoir/commit/d8737e91172ecae5f267cd905619ab8352f7b8ad))
+ - **FEAT**: Support multiple host addresses for services. ([abb9d22f](https://github.com/Skyost/Bonsoir/commit/abb9d22fd512e637482c958e46938af2af3bde5d))
+ - **FEAT**: Added `hostname` property to `BonsoirService`. ([8e43270b](https://github.com/Skyost/Bonsoir/commit/8e43270b862bef8527da9e436bfeed8d333cda35))
+ - **BREAKING** **REFACTOR**: Renamed `host` into `hostAddress` in remaining implementations. ([45776c9b](https://github.com/Skyost/Bonsoir/commit/45776c9bda71bd6c9002ee31ee5e63d3980df097))
+ - **BREAKING** **FEAT**: Added mDNS hostname support check and renamed service host field. ([b374678b](https://github.com/Skyost/Bonsoir/commit/b374678bdc1578cf7bbfae1055251cff5a3a24c3))
+
 ## 6.0.2
 
  - Update a dependency to the latest release.
