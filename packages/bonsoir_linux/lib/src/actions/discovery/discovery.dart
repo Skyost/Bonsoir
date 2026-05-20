@@ -204,7 +204,7 @@ class AvahiBonsoirDiscovery extends AvahiBonsoirAction<BonsoirDiscoveryEvent> wi
       attributes: Map.fromEntries(
         event.txt.map((entry) {
           int index = entry.indexOf('=');
-          return MapEntry<String, String>(entry.substring(0, index), entry.substring(index + 1, entry.length));
+          return index == -1 ? MapEntry<String, String>(entry, '') : MapEntry<String, String>(entry.substring(0, index), entry.substring(index + 1, entry.length));
         }),
       ),
     );
