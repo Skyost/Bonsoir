@@ -52,8 +52,10 @@ namespace bonsoir_windows {
         },
         [this](const EncodableValue *arguments)
           -> std::unique_ptr<StreamHandlerError<EncodableValue>> {
-          eventSink.release();
           eventSink = nullptr;
+          if (shouldDisposeAfterStreamCancel && messageWindow) {
+            PostMessage(messageWindow, disposeAfterStreamCancelMessage, 0, 0);
+          }
           return nullptr;
         }
       )
@@ -74,6 +76,8 @@ namespace bonsoir_windows {
 
   void BonsoirAction::dispose() {
     stop();
+    shouldDisposeAfterStreamCancel = false;
+    disposeAfterStreamCancelCallback = nullptr;
     if (messageWindow) {
       DestroyWindow(messageWindow);
       messageWindow = nullptr;
@@ -81,6 +85,14 @@ namespace bonsoir_windows {
     if (eventChannel) {
       eventChannel->SetStreamHandler(nullptr);
       eventChannel = nullptr;
+    }
+  }
+
+  void BonsoirAction::disposeAfterStreamCancel(std::function<void(int)> callback) {
+    shouldDisposeAfterStreamCancel = true;
+    disposeAfterStreamCancelCallback = callback;
+    if (!eventSink && messageWindow) {
+      PostMessage(messageWindow, disposeAfterStreamCancelMessage, 0, 0);
     }
   }
 
@@ -143,6 +155,13 @@ namespace bonsoir_windows {
     auto action = reinterpret_cast<BonsoirAction*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
     if (message == processEventQueueMessage && action) {
       action->processEventQueue();
+      return 0;
+    }
+    if (message == disposeAfterStreamCancelMessage && action) {
+      auto callback = action->disposeAfterStreamCancelCallback;
+      if (callback) {
+        callback(action->id);
+      }
       return 0;
     }
 

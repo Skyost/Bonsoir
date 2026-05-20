@@ -42,6 +42,21 @@ namespace bonsoir_windows {
     }
   }
 
+  void BonsoirDiscovery::stop() {
+    if (!isRunning()) {
+      return;
+    }
+    BonsoirAction::stop();
+    onSuccess(Generated::discoveryStopped, nullptr, std::list<std::string>{type});
+    for (auto const &[key, value] : resolvingServices) {
+      DnsServiceResolveCancel(value);
+      delete value; // Allocated in resolveService()
+    }
+    resolvingServices.clear();
+    services.clear();
+    DnsServiceBrowseCancel(&cancelHandle);
+  }
+
   std::shared_ptr<BonsoirService> BonsoirDiscovery::findService(std::string serviceName, std::string serviceType) {
     for (auto &found_service : this->services) {
       if (found_service->name == serviceName && found_service->type == serviceType) {
@@ -75,15 +90,7 @@ namespace bonsoir_windows {
   }
 
   void BonsoirDiscovery::dispose() {
-    BonsoirAction::stop();
-    onSuccess(Generated::discoveryStopped, nullptr, std::list<std::string>{type});
-    for (auto const &[key, value] : resolvingServices) {
-      DnsServiceResolveCancel(value);
-      delete value; // Allocated in resolveService()
-    }
-    resolvingServices.clear();
-    services.clear();
-    DnsServiceBrowseCancel(&cancelHandle);
+    stop();
     BonsoirAction::dispose();
   }
 

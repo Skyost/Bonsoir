@@ -20,6 +20,8 @@ namespace bonsoir_windows {
 
     void start() override;
 
+    void stop() override;
+
     std::shared_ptr<BonsoirService> findService(std::string serviceName, std::string serviceType);
 
     void resolveService(std::string serviceName, std::string serviceType);

@@ -65,13 +65,18 @@ namespace bonsoir_windows {
     }
   }
 
+  void BonsoirBroadcast::stop() {
+    if (!isRunning()) {
+      return;
+    }
+    BonsoirAction::stop();
+    onSuccess(Generated::broadcastStopped, servicePtr);
+    DnsServiceDeRegister(&registerRequest, nullptr);
+    DnsServiceRegisterCancel(&cancelHandle);
+  }
+
   void BonsoirBroadcast::dispose() {
     stop();
-    if (eventChannel != nullptr) {
-      onSuccess(Generated::broadcastStopped, servicePtr);
-      DnsServiceDeRegister(&registerRequest, nullptr);
-      DnsServiceRegisterCancel(&cancelHandle);
-    }
     BonsoirAction::dispose();
   }
 

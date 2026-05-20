@@ -83,8 +83,10 @@ namespace bonsoir_windows {
         result->Success(EncodableValue(false));
         return;
       }
-      broadcasts.erase(id);
-      // iterator->second->dispose();
+      iterator->second->stop();
+      iterator->second->disposeAfterStreamCancel([this](int stoppedId) {
+        broadcasts.erase(stoppedId);
+      });
       result->Success(EncodableValue(true));
     } else if (method.compare("discovery.initialize") == 0) {
       discoveries[id] = std::make_unique<BonsoirDiscovery>(
@@ -121,8 +123,10 @@ namespace bonsoir_windows {
         result->Success(EncodableValue(false));
         return;
       }
-      discoveries.erase(id);
-      // iterator->second->dispose();
+      iterator->second->stop();
+      iterator->second->disposeAfterStreamCancel([this](int stoppedId) {
+        discoveries.erase(stoppedId);
+      });
       result->Success(EncodableValue(true));
     } else {
       result->NotImplemented();
