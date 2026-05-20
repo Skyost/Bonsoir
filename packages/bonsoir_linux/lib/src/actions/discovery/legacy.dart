@@ -26,8 +26,8 @@ class AvahiDiscoveryLegacy extends AvahiHandler {
 
   @override
   Future<String> getAvahiServiceBrowserPath(String serviceType) => _server.callServiceBrowserNew(
-    interface: AvahiIfIndexUnspecified,
-    protocol: AvahiProtocolUnspecified,
+    interface: avahiIfIndexUnspecified,
+    protocol: avahiProtocolUnspecified,
     type: serviceType,
     domain: '',
     flags: 0,
@@ -36,8 +36,8 @@ class AvahiDiscoveryLegacy extends AvahiHandler {
   @override
   Future<AvahiRecordBrowser> createAvahiRecordBrowser(AvahiBonsoirDiscovery discovery, BonsoirService service) async {
     String recordBrowserPath = await _server.callRecordBrowserNew(
-      AvahiIfIndexUnspecified,
-      AvahiProtocolUnspecified,
+      avahiIfIndexUnspecified,
+      avahiProtocolUnspecified,
       service.fqdn,
       0x01,
       0x10,
@@ -54,7 +54,7 @@ class AvahiDiscoveryLegacy extends AvahiHandler {
       name: service.name,
       type: service.type,
       domain: network.domain,
-      aprotocol: AvahiProtocolUnspecified,
+      aprotocol: avahiProtocolUnspecified,
       flags: 0,
     );
   }

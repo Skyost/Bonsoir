@@ -27,8 +27,8 @@ class AvahiDiscoveryV2 extends AvahiHandler {
 
   @override
   Future<String> getAvahiServiceBrowserPath(String serviceType) => _server.callServiceBrowserPrepare(
-    AvahiIfIndexUnspecified,
-    AvahiProtocolUnspecified,
+    avahiIfIndexUnspecified,
+    avahiProtocolUnspecified,
     serviceType,
     '',
     0,
@@ -37,8 +37,8 @@ class AvahiDiscoveryV2 extends AvahiHandler {
   @override
   Future<AvahiRecordBrowser> createAvahiRecordBrowser(AvahiBonsoirDiscovery discovery, BonsoirService service) async {
     String recordBrowserPath = await _server.callRecordBrowserPrepare(
-      AvahiIfIndexUnspecified,
-      AvahiProtocolUnspecified,
+      avahiIfIndexUnspecified,
+      avahiProtocolUnspecified,
       service.fqdn,
       0x01,
       0x10,
@@ -55,7 +55,7 @@ class AvahiDiscoveryV2 extends AvahiHandler {
       service.name,
       service.type,
       network.domain,
-      AvahiProtocolUnspecified,
+      avahiProtocolUnspecified,
       0,
     );
     AvahiServiceResolver resolver = AvahiServiceResolver(busClient, BonsoirLinux.avahi, DBusObjectPath(serviceResolverPath));

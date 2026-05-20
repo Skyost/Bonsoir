@@ -179,7 +179,7 @@ class AvahiBonsoirDiscovery extends AvahiBonsoirAction<BonsoirDiscoveryEvent> wi
   /// Triggered when a service has been lost.
   void _onServiceLost(DBusSignal signal) {
     AvahiServiceBrowserItemRemove event = AvahiServiceBrowserItemRemove(signal);
-    if (event.type != this.type) {
+    if (event.type != type) {
       return;
     }
     BonsoirService? service = _findService(event.serviceName, event.type);
@@ -274,7 +274,7 @@ class AvahiBonsoirDiscovery extends AvahiBonsoirAction<BonsoirDiscoveryEvent> wi
         if (0 <= asciiCodeInteger && asciiCodeInteger <= 127) {
           result += ascii.decode([asciiCodeInteger]);
         } else {
-          result += '\\${asciiCode}';
+          result += '\\$asciiCode';
         }
         i += (j - 1);
       } else {
