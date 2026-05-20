@@ -148,6 +148,12 @@ await discovery.start();
 await discovery.stop();
 ```
 
+## Notes
+
+Discovery event cycles are platform-dependent. Bonsoir emits events as soon as the
+underlying platform reports them, so the frequency, ordering, and timing of these events may vary
+from one platform to another.
+
 When a discovered service is resolved, `BonsoirService.hostAddresses` contains the network addresses exposed
 by the platform, while `BonsoirService.hostname` contains the mDNS/SRV target hostname when the
 platform provides one. You can check whether the current platform can populate this hostname field
@@ -155,7 +161,7 @@ by checking the `BonsoirDiscovery.supportsMdnsHostname` property. This does not 
 operating system can resolve `.local` hostnames natively for HTTP requests or sockets; use
 `hostAddresses` when you need already-resolved network addresses.
 
-**Note.** If you're transitioning from `multicast_dns`, note that types don't end with <q>.local</q>.
+If you're transitioning from `multicast_dns`, note that types don't end with <q>.local</q>.
 
 # In-depth example
 
