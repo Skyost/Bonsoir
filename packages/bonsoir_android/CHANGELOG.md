@@ -1,6 +1,6 @@
 ## 7.1.1
 
- - Bump "bonsoir_android" to `7.1.1`.
+- **FIX**(android): Applying `kotlin-android` plugin so the `kotlin {}` DSL block works. ([8fbf11c4](https://github.com/Skyost/Bonsoir/commit/8fbf11c4a8e5d1e02c593fbbc9cd8a2c28c3a457))
 
 ## 7.1.0
 

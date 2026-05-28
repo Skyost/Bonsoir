@@ -1,6 +1,6 @@
 ## 7.1.1
 
- - Bump "bonsoir" to `7.1.1`.
+ - Update a dependency to the latest release.
 
 ## 7.1.0
 
