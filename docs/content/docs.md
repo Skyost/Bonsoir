@@ -72,13 +72,64 @@ Under the "Minimum Deployments" section, update the macOS version to 10.15 or hi
 
 ### Linux
 
-If you don't have Avahi installed on your system, just install it using :
+Avahi is typically preinstalled on Ubuntu and Fedora desktop systems, but it is not guaranteed.
+It is not installed by default on Arch Linux.
+
+<details>
+	<summary>Apt / Dnf / Pacman</summary>
+
+The installation instructions depend on your package manager and the distribution.
+
+For Ubuntu / Debian-based distros (e.g., Linux Mint, PopOS) :
 
 ```shell
 sudo apt install -y avahi-daemon avahi-discover avahi-utils libnss-mdns mdns-scan
 ```
 
-(Assuming your package manager is APT.)
+For Fedora / RHEL / CentOS distros :
+
+```shell
+sudo dnf instal -y avahi avahi-tools nss-mdns mdns-scan
+```
+
+For Arch distros :
+
+```shell
+sudo pacman -S avahi nss-mdns mdns-scan
+```
+
+</details>
+
+<details>
+	<summary>Firewall</summary>
+
+Usually, no action is required in many Linux desktops but not guaranteed:
+
+- Ubuntu desktops: `ufw` is typically installed but inactive by default.
+- Fedora desktops: `firewalld` is installed and active, and mDNS may already work due to the default port.
+- Arch desktops: No firewall is installed or enabled by default.
+
+If a firewall is active, and 5353/udp is blocked, it must be opened for mDNS :
+
+- Ufw : `sudo ufw allow 5353/udp`
+- firewalld : `sudo firewall-cmd --permanent --add-service=mdns` and `sudo firewall-cmd --reload`
+
+</details>
+
+<details>
+	<summary>Flatpak</summary>
+
+To allow access to the Avahi system D-Bus service from inside the Flatpak sandbox, add these permissions to the manifest :
+
+```yaml
+finish-args:
+  - --share=network
+  - --system-talk-name=org.freedesktop.Avahi
+```
+
+This still requires Avahi to be installed on the host OS.
+
+</details>
 
 # Getting started
 
