@@ -14,6 +14,7 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentLinkedQueue
+import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.Executor
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.coroutines.CoroutineContext
@@ -66,8 +67,14 @@ class BonsoirServiceDiscovery(
 
     /**
      * Contains all discovered services.
+     *
+     * Backed by a [CopyOnWriteArrayList] because it is written from the NSD discovery
+     * callback thread (onServiceFound/onServiceLost/dispose) while being read from the
+     * IO coroutine launched in queryTxtRecord (via findService in onServiceTxtRecordFound).
+     * A plain ArrayList exposed a transient null slot during that race, crashing with a
+     * NullPointerException on service.name in findService.
      */
-    private val services: ArrayList<BonsoirService> = ArrayList()
+    private val services: MutableList<BonsoirService> = CopyOnWriteArrayList()
 
     /**
      * Contains all active callbacks.
