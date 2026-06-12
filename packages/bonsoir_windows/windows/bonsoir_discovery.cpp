@@ -84,7 +84,6 @@ namespace bonsoir_windows {
     resolveRequest.QueryName = const_cast<PWSTR>(queryName.c_str());
     resolveRequest.pResolveCompletionCallback = resolveCallback;
     resolveRequest.pQueryContext = this;
-
     DNS_STATUS status = DnsServiceResolve(&resolveRequest, resolveCancelHandle);
     if (status == DNS_REQUEST_PENDING) {
       resolvingServices[servicePtr] = resolveCancelHandle;
