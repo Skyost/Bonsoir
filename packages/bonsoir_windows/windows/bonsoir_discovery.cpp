@@ -48,11 +48,14 @@ namespace bonsoir_windows {
     }
     BonsoirAction::stop();
     onSuccess(Generated::discoveryStopped, nullptr, std::list<std::string>{type});
-    for (auto const &[key, value] : resolvingServices) {
-      DnsServiceResolveCancel(value);
-      delete value; // Allocated in resolveService()
+    {
+      const std::lock_guard<std::mutex> lock(resolvingServicesCleanupMutex);
+      for (auto const &[key, value] : resolvingServices) {
+        DnsServiceResolveCancel(value);
+        delete value; // Allocated in resolveService()
+      }
+      resolvingServices.clear();
     }
-    resolvingServices.clear();
     services.clear();
     DnsServiceBrowseCancel(&cancelHandle);
   }
@@ -81,6 +84,7 @@ namespace bonsoir_windows {
     resolveRequest.QueryName = const_cast<PWSTR>(queryName.c_str());
     resolveRequest.pResolveCompletionCallback = resolveCallback;
     resolveRequest.pQueryContext = this;
+
     DNS_STATUS status = DnsServiceResolve(&resolveRequest, resolveCancelHandle);
     if (status == DNS_REQUEST_PENDING) {
       resolvingServices[servicePtr] = resolveCancelHandle;
@@ -198,6 +202,14 @@ namespace bonsoir_windows {
       serviceData = parseBonjourFqdn(nameHost);
       servicePtr = discovery->findService(std::get<0>(serviceData), std::get<1>(serviceData));
     }
+
+    if(servicePtr) {
+      const std::lock_guard<std::mutex> lock(discovery->resolvingServicesCleanupMutex);
+      DNS_SERVICE_CANCEL* resolveCancelHandle = discovery->resolvingServices[servicePtr];
+      delete resolveCancelHandle; // Allocated in resolveService()
+	    discovery->resolvingServices.erase(servicePtr);
+    }
+
     if (status != ERROR_SUCCESS) {
       if (servicePtr) {
         discovery->onSuccess(Generated::discoveryServiceResolveFailed, servicePtr, std::list<std::string>{std::to_string(status)});
@@ -224,9 +236,6 @@ namespace bonsoir_windows {
       servicePtr->port = serviceInstance->wPort;
       DnsServiceFreeInstance(serviceInstance);
     }
-    DNS_SERVICE_CANCEL* resolveCancelHandle = discovery->resolvingServices[servicePtr];
-    delete resolveCancelHandle; // Allocated in resolveService()
-    discovery->resolvingServices.erase(servicePtr);
     discovery->onSuccess(Generated::discoveryServiceResolved, servicePtr);
   }
 }  // namespace bonsoir_windows
