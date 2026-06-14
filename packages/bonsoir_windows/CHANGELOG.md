@@ -1,6 +1,6 @@
 ## 7.1.1
 
- - fix(windows): Clean up resolving services with a mutex to prevent race conditions.
+ - **FIX**(windows): Clean up resolving services with a mutex to prevent race conditions. ([53ace1e1](https://github.com/Skyost/Bonsoir/commit/53ace1e1ecef5eaa2b719eefa8599d2f61f28c36))
 
 ## 7.1.0
 
