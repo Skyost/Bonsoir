@@ -1,3 +1,7 @@
+## 7.1.2
+
+ - **FIX**(android): make discovery services list thread-safe. ([bcf87d91](https://github.com/Skyost/Bonsoir/commit/bcf87d9184f16f953e421b5b00591f318efd580a))
+
 ## 7.1.1
 
 - **FIX**(android): Applying `kotlin-android` plugin so the `kotlin {}` DSL block works. ([8fbf11c4](https://github.com/Skyost/Bonsoir/commit/8fbf11c4a8e5d1e02c593fbbc9cd8a2c28c3a457))

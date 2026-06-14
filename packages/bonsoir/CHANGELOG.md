@@ -1,3 +1,5 @@
+## 7.1.2
+
 ## 7.1.1
 
  - Update a dependency to the latest release.

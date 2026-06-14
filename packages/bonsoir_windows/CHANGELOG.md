@@ -1,3 +1,7 @@
+## 7.1.1
+
+ - fix(windows): Clean up resolving services with a mutex to prevent race conditions.
+
 ## 7.1.0
 
  - **FEAT**: Prioritizing host addresses over hostname during service broadcast. ([ff6b78d3](https://github.com/Skyost/Bonsoir/commit/ff6b78d352e2af022cc13635e35ba296e9f40ec7))
