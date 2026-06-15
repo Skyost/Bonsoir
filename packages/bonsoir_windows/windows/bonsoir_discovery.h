@@ -8,6 +8,7 @@ namespace bonsoir_windows {
     std::string type;
     std::list<std::shared_ptr<BonsoirService>> services;
     std::map<std::shared_ptr<BonsoirService>, PDNS_SERVICE_CANCEL> resolvingServices = std::map<std::shared_ptr<BonsoirService>, PDNS_SERVICE_CANCEL>{};
+    std::mutex resolvingServicesCleanupMutex;
 
     BonsoirDiscovery(
       int _id,
