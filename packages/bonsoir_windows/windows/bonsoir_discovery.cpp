@@ -233,11 +233,14 @@ namespace bonsoir_windows {
         servicePtr->hostname = toUtf8(serviceInstance->pszHostName);
       }
       servicePtr->port = serviceInstance->wPort;
-      if (serviceInstance->dwPropertyCount > 0 && serviceInstance->keys != nullptr && serviceInstance->values != nullptr) {
+      if (serviceInstance->dwPropertyCount > 0 && serviceInstance->keys != nullptr) {
         for (DWORD i = 0; i < serviceInstance->dwPropertyCount; i++) {
           if (serviceInstance->keys[i] != nullptr) {
             std::string key = toUtf8(serviceInstance->keys[i]);
-            std::string value = serviceInstance->values[i] != nullptr ? toUtf8(serviceInstance->values[i]) : "";
+            std::string value = "";
+            if (serviceInstance->values != nullptr && serviceInstance->values[i] != nullptr) {
+              value = toUtf8(serviceInstance->values[i]);
+            }
             servicePtr->attributes[key] = value;
           }
         }
