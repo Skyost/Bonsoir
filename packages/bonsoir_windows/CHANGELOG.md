@@ -1,3 +1,7 @@
+## 7.2.0
+
+ - **FEAT**: add BonsoirDiscovery header for Windows service discovery implementation. ([28f8a121](https://github.com/Skyost/Bonsoir/commit/28f8a121fd4ede87c96badfc9355b73ebcf4f9f8))
+
 ## 7.1.1
 
  - **FIX**(windows): Clean up resolving services with a mutex to prevent race conditions. ([53ace1e1](https://github.com/Skyost/Bonsoir/commit/53ace1e1ecef5eaa2b719eefa8599d2f61f28c36))
