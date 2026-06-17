@@ -1,3 +1,10 @@
+## 7.3.0
+
+ - **FIX**(windows): Resolve and update service attributes (TXT records) during service resolution. ([8a729d3e](https://github.com/Skyost/Bonsoir/commit/8a729d3ebcd81336bf40f11a14b26a2bcb425cda))
+ - **FEAT**: clear service attributes in findService method for better state management. ([b9b600ff](https://github.com/Skyost/Bonsoir/commit/b9b600ff1fd40a270f935f477804a3f743b2faad))
+ - **FEAT**: implement BonsoirDiscovery for service discovery on Windows using native DNS-SD APIs. ([f1e753e1](https://github.com/Skyost/Bonsoir/commit/f1e753e1669b3160ec9962de45ed3168579da703))
+ - **FEAT**: implement BonsoirDiscovery for service browsing and resolution on Windows. ([ed2de4be](https://github.com/Skyost/Bonsoir/commit/ed2de4be9f062c40677cf8adbb9205459b3c9ee8))
+
 ## 7.2.0
 
  - **FEAT**: add BonsoirDiscovery header for Windows service discovery implementation. ([28f8a121](https://github.com/Skyost/Bonsoir/commit/28f8a121fd4ede87c96badfc9355b73ebcf4f9f8))
