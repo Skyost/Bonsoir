@@ -212,6 +212,13 @@ by checking the `BonsoirDiscovery.supportsMdnsHostname` property. This does not 
 operating system can resolve `.local` hostnames natively for HTTP requests or sockets; use
 `hostAddresses` when you need already-resolved network addresses.
 
+The address family is also platform and service dependent. The list may contain IPv4 addresses,
+IPv6 addresses, or both. For example, Linux/Avahi may report IPv6 link-local addresses such as
+`fe80::...` for services published on the same host. Do not assume that `hostAddress` is IPv4 or
+that a raw address string can be passed directly as a URI authority. Parse or classify the address
+first, and when building URIs prefer `Uri(scheme: ..., host: address, port: ...)` or bracket IPv6
+addresses according to URI rules.
+
 If you're transitioning from `multicast_dns`, note that types don't end with <q>.local</q>.
 
 # In-depth example

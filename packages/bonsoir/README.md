@@ -99,6 +99,14 @@ If you want a <q>full</q> example, don't hesitate to check [this one](https://gi
 > guarantee that the operating system can resolve `.local` hostnames natively for
 > HTTP requests or sockets; use `hostAddresses` when you need already-resolved
 > network addresses.
+>
+> The address family is platform and service dependent. The list may contain
+> IPv4 addresses, IPv6 addresses, or both, and Linux/Avahi may report IPv6
+> link-local addresses such as `fe80::...` for services published on the same
+> host. Do not assume that `hostAddress` is IPv4 or that a raw address string can
+> be passed directly as a URI authority. Parse or classify the address first, and
+> when building URIs prefer `Uri(scheme: ..., host: address, port: ...)` or
+> bracket IPv6 addresses according to URI rules.
 
 ## Contributions
 

@@ -55,6 +55,10 @@ class BonsoirService {
   ///
   /// Your service should be reachable at the given host addresses.
   /// These should be IP addresses when the platform provides them.
+  /// The list may contain IPv4 addresses, IPv6 addresses, or both depending on
+  /// the platform, network interfaces, and service publisher. For example,
+  /// Linux/Avahi may expose IPv6 link-local addresses for local services.
+  /// Treat these values as raw addresses rather than URI authorities.
   /// This field may be empty if the service has not been resolved yet.
   final List<String> hostAddresses;
 
@@ -133,6 +137,8 @@ class BonsoirService {
 
   /// The first service host address.
   ///
+  /// This may be an IPv4 or IPv6 address depending on the resolved service and
+  /// platform. Do not assume that it can be passed directly as a URI authority.
   /// This field may be null if the service has not been resolved yet.
   String? get hostAddress => hostAddresses.firstOrNull;
 
