@@ -31,7 +31,14 @@ class BonsoirAction: NSObject, FlutterStreamHandler {
     
     /// The current event sink.
     private var eventSink: FlutterEventSink?
-    
+
+    /// Whether this action has been torn down.
+    ///
+    /// A DNSSD callback can already be in flight when the action is disposed, so
+    /// something has to tell the work it hands to the main queue that there is
+    /// no longer anything to report to, and nothing left to deallocate.
+    private(set) var isDisposed = false
+
     /// Initializes this class.
     public init(id: Int, action: String, logMessages: [String: String], printLogs: Bool, onDispose: @escaping () -> Void, messenger: FlutterBinaryMessenger) {
         self.id = id
@@ -76,6 +83,7 @@ class BonsoirAction: NSObject, FlutterStreamHandler {
 
     /// Disposes the current class instance.
     public func dispose() {
+        isDisposed = true
         onDispose()
     }
     
