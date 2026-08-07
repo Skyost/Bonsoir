@@ -280,7 +280,7 @@ class BonsoirServiceDiscovery: BonsoirAction {
             }
 
             var service: BonsoirService?
-            if let resolvedFullName, let serviceData = parseBonjourFqdn(unescapeAscii(resolvedFullName)) {
+            if let resolvedFullName, let serviceData = ServiceResolution.parseBonjourFqdn(ServiceResolution.unescapeAscii(resolvedFullName)) {
                 service = discovery.findService(serviceData.0, serviceData.1)
             }
             if let service, errorCode == kDNSServiceErr_NoError {
@@ -312,7 +312,7 @@ class BonsoirServiceDiscovery: BonsoirAction {
     /// reclaimed.
     private static let addressResolveCallback: DNSServiceGetAddrInfoReply = { sdRef, flags, _, errorCode, _, address, _, context in
         let discovery = Unmanaged<BonsoirServiceDiscovery>.fromOpaque(context!).takeUnretainedValue()
-        let resolvedAddress = address == nil ? nil : BonsoirServiceDiscovery.ipAddress(from: address!)
+        let resolvedAddress = address == nil ? nil : ServiceResolution.ipAddress(from: address!)
         let hasMoreResults = (flags & DNSServiceFlags(kDNSServiceFlagsMoreComing)) != 0
 
         DispatchQueue.main.async {
@@ -352,81 +352,5 @@ class BonsoirServiceDiscovery: BonsoirAction {
             return "nil"
         }
         return String(describing: sdRef)
-    }
-
-    /// Converts a socket address to a numeric IP address string.
-    private static func ipAddress(from address: UnsafePointer<sockaddr>) -> String? {
-        var host = [CChar](repeating: 0, count: Int(NI_MAXHOST))
-        let result = getnameinfo(address, socklen_t(address.pointee.sa_len), &host, socklen_t(host.count), nil, 0, NI_NUMERICHOST)
-        return result == 0 ? String(cString: host) : nil
-    }
-    
-    /// Allows to unescape services FQDN.
-    private static func unescapeAscii(_ inputString: String) -> String {
-        let input = inputString.replacingOccurrences(of: "\\.", with: ".")
-        var result = ""
-        var i = 0
-        while i < input.count {
-            if input[i] == "\\" && i + 1 < input.count {
-                var asciiCode = ""
-                var j = 1
-                while j < 4 {
-                    if i + j >= input.count || !String(input[i + j]).isNumeric {
-                        break
-                    }
-                    asciiCode += String(input[i + j])
-                    j += 1
-                }
-                if let code = Int(asciiCode), let unicodeScalar = UnicodeScalar(code) {
-                    result += String(unicodeScalar)
-                } else {
-                    result += "\\\(asciiCode)"
-                }
-                i += (j - 1)
-            } else {
-                result += String(input[i])
-            }
-            
-            i += 1
-        }
-        return result
-    }
-
-    /// Parses a Bonjour FQDN.
-    private static func parseBonjourFqdn(_ fqdn: String) -> (String, String)? {
-        let regexPattern = "^(.*?)\\._(.*?)\\.?(?:local)?\\.?$"
-        let regex = try! NSRegularExpression(pattern: regexPattern, options: [])
-        if let match = regex.firstMatch(in: fqdn, options: [], range: NSRange(location: 0, length: fqdn.utf16.count)) {
-            let serviceName = (fqdn as NSString).substring(with: match.range(at: 1)).trimmingCharacters(in: .whitespacesAndNewlines)
-            let serviceType = "_\((fqdn as NSString).substring(with: match.range(at: 2)))"
-            return (serviceName, serviceType)
-        }
-        return nil
-    }
-}
-
-extension String {
-    var isNumeric: Bool {
-        return !isEmpty && rangeOfCharacter(from: CharacterSet.decimalDigits.inverted) == nil
-    }
-    
-    subscript(i: Int) -> String {
-        return self[i ..< i + 1]
-    }
-    
-    func substring(fromIndex: Int) -> String {
-        return self[min(fromIndex, count) ..< count]
-    }
-    
-    func substring(toIndex: Int) -> String {
-        return self[0 ..< max(0, toIndex)]
-    }
-    
-    subscript(r: Range<Int>) -> String {
-        let range = Range(uncheckedBounds: (lower: max(0, min(count, r.lowerBound)),
-                                            upper: min(count, max(0, r.upperBound))))
-        let start = index(startIndex, offsetBy: range.lowerBound)
-        let end = index(start, offsetBy: range.upperBound - range.lowerBound)
-        return String(self[start ..< end])
     }
 }
