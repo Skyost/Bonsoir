@@ -257,55 +257,78 @@ class BonsoirServiceDiscovery: BonsoirAction {
     }
     
     /// Callback triggered by`DNSServiceResolve`.
+    ///
+    /// Every resolution gets its own dispatch source on a *concurrent* queue, so
+    /// several of these can run at the same time — and they all share the
+    /// `services` array and the `BonsoirService` instances in it. Reading the C
+    /// arguments is therefore the only work done here: they are only valid for
+    /// the duration of the callback. Everything that touches shared state is
+    /// handed to the main queue, which is the one thread the browse handler and
+    /// the plugin's own bookkeeping already run on.
     private static let resolveCallback: DNSServiceResolveReply = { sdRef, _, _, errorCode, fullName, hosttarget, port, _, _, context in
         let discovery = Unmanaged<BonsoirServiceDiscovery>.fromOpaque(context!).takeUnretainedValue()
-        var service: BonsoirService?
-        if fullName != nil, let serviceData = parseBonjourFqdn(unescapeAscii(String(cString: fullName!))) {
-            service = discovery.findService(serviceData.0, serviceData.1)
-        }
-        if service != nil && errorCode == kDNSServiceErr_NoError {
-            if hosttarget != nil {
-                service!.hostname = String(cString: hosttarget!)
-            }
-            service!.port = Int(CFSwapInt16BigToHost(port))
+        let resolvedFullName = fullName == nil ? nil : String(cString: fullName!)
+        let resolvedHostname = hosttarget == nil ? nil : String(cString: hosttarget!)
+        let resolvedPort = Int(CFSwapInt16BigToHost(port))
 
-            DispatchQueue.main.async {
-                if service!.hostname == nil {
+        DispatchQueue.main.async {
+            // `dispose()` has already deallocated every pending reference and
+            // emptied `services`, so a reply that lands after it has nothing to
+            // look up, nobody to report to, and nothing left to free.
+            guard !discovery.isDisposed else {
+                return
+            }
+
+            var service: BonsoirService?
+            if let resolvedFullName, let serviceData = ServiceResolution.parseBonjourFqdn(ServiceResolution.unescapeAscii(resolvedFullName)) {
+                service = discovery.findService(serviceData.0, serviceData.1)
+            }
+            if let service, errorCode == kDNSServiceErr_NoError {
+                if let resolvedHostname {
+                    service.hostname = resolvedHostname
+                }
+                service.port = resolvedPort
+
+                if service.hostname == nil {
                     discovery.onSuccess(eventId: Generated.discoveryServiceResolveFailed, service: service, parameters: [errorCode])
                 } else {
-                    discovery.resolveAddress(for: service!, hostname: service!.hostname!)
+                    discovery.resolveAddress(for: service, hostname: service.hostname!)
                 }
-            }
-        } else {
-            if service == nil {
-                DispatchQueue.main.async {
-                    discovery.onError(message: Generated.discoveryServiceResolveFailed, parameters: ["nil", errorCode])
-                }
+            } else if service == nil {
+                discovery.onError(message: Generated.discoveryServiceResolveFailed, parameters: ["nil", errorCode])
             } else {
-                DispatchQueue.main.async {
-                    discovery.onSuccess(eventId: Generated.discoveryServiceResolveFailed, service: service, parameters: [errorCode])
-                }
+                discovery.onSuccess(eventId: Generated.discoveryServiceResolveFailed, service: service, parameters: [errorCode])
             }
-        }
-        
-        DispatchQueue.main.async {
+
             discovery.stopResolution(sdRef: sdRef, remove: sdRef != nil)
         }
     }
 
     /// Callback triggered by `DNSServiceGetAddrInfo`.
+    ///
+    /// `address` points into memory owned by the DNSSD library and is only valid
+    /// while this callback runs, so it is turned into a string right away. Doing
+    /// it from the main queue instead read a `sockaddr` the library had already
+    /// reclaimed.
     private static let addressResolveCallback: DNSServiceGetAddrInfoReply = { sdRef, flags, _, errorCode, _, address, _, context in
         let discovery = Unmanaged<BonsoirServiceDiscovery>.fromOpaque(context!).takeUnretainedValue()
+        let resolvedAddress = address == nil ? nil : ServiceResolution.ipAddress(from: address!)
+        let hasMoreResults = (flags & DNSServiceFlags(kDNSServiceFlagsMoreComing)) != 0
 
         DispatchQueue.main.async {
+            // See `resolveCallback`: after teardown there is nothing to report
+            // to, and the reference has already been deallocated.
+            guard !discovery.isDisposed else {
+                return
+            }
+
             let resolutionKey = BonsoirServiceDiscovery.resolutionKey(for: sdRef)
             guard let service = discovery.pendingAddressResolution[resolutionKey] else {
                 discovery.stopResolution(sdRef: sdRef, remove: sdRef != nil)
                 return
             }
 
-            let hasMoreResults = (flags & DNSServiceFlags(kDNSServiceFlagsMoreComing)) != 0
-            if errorCode == kDNSServiceErr_NoError, address != nil, let resolvedAddress = BonsoirServiceDiscovery.ipAddress(from: address!) {
+            if errorCode == kDNSServiceErr_NoError, let resolvedAddress {
                 if !service.hostAddresses.contains(resolvedAddress) {
                     service.hostAddresses.append(resolvedAddress)
                 }
@@ -329,81 +352,5 @@ class BonsoirServiceDiscovery: BonsoirAction {
             return "nil"
         }
         return String(describing: sdRef)
-    }
-
-    /// Converts a socket address to a numeric IP address string.
-    private static func ipAddress(from address: UnsafePointer<sockaddr>) -> String? {
-        var host = [CChar](repeating: 0, count: Int(NI_MAXHOST))
-        let result = getnameinfo(address, socklen_t(address.pointee.sa_len), &host, socklen_t(host.count), nil, 0, NI_NUMERICHOST)
-        return result == 0 ? String(cString: host) : nil
-    }
-    
-    /// Allows to unescape services FQDN.
-    private static func unescapeAscii(_ inputString: String) -> String {
-        let input = inputString.replacingOccurrences(of: "\\.", with: ".")
-        var result = ""
-        var i = 0
-        while i < input.count {
-            if input[i] == "\\" && i + 1 < input.count {
-                var asciiCode = ""
-                var j = 1
-                while j < 4 {
-                    if i + j >= input.count || !String(input[i + j]).isNumeric {
-                        break
-                    }
-                    asciiCode += String(input[i + j])
-                    j += 1
-                }
-                if let code = Int(asciiCode), let unicodeScalar = UnicodeScalar(code) {
-                    result += String(unicodeScalar)
-                } else {
-                    result += "\\\(asciiCode)"
-                }
-                i += (j - 1)
-            } else {
-                result += String(input[i])
-            }
-            
-            i += 1
-        }
-        return result
-    }
-
-    /// Parses a Bonjour FQDN.
-    private static func parseBonjourFqdn(_ fqdn: String) -> (String, String)? {
-        let regexPattern = "^(.*?)\\._(.*?)\\.?(?:local)?\\.?$"
-        let regex = try! NSRegularExpression(pattern: regexPattern, options: [])
-        if let match = regex.firstMatch(in: fqdn, options: [], range: NSRange(location: 0, length: fqdn.utf16.count)) {
-            let serviceName = (fqdn as NSString).substring(with: match.range(at: 1)).trimmingCharacters(in: .whitespacesAndNewlines)
-            let serviceType = "_\((fqdn as NSString).substring(with: match.range(at: 2)))"
-            return (serviceName, serviceType)
-        }
-        return nil
-    }
-}
-
-extension String {
-    var isNumeric: Bool {
-        return !isEmpty && rangeOfCharacter(from: CharacterSet.decimalDigits.inverted) == nil
-    }
-    
-    subscript(i: Int) -> String {
-        return self[i ..< i + 1]
-    }
-    
-    func substring(fromIndex: Int) -> String {
-        return self[min(fromIndex, count) ..< count]
-    }
-    
-    func substring(toIndex: Int) -> String {
-        return self[0 ..< max(0, toIndex)]
-    }
-    
-    subscript(r: Range<Int>) -> String {
-        let range = Range(uncheckedBounds: (lower: max(0, min(count, r.lowerBound)),
-                                            upper: min(count, max(0, r.upperBound))))
-        let start = index(startIndex, offsetBy: range.lowerBound)
-        let end = index(start, offsetBy: range.upperBound - range.lowerBound)
-        return String(self[start ..< end])
     }
 }
