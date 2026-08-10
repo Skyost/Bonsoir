@@ -25,9 +25,6 @@ class BonsoirServiceDiscovery: BonsoirAction {
     /// Contains all services whose hostnames are currently resolving.
     private var pendingAddressResolution: [String: BonsoirService] = [:]
 
-    /// Contains all dispatch sources.
-    private var pendingDispatchSources: [DispatchSourceRead] = []
-
     /// Initializes this class.
     public init(id: Int, printLogs: Bool, onDispose: @escaping () -> Void, messenger: FlutterBinaryMessenger, type: String) {
         self.type = type
@@ -132,45 +129,23 @@ class BonsoirServiceDiscovery: BonsoirAction {
             return false
         }
 
+        // Recorded before scheduling, not after: this only reads as safe because
+        // the caller and the delivery share the main queue, so no reply can slip
+        // in between. Ordering it this way keeps that from becoming a trap if the
+        // delivery queue ever changes.
         pendingResolution.append(sdRef!)
 
-        let socket = DNSServiceRefSockFD(sdRef)
-        if socket == -1 {
-            onSuccess(eventId: Generated.discoveryServiceResolveFailed, service: service, parameters: [])
-            stopResolution(sdRef: sdRef, remove: false)
+        // Replies arrive on the main queue, which is where `services`, the
+        // bookkeeping below and the browse handler already live — and dns_sd.h
+        // requires the reference to be deallocated on the queue it was scheduled
+        // on, so that is the mutual exclusion the header asks the caller for.
+        let queueError = DNSServiceSetDispatchQueue(sdRef, DispatchQueue.main)
+        if queueError != kDNSServiceErr_NoError {
+            onSuccess(eventId: Generated.discoveryServiceResolveFailed, service: service, parameters: [queueError])
+            stopResolution(sdRef: sdRef)
             return false
         }
 
-        let dispatchSource = DispatchSource.makeReadSource(fileDescriptor: socket, queue: DispatchQueue.global(qos: .userInitiated))
-        dispatchSource.setEventHandler(handler: {
-            DNSServiceProcessResult(sdRef)
-            
-            DispatchQueue.main.async {
-                let foundIndex = self.pendingDispatchSources.firstIndex(where: {
-                    $0.isEqual(dispatchSource)
-                })
-                
-                if foundIndex != nil {
-                    self.pendingDispatchSources.remove(at: foundIndex!)
-                }
-            }
-        })
-
-        dispatchSource.setCancelHandler(handler: {
-            DispatchQueue.main.async {
-                let foundIndex = self.pendingDispatchSources.firstIndex(where: {
-                    $0.isEqual(dispatchSource)
-                })
-                
-                if foundIndex != nil {
-                    self.pendingDispatchSources.remove(at: foundIndex!)
-                }
-            }
-        })
-
-        dispatchSource.activate()
-        
-        pendingDispatchSources.append(dispatchSource)
         return true
     }
 
@@ -187,46 +162,14 @@ class BonsoirServiceDiscovery: BonsoirAction {
         pendingResolution.append(sdRef!)
         pendingAddressResolution[BonsoirServiceDiscovery.resolutionKey(for: sdRef)] = service
 
-        let socket = DNSServiceRefSockFD(sdRef)
-        if socket == -1 {
-            onSuccess(eventId: Generated.discoveryServiceResolveFailed, service: service, parameters: [])
+        let queueError = DNSServiceSetDispatchQueue(sdRef, DispatchQueue.main)
+        if queueError != kDNSServiceErr_NoError {
+            onSuccess(eventId: Generated.discoveryServiceResolveFailed, service: service, parameters: [queueError])
             pendingAddressResolution.removeValue(forKey: BonsoirServiceDiscovery.resolutionKey(for: sdRef))
-            stopResolution(sdRef: sdRef, remove: true)
+            stopResolution(sdRef: sdRef)
             return false
         }
 
-        let dispatchSource = DispatchSource.makeReadSource(fileDescriptor: socket, queue: DispatchQueue.global(qos: .userInitiated))
-        dispatchSource.setEventHandler(handler: {
-            DNSServiceProcessResult(sdRef)
-
-            DispatchQueue.main.async {
-                let foundIndex = self.pendingDispatchSources.firstIndex(where: {
-                    $0.isEqual(dispatchSource)
-                })
-
-                if foundIndex != nil {
-                    self.pendingDispatchSources.remove(at: foundIndex!)
-                }
-            }
-        })
-
-        dispatchSource.setCancelHandler(handler: {
-            DispatchQueue.main.async {
-                let foundIndex = self.pendingDispatchSources.firstIndex(where: {
-                    $0.isEqual(dispatchSource)
-                })
-
-                if foundIndex != nil {
-                    self.pendingDispatchSources.remove(at: foundIndex!)
-                }
-
-                self.pendingAddressResolution.removeValue(forKey: BonsoirServiceDiscovery.resolutionKey(for: sdRef))
-            }
-        })
-
-        dispatchSource.activate()
-
-        pendingDispatchSources.append(dispatchSource)
         return true
     }
     
@@ -258,95 +201,85 @@ class BonsoirServiceDiscovery: BonsoirAction {
     
     /// Callback triggered by`DNSServiceResolve`.
     ///
-    /// Every resolution gets its own dispatch source on a *concurrent* queue, so
-    /// several of these can run at the same time — and they all share the
-    /// `services` array and the `BonsoirService` instances in it. Reading the C
-    /// arguments is therefore the only work done here: they are only valid for
-    /// the duration of the callback. Everything that touches shared state is
-    /// handed to the main queue, which is the one thread the browse handler and
-    /// the plugin's own bookkeeping already run on.
+    /// Delivered on the main queue, because that is the queue the reference was
+    /// scheduled on — so the `services` array, the `BonsoirService` being filled
+    /// in and the browse handler are all on the same thread, and the reference
+    /// can be deallocated right here.
     private static let resolveCallback: DNSServiceResolveReply = { sdRef, _, _, errorCode, fullName, hosttarget, port, _, _, context in
         let discovery = Unmanaged<BonsoirServiceDiscovery>.fromOpaque(context!).takeUnretainedValue()
-        let resolvedFullName = fullName == nil ? nil : String(cString: fullName!)
-        let resolvedHostname = hosttarget == nil ? nil : String(cString: hosttarget!)
-        let resolvedPort = Int(CFSwapInt16BigToHost(port))
-
-        DispatchQueue.main.async {
-            // `dispose()` has already deallocated every pending reference and
-            // emptied `services`, so a reply that lands after it has nothing to
-            // look up, nobody to report to, and nothing left to free.
-            guard !discovery.isDisposed else {
-                return
-            }
-
-            var service: BonsoirService?
-            if let resolvedFullName, let serviceData = ServiceResolution.parseBonjourFqdn(ServiceResolution.unescapeAscii(resolvedFullName)) {
-                service = discovery.findService(serviceData.0, serviceData.1)
-            }
-            if let service, errorCode == kDNSServiceErr_NoError {
-                if let resolvedHostname {
-                    service.hostname = resolvedHostname
-                }
-                service.port = resolvedPort
-
-                if service.hostname == nil {
-                    discovery.onSuccess(eventId: Generated.discoveryServiceResolveFailed, service: service, parameters: [errorCode])
-                } else {
-                    discovery.resolveAddress(for: service, hostname: service.hostname!)
-                }
-            } else if service == nil {
-                discovery.onError(message: Generated.discoveryServiceResolveFailed, parameters: ["nil", errorCode])
-            } else {
-                discovery.onSuccess(eventId: Generated.discoveryServiceResolveFailed, service: service, parameters: [errorCode])
-            }
-
-            discovery.stopResolution(sdRef: sdRef, remove: sdRef != nil)
+        guard !discovery.isDisposed else {
+            return
         }
+
+        var service: BonsoirService?
+        if let fullName, let serviceData = ServiceResolution.parseBonjourFqdn(ServiceResolution.unescapeAscii(String(cString: fullName))) {
+            service = discovery.findService(serviceData.0, serviceData.1)
+        }
+        if let service, errorCode == kDNSServiceErr_NoError {
+            if let hosttarget {
+                service.hostname = String(cString: hosttarget)
+            }
+            service.port = Int(CFSwapInt16BigToHost(port))
+
+            if service.hostname == nil {
+                discovery.onSuccess(eventId: Generated.discoveryServiceResolveFailed, service: service, parameters: [errorCode])
+            } else {
+                discovery.resolveAddress(for: service, hostname: service.hostname!)
+            }
+        } else if service == nil {
+            discovery.onError(message: Generated.discoveryServiceResolveFailed, parameters: ["nil", errorCode])
+        } else {
+            discovery.onSuccess(eventId: Generated.discoveryServiceResolveFailed, service: service, parameters: [errorCode])
+        }
+
+        discovery.stopResolution(sdRef: sdRef, remove: sdRef != nil)
     }
 
     /// Callback triggered by `DNSServiceGetAddrInfo`.
     ///
-    /// `address` points into memory owned by the DNSSD library and is only valid
-    /// while this callback runs, so it is turned into a string right away. Doing
-    /// it from the main queue instead read a `sockaddr` the library had already
-    /// reclaimed.
+    /// Delivered on the main queue, like `resolveCallback`. `address` points into
+    /// memory owned by the DNSSD library and is only valid while this callback
+    /// runs, so it is turned into a string here rather than carried anywhere.
     private static let addressResolveCallback: DNSServiceGetAddrInfoReply = { sdRef, flags, _, errorCode, _, address, _, context in
         let discovery = Unmanaged<BonsoirServiceDiscovery>.fromOpaque(context!).takeUnretainedValue()
+        guard !discovery.isDisposed else {
+            return
+        }
+
         let resolvedAddress = address == nil ? nil : ServiceResolution.ipAddress(from: address!)
         let hasMoreResults = (flags & DNSServiceFlags(kDNSServiceFlagsMoreComing)) != 0
 
-        DispatchQueue.main.async {
-            // See `resolveCallback`: after teardown there is nothing to report
-            // to, and the reference has already been deallocated.
-            guard !discovery.isDisposed else {
-                return
-            }
+        let resolutionKey = BonsoirServiceDiscovery.resolutionKey(for: sdRef)
+        guard let service = discovery.pendingAddressResolution[resolutionKey] else {
+            discovery.stopResolution(sdRef: sdRef, remove: sdRef != nil)
+            return
+        }
 
-            let resolutionKey = BonsoirServiceDiscovery.resolutionKey(for: sdRef)
-            guard let service = discovery.pendingAddressResolution[resolutionKey] else {
-                discovery.stopResolution(sdRef: sdRef, remove: sdRef != nil)
-                return
+        if errorCode == kDNSServiceErr_NoError, let resolvedAddress {
+            if !service.hostAddresses.contains(resolvedAddress) {
+                service.hostAddresses.append(resolvedAddress)
             }
+        } else if service.hostAddresses.isEmpty && !hasMoreResults {
+            discovery.onSuccess(eventId: Generated.discoveryServiceResolveFailed, service: service, parameters: [errorCode])
+        }
 
-            if errorCode == kDNSServiceErr_NoError, let resolvedAddress {
-                if !service.hostAddresses.contains(resolvedAddress) {
-                    service.hostAddresses.append(resolvedAddress)
-                }
-            } else if service.hostAddresses.isEmpty && !hasMoreResults {
-                discovery.onSuccess(eventId: Generated.discoveryServiceResolveFailed, service: service, parameters: [errorCode])
+        if !hasMoreResults {
+            if !service.hostAddresses.isEmpty {
+                discovery.onSuccess(eventId: Generated.discoveryServiceResolved, service: service)
             }
-
-            if !hasMoreResults {
-                if !service.hostAddresses.isEmpty {
-                    discovery.onSuccess(eventId: Generated.discoveryServiceResolved, service: service)
-                }
-                discovery.pendingAddressResolution.removeValue(forKey: resolutionKey)
-                discovery.stopResolution(sdRef: sdRef, remove: sdRef != nil)
-            }
+            discovery.pendingAddressResolution.removeValue(forKey: resolutionKey)
+            discovery.stopResolution(sdRef: sdRef, remove: sdRef != nil)
         }
     }
 
-    /// Returns a stable key for a DNS service reference.
+    /// Identifies an address resolution.
+    ///
+    /// This is the reference's address, which the allocator reuses freely — a
+    /// probe here handed the same address back 20 times out of 20. It is only
+    /// sound because every insertion, lookup, removal and deallocation now
+    /// happens on the main queue, so an entry cannot outlive the reference it
+    /// was keyed by. Anything that reintroduces off-queue bookkeeping has to
+    /// replace this with real per-resolution identity in the DNSSD context.
     private static func resolutionKey(for sdRef: DNSServiceRef?) -> String {
         guard let sdRef else {
             return "nil"
