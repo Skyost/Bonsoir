@@ -34,9 +34,11 @@ class BonsoirAction: NSObject, FlutterStreamHandler {
 
     /// Whether this action has been torn down.
     ///
-    /// A DNSSD callback can already be in flight when the action is disposed, so
-    /// something has to tell the work it hands to the main queue that there is
-    /// no longer anything to report to, and nothing left to deallocate.
+    /// Belt and braces. Now that DNSSD delivers replies on the same queue the
+    /// references are deallocated on, `dispose()` freeing them is terminal and a
+    /// later callback should not be reachable — but the C API does not promise
+    /// that in a way anything can hold us to, and reporting from a disposed
+    /// action would push events onto a channel Dart has stopped listening to.
     private(set) var isDisposed = false
 
     /// Initializes this class.
