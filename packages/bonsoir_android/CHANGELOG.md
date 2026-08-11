@@ -1,3 +1,7 @@
+## 7.1.3
+
+ - **FIX**(android): Fixed a compilation warning. ([ced46642](https://github.com/Skyost/Bonsoir/commit/ced46642311731b8d3a9c767cf58c217d842f360))
+
 ## 7.1.2
 
  - **FIX**(android): make discovery services list thread-safe. ([bcf87d91](https://github.com/Skyost/Bonsoir/commit/bcf87d9184f16f953e421b5b00591f318efd580a))

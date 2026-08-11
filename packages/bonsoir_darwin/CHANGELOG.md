@@ -1,3 +1,9 @@
+## 7.1.1
+
+ - **FIX**(darwin): let DNSSD deliver on the queue the references are freed on. ([39b22795](https://github.com/Skyost/Bonsoir/commit/39b2279582d1f576faa75e0be0967608b18da524))
+ - **FIX**(darwin): decode an escaped backslash in a service name. ([94647cc0](https://github.com/Skyost/Bonsoir/commit/94647cc0d1f1a6ac1c481ef2260e348598b29307))
+ - **FIX**(darwin): stop resolve callbacks racing and reading freed memory. ([5669d717](https://github.com/Skyost/Bonsoir/commit/5669d717e549da47c39552b96f39e06aa627d8c1))
+
 ## 7.1.0
 
  - **FEAT**: Prioritizing host addresses over hostname during service broadcast. ([ff6b78d3](https://github.com/Skyost/Bonsoir/commit/ff6b78d352e2af022cc13635e35ba296e9f40ec7))

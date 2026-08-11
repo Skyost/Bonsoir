@@ -1,3 +1,7 @@
+## 7.1.5
+
+ - **FIX**(android): Fixed a compilation warning. ([ced46642](https://github.com/Skyost/Bonsoir/commit/ced46642311731b8d3a9c767cf58c217d842f360))
+
 ## 7.1.4
 
  - Update a dependency to the latest release.
