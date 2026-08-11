@@ -31,7 +31,16 @@ class BonsoirAction: NSObject, FlutterStreamHandler {
     
     /// The current event sink.
     private var eventSink: FlutterEventSink?
-    
+
+    /// Whether this action has been torn down.
+    ///
+    /// Belt and braces. Now that DNSSD delivers replies on the same queue the
+    /// references are deallocated on, `dispose()` freeing them is terminal and a
+    /// later callback should not be reachable — but the C API does not promise
+    /// that in a way anything can hold us to, and reporting from a disposed
+    /// action would push events onto a channel Dart has stopped listening to.
+    private(set) var isDisposed = false
+
     /// Initializes this class.
     public init(id: Int, action: String, logMessages: [String: String], printLogs: Bool, onDispose: @escaping () -> Void, messenger: FlutterBinaryMessenger) {
         self.id = id
@@ -76,6 +85,7 @@ class BonsoirAction: NSObject, FlutterStreamHandler {
 
     /// Disposes the current class instance.
     public func dispose() {
+        isDisposed = true
         onDispose()
     }
     
