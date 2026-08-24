@@ -102,7 +102,12 @@ class AvahiBonsoirDiscovery extends AvahiBonsoirAction<BonsoirDiscoveryEvent> wi
     for (StreamSubscription subscription in subscriptions) {
       registerSubscription(subscription);
     }
-    await _serviceBrowser!.callStart();
+    // Avahi >= 0.8 uses the Prepare/Start API.
+    // Legacy Avahi (0.7) starts the browser when ServiceBrowserNew()
+    // is called, so calling Start() again is invalid.
+    if (_avahiHandler is AvahiDiscoveryV2) {
+      await _serviceBrowser!.callStart();
+    }
     onEvent(
       const BonsoirDiscoveryStartedEvent(),
       parameters: [type],
@@ -171,8 +176,14 @@ class AvahiBonsoirDiscovery extends AvahiBonsoirAction<BonsoirDiscoveryEvent> wi
         BonsoirDiscoveryServiceFoundEvent(service: service),
         parameters: [service.description],
       );
-      AvahiRecordBrowser recordBrowser = await _avahiHandler!.createAvahiRecordBrowser(this, service);
-      recordBrowser.callStart();
+      AvahiRecordBrowser recordBrowser =
+    await _avahiHandler!.createAvahiRecordBrowser(this, service);
+
+    // Avahi 0.7: RecordBrowserNew() already starts the browser.
+    // Avahi >= 0.8: RecordBrowserPrepare() requires Start().
+    if (_avahiHandler is AvahiDiscoveryV2) {
+      await recordBrowser.callStart();
+    }
     }
   }
 
