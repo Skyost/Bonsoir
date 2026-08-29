@@ -41,6 +41,13 @@ public class SwiftBonsoirPlugin: NSObject, FlutterPlugin {
         let id = arguments["id"] as! Int
         switch call.method {
         case "broadcast.initialize":
+            // An id that is already in use is disposed rather than dropped: its
+            // reference is scheduled on a dispatch queue and holds an unretained
+            // pointer back to the action, so replacing the entry without tearing
+            // it down leaves the daemon delivering into freed memory. Ids come
+            // from a random draw on the Dart side, so a collision is unlikely
+            // rather than impossible.
+            broadcasts[id]?.dispose()
             let service = BonsoirService(name: arguments["service.name"] as! String, type: arguments["service.type"] as! String, port: arguments["service.port"] as! Int, hostAddresses: [], attributes: arguments["service.attributes"] as! [String: String])
             if let hostAddresses = arguments["service.hostAddresses"] as? [String] {
                 service.hostAddresses = hostAddresses
@@ -59,6 +66,8 @@ public class SwiftBonsoirPlugin: NSObject, FlutterPlugin {
             broadcasts[id]?.dispose()
             result(broadcasts[id] != nil)
         case "discovery.initialize":
+            // Same as above.
+            discoveries[id]?.dispose()
             discoveries[id] = BonsoirServiceDiscovery(id: id, printLogs: arguments["printLogs"] as! Bool, onDispose: {
                 self.discoveries.removeValue(forKey: id)
             }, messenger: messenger, type: arguments["type"] as! String)
