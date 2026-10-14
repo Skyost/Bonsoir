@@ -34,6 +34,8 @@ public class SwiftBonsoirPlugin: NSObject, FlutterPlugin {
         let channel = FlutterMethodChannel(name: package, binaryMessenger: messenger)
         let instance = SwiftBonsoirPlugin(messenger: messenger)
         registrar.addMethodCallDelegate(instance, channel: channel)
+        // iOS only calls `detachFromEngine(for:)` on a published plugin.
+        registrar.publish(instance)
     }
 
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
