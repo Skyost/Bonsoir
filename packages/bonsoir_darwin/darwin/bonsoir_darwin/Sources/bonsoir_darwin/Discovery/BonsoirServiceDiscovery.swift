@@ -187,11 +187,7 @@ class BonsoirServiceDiscovery: BonsoirAction {
     }
     
     override public func dispose() {
-        // `browser.cancel()` below delivers `.cancelled` to `stateHandler`, which
-        // disposes again — so this runs twice for every ordinary teardown. That
-        // was harmless while the second pass only removed an id that was already
-        // gone; it stops being harmless as soon as anything puts that id back,
-        // because the late removal would take the new action with it.
+        // `browser.cancel()` calls this again through `stateHandler`.
         guard !isDisposed else {
             return
         }

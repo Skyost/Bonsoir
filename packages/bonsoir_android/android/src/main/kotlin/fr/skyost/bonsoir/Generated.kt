@@ -8,7 +8,7 @@ class Generated {
         /**
          * Contains the broadcast messages.
          */
-        public final var broadcastMessages: Map<String, String> = mapOf("broadcastStarted" to "Bonsoir service broadcast started : %s.", "broadcastNameAlreadyExists" to "Trying to broadcast a service with a name that already exists : %s (old name was %s).", "broadcastStopped" to "Bonsoir service broadcast stopped : %s.", "broadcastInitialized" to "Bonsoir service broadcast initialized : %s.", "broadcastError" to "Bonsoir service failed to broadcast : %s (error : %s).")
+        public final var broadcastMessages: Map<String, String> = mapOf("broadcastStarted" to "Bonsoir service broadcast started : %s.", "broadcastNameAlreadyExists" to "Trying to broadcast a service with a name that already exists : %s (old name was %s).", "broadcastStopped" to "Bonsoir service broadcast stopped : %s.", "broadcastInitialized" to "Bonsoir service broadcast initialized : %s.", "broadcastError" to "Bonsoir service failed to broadcast : %s (error : %s).", "broadcastAttributeInvalid" to "Bonsoir has skipped a service attribute that does not fit in a TXT record : %s (attribute : %s).")
 
         /**
          * broadcastStarted
@@ -30,6 +30,10 @@ class Generated {
          * broadcastError
          */
          public final const val broadcastError = "broadcastError"
+        /**
+         * broadcastAttributeInvalid
+         */
+         public final const val broadcastAttributeInvalid = "broadcastAttributeInvalid"
 
 
         /**
