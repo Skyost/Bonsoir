@@ -21,6 +21,8 @@ namespace bonsoir_windows {
       static const std::string broadcastInitialized;
       // broadcastError
       static const std::string broadcastError;
+      // broadcastAttributeInvalid
+      static const std::string broadcastAttributeInvalid;
 
 
       // Contains the discovery messages.

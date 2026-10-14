@@ -11,6 +11,7 @@ class BonsoirPlatformInterfaceLogMessages {
     BonsoirBroadcastStoppedEvent.broadcastStopped: 'Bonsoir service broadcast stopped : %s.',
     'broadcastInitialized': 'Bonsoir service broadcast initialized : %s.',
     'broadcastError': 'Bonsoir service failed to broadcast : %s (error : %s).',
+    'broadcastAttributeInvalid': 'Bonsoir has skipped a service attribute that does not fit in a TXT record : %s (attribute : %s).',
   };
 
   /// Contains all discovery messages.

@@ -34,6 +34,8 @@ public class SwiftBonsoirPlugin: NSObject, FlutterPlugin {
         let channel = FlutterMethodChannel(name: package, binaryMessenger: messenger)
         let instance = SwiftBonsoirPlugin(messenger: messenger)
         registrar.addMethodCallDelegate(instance, channel: channel)
+        // iOS only calls `detachFromEngine(for:)` on a published plugin.
+        registrar.publish(instance)
     }
 
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
@@ -41,6 +43,8 @@ public class SwiftBonsoirPlugin: NSObject, FlutterPlugin {
         let id = arguments["id"] as! Int
         switch call.method {
         case "broadcast.initialize":
+            // A replaced action must be disposed, its reference still points to it.
+            broadcasts[id]?.dispose()
             let service = BonsoirService(name: arguments["service.name"] as! String, type: arguments["service.type"] as! String, port: arguments["service.port"] as! Int, hostAddresses: [], attributes: arguments["service.attributes"] as! [String: String])
             if let hostAddresses = arguments["service.hostAddresses"] as? [String] {
                 service.hostAddresses = hostAddresses
@@ -59,6 +63,8 @@ public class SwiftBonsoirPlugin: NSObject, FlutterPlugin {
             broadcasts[id]?.dispose()
             result(broadcasts[id] != nil)
         case "discovery.initialize":
+            // Same as above.
+            discoveries[id]?.dispose()
             discoveries[id] = BonsoirServiceDiscovery(id: id, printLogs: arguments["printLogs"] as! Bool, onDispose: {
                 self.discoveries.removeValue(forKey: id)
             }, messenger: messenger, type: arguments["type"] as! String)
@@ -79,7 +85,7 @@ public class SwiftBonsoirPlugin: NSObject, FlutterPlugin {
         }
     }
 
-    public func detachFromEngineForRegistrar(registrar: FlutterPluginRegistrar) {
+    public func detachFromEngine(for registrar: FlutterPluginRegistrar) {
         for broadcast in broadcasts.values {
             broadcast.dispose()
         }
