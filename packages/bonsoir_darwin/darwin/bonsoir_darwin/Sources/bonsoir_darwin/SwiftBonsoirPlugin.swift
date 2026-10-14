@@ -83,7 +83,7 @@ public class SwiftBonsoirPlugin: NSObject, FlutterPlugin {
         }
     }
 
-    public func detachFromEngineForRegistrar(registrar: FlutterPluginRegistrar) {
+    public func detachFromEngine(for registrar: FlutterPluginRegistrar) {
         for broadcast in broadcasts.values {
             broadcast.dispose()
         }
