@@ -90,9 +90,8 @@ class BonsoirServiceBroadcast: BonsoirAction {
             broadcast.dispose()
             return
         }
-        // Without the add flag, the daemon has deregistered the service (see dns_sd.h).
+        // Without the add flag, the daemon is renaming the service after a conflict. The new name comes with the next reply.
         guard (flags & DNSServiceFlags(kDNSServiceFlagsAdd)) != 0 else {
-            broadcast.dispose()
             return
         }
         if let name {
