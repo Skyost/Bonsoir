@@ -1,3 +1,12 @@
+## 7.1.2
+
+ - **REFACTOR**(darwin): shorten comments, log through the generated messages. ([e6e4b443](https://github.com/Skyost/Bonsoir/commit/e6e4b443c69e9feb35a23cf32ca3e7a05141e359))
+ - **FIX**(darwin): Stopped the broadcast from blocking the main thread. ([b22229b2](https://github.com/Skyost/Bonsoir/commit/b22229b25936f45168f4495b9e6e349c46839c71))
+ - **FIX**(darwin): publish the plugin so iOS calls detachFromEngine. ([436c8e93](https://github.com/Skyost/Bonsoir/commit/436c8e93ef8f441977caf48826f068af411fbbba))
+ - **FIX**(darwin): let Flutter find detachFromEngine. ([269a3a74](https://github.com/Skyost/Bonsoir/commit/269a3a74bd39b1e54b1c4ac25fcead6ce9e4b619))
+ - **FIX**(darwin): a reply without the add flag is a rename, not a stop. ([6169d11d](https://github.com/Skyost/Bonsoir/commit/6169d11ddb94ea1cb94ddd91ed0bfe6fbd142d84))
+ - **FIX**(darwin): stop the broadcast from blocking the main thread. ([1c769794](https://github.com/Skyost/Bonsoir/commit/1c76979495cfd9b231ffb84c7da17185fcd4172f))
+
 ## 7.1.1
 
  - **FIX**(darwin): let DNSSD deliver on the queue the references are freed on. ([39b22795](https://github.com/Skyost/Bonsoir/commit/39b2279582d1f576faa75e0be0967608b18da524))

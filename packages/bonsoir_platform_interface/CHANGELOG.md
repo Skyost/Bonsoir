@@ -1,3 +1,8 @@
+## 7.0.1
+
+ - **REFACTOR**(darwin): shorten comments, log through the generated messages. ([e6e4b443](https://github.com/Skyost/Bonsoir/commit/e6e4b443c69e9feb35a23cf32ca3e7a05141e359))
+ - **FIX**(darwin): Stopped the broadcast from blocking the main thread. ([b22229b2](https://github.com/Skyost/Bonsoir/commit/b22229b25936f45168f4495b9e6e349c46839c71))
+
 ## 7.0.0
 
 > Note: This release has breaking changes.
