@@ -2,7 +2,7 @@
 
 class Generated {
   /// Contains the broadcast messages.
-  static let broadcastMessages: [String: String] = ["broadcastStarted": "Bonsoir service broadcast started : %s.", "broadcastNameAlreadyExists": "Trying to broadcast a service with a name that already exists : %s (old name was %s).", "broadcastStopped": "Bonsoir service broadcast stopped : %s.", "broadcastInitialized": "Bonsoir service broadcast initialized : %s.", "broadcastError": "Bonsoir service failed to broadcast : %s (error : %s)."]
+  static let broadcastMessages: [String: String] = ["broadcastStarted": "Bonsoir service broadcast started : %s.", "broadcastNameAlreadyExists": "Trying to broadcast a service with a name that already exists : %s (old name was %s).", "broadcastStopped": "Bonsoir service broadcast stopped : %s.", "broadcastInitialized": "Bonsoir service broadcast initialized : %s.", "broadcastError": "Bonsoir service failed to broadcast : %s (error : %s).", "broadcastAttributeInvalid": "Bonsoir has skipped a service attribute that does not fit in a TXT record : %s (attribute : %s)."]
 
   /// broadcastStarted
   static let broadcastStarted: String = "broadcastStarted"
@@ -14,6 +14,8 @@ class Generated {
   static let broadcastInitialized: String = "broadcastInitialized"
   /// broadcastError
   static let broadcastError: String = "broadcastError"
+  /// broadcastAttributeInvalid
+  static let broadcastAttributeInvalid: String = "broadcastAttributeInvalid"
 
 
   /// Contains the discovery messages.

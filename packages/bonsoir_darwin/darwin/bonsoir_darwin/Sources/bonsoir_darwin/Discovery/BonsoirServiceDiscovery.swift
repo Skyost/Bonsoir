@@ -187,6 +187,10 @@ class BonsoirServiceDiscovery: BonsoirAction {
     }
     
     override public func dispose() {
+        // `browser.cancel()` calls this again through `stateHandler`.
+        guard !isDisposed else {
+            return
+        }
         for sdRef in pendingResolution {
             stopResolution(sdRef: sdRef, remove: false)
         }
