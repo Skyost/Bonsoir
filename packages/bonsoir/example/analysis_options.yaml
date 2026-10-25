@@ -8,6 +8,12 @@ analyzer:
     unused_element_parameter: ignore
   exclude:
     - '**.g.dart'
+    - build/**
+    - android/**
+    - ios/**
+    - windows/**
+    - macos/**
+    - linux/**
 
 linter:
   rules:
