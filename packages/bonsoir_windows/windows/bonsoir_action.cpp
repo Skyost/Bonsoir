@@ -83,9 +83,17 @@ namespace bonsoir_windows {
       messageWindow = nullptr;
     }
     if (eventChannel) {
-      eventChannel->SetStreamHandler(nullptr);
+      // Unregistering reaches FlutterDesktopMessengerSetCallback, which dereferences the engine.
+      if (!engineGone) {
+        eventChannel->SetStreamHandler(nullptr);
+      }
       eventChannel = nullptr;
     }
+  }
+
+  void BonsoirAction::detachFromEngine() {
+    engineGone = true;
+    eventSink = nullptr;
   }
 
   void BonsoirAction::disposeAfterStreamCancel(std::function<void(int)> callback) {
