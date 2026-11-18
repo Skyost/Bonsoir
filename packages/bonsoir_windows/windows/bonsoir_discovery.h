@@ -2,13 +2,26 @@
 
 #include "bonsoir_action.h"
 
+#include <set>
+
 namespace bonsoir_windows {
+  class BonsoirDiscovery;
+
+  // One DnsServiceResolve call. Freed by whoever takes it out of pendingResolves.
+  struct ResolveRequest {
+    BonsoirDiscovery *discovery;
+    DNS_SERVICE_CANCEL cancelHandle{};
+    bool registered = false;  // DnsServiceResolve has returned DNS_REQUEST_PENDING.
+    bool completed = false;   // The callback has run.
+  };
+
   class BonsoirDiscovery : public BonsoirAction {
    public:
     std::string type;
     std::list<std::shared_ptr<BonsoirService>> services;
-    std::map<std::shared_ptr<BonsoirService>, PDNS_SERVICE_CANCEL> resolvingServices = std::map<std::shared_ptr<BonsoirService>, PDNS_SERVICE_CANCEL>{};
-    std::mutex resolvingServicesCleanupMutex;
+    std::set<ResolveRequest *> pendingResolves;
+    // Never held across a DNS API call: cancelling waits for running callbacks, which take this mutex.
+    std::mutex pendingResolvesMutex;
 
     BonsoirDiscovery(
       int _id,

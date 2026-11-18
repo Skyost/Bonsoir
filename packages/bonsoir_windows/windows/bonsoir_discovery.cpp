@@ -48,13 +48,23 @@ namespace bonsoir_windows {
     }
     BonsoirAction::stop();
     onSuccess(Generated::discoveryStopped, nullptr, std::list<std::string>{type});
+    std::vector<ResolveRequest *> requests;
     {
-      const std::lock_guard<std::mutex> lock(resolvingServicesCleanupMutex);
-      for (auto const &[key, value] : resolvingServices) {
-        DnsServiceResolveCancel(value);
-        delete value; // Allocated in resolveService()
+      const std::lock_guard<std::mutex> lock(pendingResolvesMutex);
+      for (auto iterator = pendingResolves.begin(); iterator != pendingResolves.end();) {
+        // One still inside DnsServiceResolve is left to resolveService(), which sees the discovery stopped.
+        if ((*iterator)->registered) {
+          requests.push_back(*iterator);
+          iterator = pendingResolves.erase(iterator);
+        } else {
+          ++iterator;
+        }
       }
-      resolvingServices.clear();
+    }
+    // Outside the lock: DnsServiceResolveCancel waits for a running callback, which takes the lock.
+    for (ResolveRequest *request : requests) {
+      DnsServiceResolveCancel(&request->cancelHandle);
+      delete request;
     }
     services.clear();
     DnsServiceBrowseCancel(&cancelHandle);
@@ -78,16 +88,36 @@ namespace bonsoir_windows {
 
     auto queryName = toUtf16(servicePtr->name + "." + servicePtr->type + ".local");
     DNS_SERVICE_RESOLVE_REQUEST resolveRequest{};
-    DNS_SERVICE_CANCEL* resolveCancelHandle = new DNS_SERVICE_CANCEL; // Dynamically allocate so it can be used during dispose()
+    ResolveRequest *request = new ResolveRequest{this};
     resolveRequest.Version = DNS_QUERY_REQUEST_VERSION1;
     resolveRequest.InterfaceIndex = 0;
     resolveRequest.QueryName = const_cast<PWSTR>(queryName.c_str());
     resolveRequest.pResolveCompletionCallback = resolveCallback;
-    resolveRequest.pQueryContext = this;
-    DNS_STATUS status = DnsServiceResolve(&resolveRequest, resolveCancelHandle);
-    if (status == DNS_REQUEST_PENDING) {
-      resolvingServices[servicePtr] = resolveCancelHandle;
-    } else {
+    resolveRequest.pQueryContext = request;
+    {
+      const std::lock_guard<std::mutex> lock(pendingResolvesMutex);
+      pendingResolves.insert(request);
+    }
+    DNS_STATUS status = DnsServiceResolve(&resolveRequest, &request->cancelHandle);
+    bool done = false;
+    bool cancel = false;
+    {
+      const std::lock_guard<std::mutex> lock(pendingResolvesMutex);
+      request->registered = status == DNS_REQUEST_PENDING;
+      if (!request->registered || request->completed || !isRunning()) {
+        // Failed at once, already answered, or stopped meanwhile: ours to free.
+        pendingResolves.erase(request);
+        done = true;
+        cancel = request->registered && !request->completed;
+      }
+    }
+    if (cancel) {
+      DnsServiceResolveCancel(&request->cancelHandle);
+    }
+    if (done) {
+      delete request;
+    }
+    if (status != DNS_REQUEST_PENDING) {
       onSuccess(Generated::discoveryServiceResolveFailed, servicePtr, std::list<std::string>{std::to_string(status)});
     }
   }
@@ -193,20 +223,39 @@ namespace bonsoir_windows {
   }
 
   void resolveCallback(DWORD status, PVOID context, PDNS_SERVICE_INSTANCE serviceInstance) {
-    auto discovery = (BonsoirDiscovery *)context;
+    auto request = (ResolveRequest *)context;
+    BonsoirDiscovery *discovery = nullptr;
+    bool owned = false;
+    {
+      // The request is alive here: stop() frees it only once DnsServiceResolveCancel has waited for this callback,
+      // and resolveService() only once this callback has marked it completed.
+      const std::lock_guard<std::mutex> lock(request->discovery->pendingResolvesMutex);
+      discovery = request->discovery;
+      if (discovery->pendingResolves.count(request) == 0) {
+        discovery = nullptr;
+      } else {
+        request->completed = true;
+        if (request->registered) {
+          discovery->pendingResolves.erase(request);
+          owned = true;
+        }
+      }
+    }
+    if (owned) {
+      delete request;
+    }
+    if (discovery == nullptr) {
+      if (serviceInstance) {
+        DnsServiceFreeInstance(serviceInstance);
+      }
+      return;
+    }
     std::shared_ptr<BonsoirService> servicePtr = nullptr;
     std::tuple<std::string, std::string> serviceData = {"NULL", "NULL"};
     if (serviceInstance && serviceInstance->pszInstanceName) {
       std::string nameHost = toUtf8(serviceInstance->pszInstanceName);
       serviceData = parseBonjourFqdn(nameHost);
       servicePtr = discovery->findService(std::get<0>(serviceData), std::get<1>(serviceData));
-    }
-
-    if(servicePtr) {
-      const std::lock_guard<std::mutex> lock(discovery->resolvingServicesCleanupMutex);
-      DNS_SERVICE_CANCEL* resolveCancelHandle = discovery->resolvingServices[servicePtr];
-      delete resolveCancelHandle; // Allocated in resolveService()
-	    discovery->resolvingServices.erase(servicePtr);
     }
 
     if (status != ERROR_SUCCESS) {
