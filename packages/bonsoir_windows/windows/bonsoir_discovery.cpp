@@ -11,6 +11,22 @@
 using namespace flutter;
 
 namespace bonsoir_windows {
+  namespace {
+    // One DnsServiceResolve call. Freed by whoever takes it out of gPendingResolves.
+    struct ResolveRequest {
+      BonsoirDiscovery *discovery;
+      DNS_SERVICE_CANCEL cancelHandle{};
+      bool registered = false;  // DnsServiceResolve has returned DNS_REQUEST_PENDING.
+      bool completed = false;   // The callback has run.
+    };
+
+    // Keyed by the id given to the callback as its context: one that comes late or twice finds nothing, not a freed request.
+    std::map<uintptr_t, std::unique_ptr<ResolveRequest>> gPendingResolves;
+    // Never held across a DNS API call: cancelling waits for running callbacks, which take this mutex.
+    std::mutex gPendingResolvesMutex;
+    uintptr_t gLastResolveId = 0;
+  }
+
   BonsoirDiscovery::BonsoirDiscovery(
     int _id,
     bool _printLogs,
@@ -48,23 +64,22 @@ namespace bonsoir_windows {
     }
     BonsoirAction::stop();
     onSuccess(Generated::discoveryStopped, nullptr, std::list<std::string>{type});
-    std::vector<ResolveRequest *> requests;
+    std::vector<std::unique_ptr<ResolveRequest>> requests;
     {
-      const std::lock_guard<std::mutex> lock(pendingResolvesMutex);
-      for (auto iterator = pendingResolves.begin(); iterator != pendingResolves.end();) {
+      const std::lock_guard<std::mutex> lock(gPendingResolvesMutex);
+      for (auto iterator = gPendingResolves.begin(); iterator != gPendingResolves.end();) {
         // One still inside DnsServiceResolve is left to resolveService(), which sees the discovery stopped.
-        if ((*iterator)->registered) {
-          requests.push_back(*iterator);
-          iterator = pendingResolves.erase(iterator);
+        if (iterator->second->discovery == this && iterator->second->registered) {
+          requests.push_back(std::move(iterator->second));
+          iterator = gPendingResolves.erase(iterator);
         } else {
           ++iterator;
         }
       }
     }
     // Outside the lock: DnsServiceResolveCancel waits for a running callback, which takes the lock.
-    for (ResolveRequest *request : requests) {
+    for (auto &request : requests) {
       DnsServiceResolveCancel(&request->cancelHandle);
-      delete request;
     }
     {
       const std::lock_guard<std::mutex> lock(servicesMutex);
@@ -104,33 +119,34 @@ namespace bonsoir_windows {
     auto queryName = toUtf16(servicePtr->name + "." + servicePtr->type + ".local");
     DNS_SERVICE_RESOLVE_REQUEST resolveRequest{};
     ResolveRequest *request = new ResolveRequest{this};
+    uintptr_t requestId;
+    {
+      const std::lock_guard<std::mutex> lock(gPendingResolvesMutex);
+      requestId = ++gLastResolveId;
+      gPendingResolves[requestId].reset(request);
+    }
     resolveRequest.Version = DNS_QUERY_REQUEST_VERSION1;
     resolveRequest.InterfaceIndex = 0;
     resolveRequest.QueryName = const_cast<PWSTR>(queryName.c_str());
     resolveRequest.pResolveCompletionCallback = resolveCallback;
-    resolveRequest.pQueryContext = request;
-    {
-      const std::lock_guard<std::mutex> lock(pendingResolvesMutex);
-      pendingResolves.insert(request);
-    }
+    resolveRequest.pQueryContext = reinterpret_cast<PVOID>(requestId);
+    // The request stays where it is until DnsServiceResolve has returned: nobody else takes an unregistered one.
     DNS_STATUS status = DnsServiceResolve(&resolveRequest, &request->cancelHandle);
-    bool done = false;
+    std::unique_ptr<ResolveRequest> finished;
     bool cancel = false;
     {
-      const std::lock_guard<std::mutex> lock(pendingResolvesMutex);
+      const std::lock_guard<std::mutex> lock(gPendingResolvesMutex);
       request->registered = status == DNS_REQUEST_PENDING;
       if (!request->registered || request->completed || !isRunning()) {
         // Failed at once, already answered, or stopped meanwhile: ours to free.
-        pendingResolves.erase(request);
-        done = true;
         cancel = request->registered && !request->completed;
+        auto iterator = gPendingResolves.find(requestId);
+        finished = std::move(iterator->second);
+        gPendingResolves.erase(iterator);
       }
     }
     if (cancel) {
-      DnsServiceResolveCancel(&request->cancelHandle);
-    }
-    if (done) {
-      delete request;
+      DnsServiceResolveCancel(&finished->cancelHandle);
     }
     if (status != DNS_REQUEST_PENDING) {
       onSuccess(Generated::discoveryServiceResolveFailed, servicePtr, std::list<std::string>{std::to_string(status)});
@@ -246,26 +262,18 @@ namespace bonsoir_windows {
   }
 
   void resolveCallback(DWORD status, PVOID context, PDNS_SERVICE_INSTANCE serviceInstance) {
-    auto request = (ResolveRequest *)context;
     BonsoirDiscovery *discovery = nullptr;
-    bool owned = false;
     {
-      // The request is alive here: stop() frees it only once DnsServiceResolveCancel has waited for this callback,
-      // and resolveService() only once this callback has marked it completed.
-      const std::lock_guard<std::mutex> lock(request->discovery->pendingResolvesMutex);
-      discovery = request->discovery;
-      if (discovery->pendingResolves.count(request) == 0) {
-        discovery = nullptr;
-      } else {
-        request->completed = true;
-        if (request->registered) {
-          discovery->pendingResolves.erase(request);
-          owned = true;
+      const std::lock_guard<std::mutex> lock(gPendingResolvesMutex);
+      auto iterator = gPendingResolves.find(reinterpret_cast<uintptr_t>(context));
+      if (iterator != gPendingResolves.end() && !iterator->second->completed) {
+        discovery = iterator->second->discovery;
+        iterator->second->completed = true;
+        // One still inside DnsServiceResolve is left to resolveService(), which sees it completed.
+        if (iterator->second->registered) {
+          gPendingResolves.erase(iterator);
         }
       }
-    }
-    if (owned) {
-      delete request;
     }
     if (discovery == nullptr) {
       if (serviceInstance) {
