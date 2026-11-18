@@ -66,17 +66,32 @@ namespace bonsoir_windows {
       DnsServiceResolveCancel(&request->cancelHandle);
       delete request;
     }
-    services.clear();
+    {
+      const std::lock_guard<std::mutex> lock(servicesMutex);
+      services.clear();
+    }
     DnsServiceBrowseCancel(&cancelHandle);
   }
 
   std::shared_ptr<BonsoirService> BonsoirDiscovery::findService(std::string serviceName, std::string serviceType) {
+    const std::lock_guard<std::mutex> lock(servicesMutex);
     for (auto &found_service : this->services) {
       if (found_service->name == serviceName && found_service->type == serviceType) {
         return found_service;
       }
     }
     return nullptr;
+  }
+
+  bool BonsoirDiscovery::replaceService(std::shared_ptr<BonsoirService> oldService, std::shared_ptr<BonsoirService> newService) {
+    const std::lock_guard<std::mutex> lock(servicesMutex);
+    for (auto &service : services) {
+      if (service == oldService) {
+        service = newService;
+        return true;
+      }
+    }
+    return false;
   }
 
   void BonsoirDiscovery::resolveService(std::string serviceName, std::string serviceType) {
@@ -150,6 +165,7 @@ namespace bonsoir_windows {
     if (dnsRecord->dwTtl <= 0) {
       if (servicePtr) {
         discovery->onSuccess(Generated::discoveryServiceLost, servicePtr);
+        const std::lock_guard<std::mutex> lock(discovery->servicesMutex);
         discovery->services.remove(servicePtr);
       }
       return;
@@ -182,7 +198,6 @@ namespace bonsoir_windows {
       }
       txtRecord = txtRecord->pNext;
     }
-    discovery->services.push_back(newServicePtr);
     if (servicePtr) {
       if (newServicePtr->hostAddresses.empty() && !servicePtr->hostAddresses.empty()) {
         newServicePtr->hostAddresses = servicePtr->hostAddresses;
@@ -193,7 +208,15 @@ namespace bonsoir_windows {
       if (newServicePtr->port == 0 && servicePtr->port != 0) {
         newServicePtr->port = servicePtr->port;
       }
-      discovery->services.remove(servicePtr);
+    }
+    {
+      const std::lock_guard<std::mutex> lock(discovery->servicesMutex);
+      discovery->services.push_back(newServicePtr);
+      if (servicePtr) {
+        discovery->services.remove(servicePtr);
+      }
+    }
+    if (servicePtr) {
       discovery->onSuccess(Generated::discoveryServiceUpdated, newServicePtr);
     } else {
       discovery->onSuccess(Generated::discoveryServiceFound, newServicePtr);
@@ -277,12 +300,14 @@ namespace bonsoir_windows {
       return;
     }
     if (serviceInstance) {
-      servicePtr->hostAddresses = serviceInstanceIpAddresses(serviceInstance);
+      // A copy: the listed service may be in a queued event being serialized on the platform thread (#159).
+      auto resolvedPtr = std::make_shared<BonsoirService>(*servicePtr);
+      resolvedPtr->hostAddresses = serviceInstanceIpAddresses(serviceInstance);
       if (serviceInstance->pszHostName != nullptr) {
-        servicePtr->hostname = toUtf8(serviceInstance->pszHostName);
+        resolvedPtr->hostname = toUtf8(serviceInstance->pszHostName);
       }
-      servicePtr->port = serviceInstance->wPort;
-      servicePtr->attributes.clear();
+      resolvedPtr->port = serviceInstance->wPort;
+      resolvedPtr->attributes.clear();
       if (serviceInstance->dwPropertyCount > 0 && serviceInstance->keys != nullptr) {
         for (DWORD i = 0; i < serviceInstance->dwPropertyCount; i++) {
           if (serviceInstance->keys[i] != nullptr) {
@@ -291,11 +316,13 @@ namespace bonsoir_windows {
             if (serviceInstance->values != nullptr && serviceInstance->values[i] != nullptr) {
               value = toUtf8(serviceInstance->values[i]);
             }
-            servicePtr->attributes[key] = value;
+            resolvedPtr->attributes[key] = value;
           }
         }
       }
       DnsServiceFreeInstance(serviceInstance);
+      discovery->replaceService(servicePtr, resolvedPtr);
+      servicePtr = resolvedPtr;
     }
     discovery->onSuccess(Generated::discoveryServiceResolved, servicePtr);
   }

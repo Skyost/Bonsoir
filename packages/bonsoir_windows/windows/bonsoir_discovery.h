@@ -18,7 +18,9 @@ namespace bonsoir_windows {
   class BonsoirDiscovery : public BonsoirAction {
    public:
     std::string type;
+    // Services are never modified once listed: queued events serialize them on the platform thread.
     std::list<std::shared_ptr<BonsoirService>> services;
+    std::mutex servicesMutex;
     std::set<ResolveRequest *> pendingResolves;
     // Never held across a DNS API call: cancelling waits for running callbacks, which take this mutex.
     std::mutex pendingResolvesMutex;
@@ -37,6 +39,9 @@ namespace bonsoir_windows {
     void stop() override;
 
     std::shared_ptr<BonsoirService> findService(std::string serviceName, std::string serviceType);
+
+    // Puts newService where oldService was; false if oldService is no longer listed.
+    bool replaceService(std::shared_ptr<BonsoirService> oldService, std::shared_ptr<BonsoirService> newService);
 
     void resolveService(std::string serviceName, std::string serviceType);
 
