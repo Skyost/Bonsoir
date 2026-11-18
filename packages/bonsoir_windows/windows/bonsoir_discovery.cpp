@@ -22,7 +22,7 @@ namespace bonsoir_windows {
 
     // Keyed by the id given to the callback as its context: one that comes late or twice finds nothing, not a freed request.
     std::map<uintptr_t, std::unique_ptr<ResolveRequest>> gPendingResolves;
-    // Never held across a DNS API call: cancelling waits for running callbacks, which take this mutex.
+    // Never held across a cancel: cancelling waits for running callbacks, which take this mutex.
     std::mutex gPendingResolvesMutex;
     uintptr_t gLastResolveId = 0;
   }
@@ -262,17 +262,16 @@ namespace bonsoir_windows {
   }
 
   void resolveCallback(DWORD status, PVOID context, PDNS_SERVICE_INSTANCE serviceInstance) {
+    // Held to the end: stop() takes it before the discovery can be destroyed, so the one found here outlives this call.
+    const std::lock_guard<std::mutex> lock(gPendingResolvesMutex);
     BonsoirDiscovery *discovery = nullptr;
-    {
-      const std::lock_guard<std::mutex> lock(gPendingResolvesMutex);
-      auto iterator = gPendingResolves.find(reinterpret_cast<uintptr_t>(context));
-      if (iterator != gPendingResolves.end() && !iterator->second->completed) {
-        discovery = iterator->second->discovery;
-        iterator->second->completed = true;
-        // One still inside DnsServiceResolve is left to resolveService(), which sees it completed.
-        if (iterator->second->registered) {
-          gPendingResolves.erase(iterator);
-        }
+    auto iterator = gPendingResolves.find(reinterpret_cast<uintptr_t>(context));
+    if (iterator != gPendingResolves.end() && !iterator->second->completed) {
+      discovery = iterator->second->discovery;
+      iterator->second->completed = true;
+      // One still inside DnsServiceResolve is left to resolveService(), which sees it completed.
+      if (iterator->second->registered) {
+        gPendingResolves.erase(iterator);
       }
     }
     if (discovery == nullptr) {
