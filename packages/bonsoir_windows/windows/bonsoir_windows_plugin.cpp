@@ -25,6 +25,13 @@ namespace bonsoir_windows {
     : messenger(messenger) {}
 
   BonsoirWindowsPlugin::~BonsoirWindowsPlugin() {
+    // The engine is shutting down: no channel may be touched from here on.
+    for (auto &[id, broadcast] : broadcasts) {
+      broadcast->detachFromEngine();
+    }
+    for (auto &[id, discovery] : discoveries) {
+      discovery->detachFromEngine();
+    }
     broadcasts.clear();
     discoveries.clear();
   }

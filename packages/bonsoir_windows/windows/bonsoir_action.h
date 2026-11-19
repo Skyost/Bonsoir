@@ -76,6 +76,9 @@ namespace bonsoir_windows {
 
     virtual void dispose();
 
+    // Called by the plugin's destructor, which runs after the engine has left the messenger.
+    void detachFromEngine();
+
     void disposeAfterStreamCancel(std::function<void(int)> callback);
 
     void onSuccess(std::string eventId, std::list<std::string> parameters = std::list<std::string>(), std::optional<std::string> message = std::nullopt) {
@@ -125,6 +128,7 @@ namespace bonsoir_windows {
     bool printLogs;
     HWND messageWindow = nullptr;
     bool shouldDisposeAfterStreamCancel = false;
+    bool engineGone = false;
     std::function<void(int)> disposeAfterStreamCancelCallback = nullptr;
 
     std::mutex mutex;
